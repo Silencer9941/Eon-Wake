@@ -114,8 +114,17 @@ html,body{background:#000;overflow:hidden;height:100%;width:100%;}
 .abtn.save-glow{border-color:#4a5a3a;color:#6a8a5a;}
 
 /* INVENTORY */
+#tomb-modal{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.85);z-index:30;align-items:center;justify-content:center;}
+#tomb-modal.open{display:flex;}
 #inv-overlay{display:none;position:absolute;inset:0;background:#04040a;z-index:20;flex-direction:column;padding:10px;}
 #inv-overlay.open{display:flex;}
+#tomb-card{background:#08080f;border:1px solid #4a3a2a;padding:18px 20px;max-width:280px;width:90%;font-family:'Courier New',monospace;color:#c8b87a;}
+.tomb-name{font-size:14px;color:#e8d898;letter-spacing:2px;margin-bottom:6px;}
+.tomb-class{font-size:10px;color:#6a5a3a;margin-bottom:10px;}
+.tomb-stat{font-size:10px;color:#9080a0;margin:2px 0;}
+.tomb-quip{font-size:11px;color:#c8b87a;margin:10px 0 6px;font-style:italic;line-height:1.5;}
+.tomb-cause{font-size:10px;color:#a03020;margin-bottom:12px;}
+.tomb-close{background:#0c0b16;border:1px solid #4a3a2a;color:#c8b87a;padding:6px 0;width:100%;font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;}
 #inv-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
 #inv-h h2{font-size:13px;color:#c8b87a;letter-spacing:2px;}
 .inv-close{background:none;border:1px solid #2a2038;color:#6a5a3a;padding:4px 10px;font-family:'Courier New',monospace;font-size:10px;cursor:pointer;}
@@ -296,6 +305,11 @@ addPath(toPath(starPts));
       <div class="mut-label">&#9733; STARTING MUTATION <span style="color:#3a2030;">(OPTIONAL)</span></div>
       <div class="mut-none" id="mut-none-note">One mutation at character creation. More can be gained from Mutagen.</div>
       <div class="mut-grid" id="mut-grid"></div>
+      <div style="margin-top:10px;width:100%;max-width:280px;">
+        <div style="font-size:10px;color:#6a5a3a;letter-spacing:1px;margin-bottom:4px;">&#10013; YOUR NAME (OPTIONAL)</div>
+        <input id="char-name-input" type="text" maxlength="16" placeholder="Leave blank to use class name"
+          style="width:100%;background:#08080f;border:1px solid #2a2020;color:#c8b87a;font-family:'Courier New',monospace;font-size:11px;padding:5px 8px;letter-spacing:1px;box-sizing:border-box;outline:none;" />
+      </div>
       <button class="mm-btn" onclick="startGame()" style="margin-top:8px;background:#0e1208;border-color:#4a6a2a;color:#90c060;letter-spacing:3px;">BEGIN &#9660;</button>
       <button class="mm-btn mm-secondary" onclick="menuBack('mp-mutation','mp-new')" style="margin-top:8px;">&#8592; BACK</button>
     </div>
@@ -351,7 +365,8 @@ addPath(toPath(starPts));
     </div>
     <div class="abtns">
       <button class="abtn" onpointerdown="openInv()">[ I ] Items</button>
-      <button class="abtn" onpointerdown="doInteract()">[ E ] Interact</button>
+      <button class="abtn" onpointerdown="doGet()">[ G ] Get</button>
+      <button class="abtn" id="close-btn" style="display:none" onpointerdown="doClose()">[ C ] Close</button>
       <button class="abtn" onpointerdown="doStairs()">[ > ] Stairs</button>
       <button class="abtn" id="fire-btn" onpointerdown="doFire()" style="display:none">[ F ] Fire</button>
       <button class="abtn" id="reload-btn" onpointerdown="doReload()" style="display:none">[ R ] Reload</button>
@@ -360,6 +375,22 @@ addPath(toPath(starPts));
       <button class="abtn save-glow" onpointerdown="openSavePanel('save')">[ S ] Save</button>
       <button class="abtn" style="border-color:#3a2e18;color:#a09060;" onpointerdown="openStats()">[ C ] Char</button>
       <button class="abtn" style="border-color:#3a1010;color:#804040;" onpointerdown="doQuit()">[ Q ] Quit</button>
+    </div>
+  </div>
+  <div id="tomb-modal">
+    <div id="tomb-card">
+      <div class="tomb-name" id="tomb-name"></div>
+      <div class="tomb-class" id="tomb-class"></div>
+      <hr style="border-color:#2a1a0a;margin:8px 0;">
+      <div class="tomb-stat" id="tomb-floor"></div>
+      <div class="tomb-stat" id="tomb-level"></div>
+      <div class="tomb-stat" id="tomb-ruin"></div>
+      <div class="tomb-stat" id="tomb-turns"></div>
+      <div class="tomb-stat" id="tomb-kills"></div>
+      <hr style="border-color:#2a1a0a;margin:8px 0;">
+      <div class="tomb-quip" id="tomb-quip"></div>
+      <div class="tomb-cause" id="tomb-cause"></div>
+      <button class="tomb-close" id="tomb-close-btn" onclick="closeTombModal()">[ CLOSE ]</button>
     </div>
   </div>
   <div id="inv-overlay">
@@ -415,7 +446,7 @@ addPath(toPath(starPts));
 </div>
 <script>
 "use strict";
-const VERSION='2.3.0';
+const VERSION='3.0.0';
 const CLASSES=[
   {id:'gravedigger',name:'Grave Digger',sym:'G',color:'#8a7050',hp:16,sp:2,str:8,agi:4,wits:1,start:'pickaxe',desc:'Hardened by years among the dead. High HP & STR. Pickaxe attacks can Fracture enemies, reducing their STR and AGI. Madness gains reduced by 25%.'},
   {id:'rogue',name:'Rogue',sym:'R',color:'#50c090',hp:10,sp:8,str:4,agi:8,wits:4,start:'dagger',desc:'Fast and elusive. High AGI. Crits more often and hits harder when they land.'},
@@ -539,7 +570,7 @@ const ITEM_DEFS=[
   {id:'mutagen',name:'Mutagen',sym:'%',color:'#40e080',desc:'33% chance to gain a random mutation.',type:'use',eff:'mutagen'},
   {id:'serum',name:'Serum',sym:'!',color:'#40d0d0',desc:'Purges all active status effects.',type:'use',eff:'serum'},
   {id:'hearty_meal',name:'Hearty Meal',sym:'%',color:'#d09040',desc:'Restore 10 HP and reduce Madness by 10.',type:'use',eff:'hearty_meal'},
-  {id:'blueberry',name:'Blueberry',sym:'*',color:'#4060e0',desc:'Restore 1 HP, reduce Madness by 1.',type:'use',eff:'blueberry'},
+  {id:'blueberry',name:'Blueberry',sym:'*',color:'#4060e0',desc:'Restore 1-4 HP, reduce Madness by 1-4. Causes Confusion.',type:'use',eff:'blueberry'},
   {id:'foxglove',name:'Foxglove',sym:'\u273f',color:'#c060a0',desc:'Crush and apply to hands. Poisons enemies on melee hit for 4 turns (1-2 dmg/turn). Lasts until next floor change.',type:'use',eff:'foxglove'},
   // ---- UPGRADED WEAPONS (chest-only) ----
   {id:'pistol_1',name:'Pistol +1',sym:')',color:'#c0c8d8',desc:'Upgraded ranged, 6 dmg',type:'weapon',ranged:1,dmg:6,ammo:6,maxAmmo:6,upgraded:true},
@@ -657,6 +688,9 @@ const T={
   JAIL_FLOOR:48,      // jail interior floor — dark blue-grey
   CHAINS:49,          // decoration — rust chains on jail walls
   GORE:50,            // ritual room decoration — dried blood and viscera
+  CRYPT_FLOOR:51,     // crypt room floor — dark aged stone
+  MOLD_FLOOR:52,      // slime chamber floor — damp mold-covered stone
+  SLIME_WALL:53,      // slime chamber wall — dark wet stone, greenish
 };
 const MW=80,MH=50,VW=16,VH=12;
 // Standard chest — consumables only (supply cache feel)
@@ -833,6 +867,50 @@ function flashBlast(cx,cy,radius,color){
 }
 
 const SAVE_SLOTS=3,SAVE_KEY='ia_save_';
+const TOMB_RECORD_KEY='eon_wake_deaths';
+const MAX_TOMB_RECORDS=20;
+
+// Death message templates — [name] is replaced with character name
+const DEATH_MSGS={
+  'Pale Watcher':["[name] got the wrong kind of attention.","The Pale Watcher had a problem with how [name] looked.","[name] made eye contact. Once."],
+  'Elder Thing':["[name] found something older than regret.","Whatever [name] saw, they didn't describe it.","[name] went to investigate. [name] did not return."],
+  'Mi-Go':["[name] was found lacking. Literally.","[name] learned what Mi-Go do with spare parts.","The Mi-Go took [name] apart to see how they worked."],
+  'Rat King':["[name] underestimated the rats.","[name] should have brought more cheese.","The rats had a king. [name] didn't have anything."],
+  'Plague Rat':["[name] didn't wash their hands.","[name] survived many things. Rats were not among them.","Small teeth. Big problems."],
+  'Deathless Warden':["[name] met something that couldn't stay dead. [name] could.","The Warden was deathless. [name] was not.","[name] tried twice. The Warden tried once more."],
+  'Wraith':["[name] forgot ghosts don't negotiate.","Something cold passed through [name]. It stayed.","[name] walked through walls, briefly."],
+  'Dark One':["[name] brought a knife to a magic fight.","[name] was out-ranged in every sense.","The Dark One disagreed with [name]'s life choices."],
+  'Crawling Choir':["[name] covered their ears. Too late.","[name] heard the Choir. The Choir heard [name].","Every voice in the Choir knew [name]'s name by the end."],
+  'Zombie':["[name] should have run faster.","The dead were quicker than [name] expected.","[name] forgot to check if it was really dead."],
+  'Cultist':["[name] interrupted a ritual. The ritual finished anyway.","[name] and the cultists disagreed on theology.","[name] was sacrificed to something. They never found out what."],
+  'Ruin':["[name]'s mind wrote a cheque their sanity couldn't cash.","[name] unravelled slowly, then all at once.","What was left of [name] wasn't really [name] anymore."],
+  'Madness':["[name] lost the argument with themselves.","[name] couldn't tell real from not. Neither could we.","[name] went somewhere else. Didn't come back."],
+  'The Hollow':["[name] stood too close to nothing.","Something hollow took what [name] had left.","[name] looked into The Hollow. The Hollow looked back."],
+  'Ghoul':["[name] was on the menu.","[name] didn't outrun the hunger.","The Ghoul was faster than it looked."],
+  'Wolf':["[name] was not a faster runner than a wolf.","[name] heard growling. Then nothing.","[name] tried to make friends. The wolf disagreed."],
+  'default':["[name] did not make it.","[name] found the limits of human endurance.","Whatever happened to [name], it was quick. Probably.","[name] is survived by no one who knows what happened."],
+};
+
+function getDeathMsg(cause,name){
+  const pool=DEATH_MSGS[cause]||DEATH_MSGS['default'];
+  return pool[rnd(pool.length)].replace(/\[name\]/g,name);
+}
+function saveTombRecord(record){
+  try{
+    let records=[];
+    const raw=localStorage.getItem(TOMB_RECORD_KEY);
+    if(raw)records=JSON.parse(raw);
+    records.unshift(record); // newest first
+    if(records.length>MAX_TOMB_RECORDS)records=records.slice(0,MAX_TOMB_RECORDS);
+    localStorage.setItem(TOMB_RECORD_KEY,JSON.stringify(records));
+  }catch(e){}
+}
+function loadTombRecords(){
+  try{
+    const raw=localStorage.getItem(TOMB_RECORD_KEY);
+    return raw?JSON.parse(raw):[];
+  }catch(e){return[];}
+}
 let G=null,selCls=CLASSES[0],selMut=null;
 let savePanelMode='save';
 const $=id=>document.getElementById(id);
@@ -851,7 +929,7 @@ function passable(tiles,x,y){
          t===T.GILDED_CHEST||t===T.GILDED_CHEST_OPEN||
          t===T.BLOOD||t===T.BONE_PILE||
          t===T.SYMBOL_INACTIVE||t===T.SYMBOL_ACTIVE||
-         t===T.JAIL_FLOOR||t===T.CHAINS||t===T.GORE||
+         t===T.JAIL_FLOOR||t===T.CHAINS||t===T.GORE||t===T.CRYPT_FLOOR||t===T.MOLD_FLOOR||
          t===T.OFFERING||t===T.OFFERING_OPEN||
          t===T.GRASS||t===T.BUSH||t===T.BUSH_BERRY||t===T.STONE_FLOOR||t===T.PATH||t===T.FENCE_GATE||
          t===T.BURROW||t===T.CATACOMB_ENTRY||t===T.OSSUARY_CHEST||t===T.OSSUARY_OPEN||t===T.ALCOVE||
@@ -1407,7 +1485,7 @@ function genSurface(){
 
   // ---- GRAVEYARD (south portion, iron fence) ----
   const gy=Math.floor(H*0.73),gx=Math.floor(W*0.38);
-  const gw=Math.floor(W*0.42),gh=Math.floor(H*0.22);
+  const gw=Math.floor(W*0.48),gh=Math.floor(H*0.24);
   for(let ry=gy;ry<gy+gh;ry++)for(let rx=gx;rx<gx+gw;rx++)t[ry][rx]=T.GRASS;
   for(let rx=gx;rx<gx+gw;rx++){t[gy][rx]=T.FENCE;t[gy+gh-1][rx]=T.FENCE;}
   for(let ry=gy;ry<gy+gh;ry++){t[ry][gx]=T.FENCE;t[ry][gx+gw-1]=T.FENCE;}
@@ -1416,36 +1494,31 @@ function genSurface(){
   t[gy][gateX+1]=T.FENCE_GATE;
   t[gy+1][gateX]=T.PATH;
 
-  // Tombstones — 8 positions
-  const tombPositions=[
-    [gx+2,gy+2],[gx+5,gy+3],[gx+8,gy+2],[gx+3,gy+5],
-    [gx+6,gy+6],[gx+10,gy+4],[gx+12,gy+2],[gx+9,gy+6],
-  ];
-  tombPositions.forEach(([tx,ty])=>{
-    if(ty<gy+gh-1&&tx<gx+gw-1&&ty>gy&&tx>gx)t[ty][tx]=T.TOMB;
-  });
-
-  // ---- TOMBSTONE INSCRIPTIONS + CACHE ----
-  const epitaphs=[
-    'xX_Sl4yerXx\n"Thought the glowing floor was a shortcut.\nIt was not."',
-    'GamerDad1972\n"He descended to prove something to his kids.\nHis kids are fine."',
-    'notacoward99\n"Backed into a corner.\nThe corner had opinions."',
-    'CryptoKnight\n"Invested in a Mutagen.\n33% was not in his favour."',
-    'TwitchMoment\n"Clipped his own death.\nFive viewers. Peak content."',
-    'definitely_human\n"The Pale Watcher looked at him.\nHe never recovered."',
-    'ThiccWizard420\n"Entered the catacombs at full Madness.\nDeparted immediately."',
-    'username_taken_2\n"Found something in the slime.\nThe slime found him first."',
-  ];
-
-  // Pick one random tombstone to hold the cache (church key + items)
-  const cacheIdx=rnd(tombPositions.length);
-  tombPositions.forEach(([tx,ty],i)=>{
-    if(ty<gy+gh-1&&tx<gx+gw-1&&ty>gy&&tx>gx){
-      if(i===cacheIdx){
-        ents.push({id:'_tomb_cache',x:tx,y:ty,isMeta:true,isTombCache:true,epitaph:null});
-      }else{
-        ents.push({id:'_tomb_epitaph',x:tx,y:ty,isMeta:true,isTombEpitaph:true,epitaph:epitaphs[i]||epitaphs[0]});
-      }
+  // ---- TOMBSTONES: uniform grid on LEFT half of graveyard ----
+  // 3-tile spacing: every 3rd tile is a potential tombstone slot
+  // Left half = gx+1 to gx+Math.floor(gw/2)-1
+  const tombSlots=[];
+  for(let ty2=gy+2;ty2<gy+gh-2;ty2+=3){
+    for(let tx2=gx+2;tx2<gx+Math.floor(gw/2)-1;tx2+=3){
+      if(inB(tx2,ty2))tombSlots.push({x:tx2,y:ty2});
+    }
+  }
+  // Load death records and fill slots
+  const deathRecords=loadTombRecords();
+  // One random slot holds the cache (church key + items)
+  const cacheSlotIdx=tombSlots.length>0?rnd(tombSlots.length):0;
+  tombSlots.forEach((slot,i)=>{
+    const rec=deathRecords[i]; // may be undefined if no record yet
+    t[slot.y][slot.x]=T.TOMB;
+    if(i===cacheSlotIdx){
+      // Cache tombstone — shows record if available, then collapses
+      ents.push({id:'_tomb_cache',x:slot.x,y:slot.y,isMeta:true,isTombCache:true,record:rec||null});
+    }else if(rec){
+      // Filled tombstone with death record
+      ents.push({id:'_tomb_record',x:slot.x,y:slot.y,isMeta:true,isTombRecord:true,record:rec});
+    }else{
+      // Empty slot — unmarked grave
+      ents.push({id:'_tomb_empty',x:slot.x,y:slot.y,isMeta:true,isTombEmpty:true});
     }
   });
 
@@ -1957,15 +2030,217 @@ function genMap(level){
     }
   }
 
-  for(let i=0;i<50;i++){
-    const w=rr(5,13),h=rr(4,10),x=rr(1,MW-w-2),y=rr(1,MH-h-2);
-    let ok=true;
-    for(const r of rooms)if(x<r.x+r.w+2&&x+w>r.x-1&&y<r.y+r.h+2&&y+h>r.y-1){ok=false;break;}
-    if(!ok)continue;
-    const room={x,y,w,h,cx:x+Math.floor(w/2),cy:y+Math.floor(h/2)};
-    carveRoom(room);
-    rooms.push(room);
+  // ---- BSP PARTITION ----
+  const MIN_PART_W=16,MIN_PART_H=12;
+
+  function bspSplit(x,y,w,h,depth){
+    // depth 1=50%, depth 2=67%, depth 3+=33%
+    const chance=depth===1?0.50:depth===2?0.67:0.33;
+    if(Math.random()>chance)return[[x,y,w,h]];
+    // Choose axis: split along longest dimension, coin flip if equal
+    const horiz=(h>w)||(w===h&&Math.random()<0.5);
+    if(horiz){
+      // Split horizontally: pick split y in middle 40-60% of height
+      const minSplit=Math.floor(h*0.40),maxSplit=Math.floor(h*0.60);
+      const splitAt=minSplit+rnd(Math.max(1,maxSplit-minSplit));
+      if(splitAt<MIN_PART_H||h-splitAt<MIN_PART_H)return[[x,y,w,h]];
+      return[
+        ...bspSplit(x,y,w,splitAt,depth+1),
+        ...bspSplit(x,y+splitAt,w,h-splitAt,depth+1),
+      ];
+    }else{
+      const minSplit=Math.floor(w*0.40),maxSplit=Math.floor(w*0.60);
+      const splitAt=minSplit+rnd(Math.max(1,maxSplit-minSplit));
+      if(splitAt<MIN_PART_W||w-splitAt<MIN_PART_W)return[[x,y,w,h]];
+      return[
+        ...bspSplit(x,y,splitAt,h,depth+1),
+        ...bspSplit(x+splitAt,y,w-splitAt,h,depth+1),
+      ];
+    }
   }
+
+  // Generate partitions
+  const partitions=bspSplit(2,2,MW-4,MH-4,1);
+
+  // Place one main room per partition
+  partitions.forEach(([px,py,pw,ph])=>{
+    // Room occupies 45-75% of partition in each dimension
+    const rw=Math.max(5,Math.floor(pw*(0.45+Math.random()*0.30)));
+    const rh=Math.max(4,Math.floor(ph*(0.45+Math.random()*0.30)));
+    // Random offset within partition, leaving at least 1 tile border
+    const ox=px+1+rnd(Math.max(1,pw-rw-1));
+    const oy=py+1+rnd(Math.max(1,ph-rh-1));
+    const room={x:ox,y:oy,w:rw,h:rh,cx:ox+Math.floor(rw/2),cy:oy+Math.floor(rh/2),isMain:true};
+    carveRoom(room);
+    // Fix center if corner cut removed it
+    if(!inB(room.cx,room.cy)||t[room.cy][room.cx]!==T.FLOOR){
+      let found=false;
+      for(let d=0;d<=4&&!found;d++)for(let dy2=-d;dy2<=d&&!found;dy2++)for(let dx2=-d;dx2<=d&&!found;dx2++){
+        const nx=room.cx+dx2,ny=room.cy+dy2;
+        if(inB(nx,ny)&&t[ny][nx]===T.FLOOR){room.cx=nx;room.cy=ny;found=true;}
+      }
+      if(!found)t[room.cy][room.cx]=T.FLOOR;
+    }
+    rooms.push(room);
+  });
+
+  // ---- AUXILIARY ROOMS ----
+  // Each main room tries to sprout up to 3 aux rooms, one per side at 75% chance
+  const AUX_CHANCE=0.75,MAX_AUX=3;
+  const isFloor=(rx,ry)=>inB(rx,ry)&&(t[ry][rx]===T.FLOOR||t[ry][rx]===T.STONE_FLOOR||t[ry][rx]===T.CRYPT_FLOOR||t[ry][rx]===T.MOLD_FLOOR||t[ry][rx]===T.JAIL_FLOOR);
+  const anyFloorIn=(ax,ay,aw,ah)=>{
+    for(let ry=ay-1;ry<=ay+ah;ry++)for(let rx=ax-1;rx<=ax+aw;rx++)
+      if(isFloor(rx,ry))return true;
+    return false;
+  };
+
+  rooms.slice().forEach(mainRoom=>{
+    let auxCount=0;
+    const sides=[0,1,2,3].sort(()=>Math.random()-0.5); // shuffle side order
+    for(const side of sides){
+      if(auxCount>=MAX_AUX)break;
+      if(Math.random()>AUX_CHANCE)continue;
+      const aw=rr(3,8),ah=rr(3,6);
+      let ax,ay,conX,conY;
+      // Try up to 20 positions along the chosen side
+      let placed=false;
+      for(let attempt=0;attempt<20&&!placed;attempt++){
+        if(side===0){// North
+          conX=mainRoom.x+1+rnd(mainRoom.w-2);conY=mainRoom.y-1;
+          ax=conX-Math.floor(aw/2);ay=conY-ah;
+        }else if(side===1){// South
+          conX=mainRoom.x+1+rnd(mainRoom.w-2);conY=mainRoom.y+mainRoom.h;
+          ax=conX-Math.floor(aw/2);ay=conY+1;
+        }else if(side===2){// West
+          conY=mainRoom.y+1+rnd(mainRoom.h-2);conX=mainRoom.x-1;
+          ay=conY-Math.floor(ah/2);ax=conX-aw;
+        }else{// East
+          conY=mainRoom.y+1+rnd(mainRoom.h-2);conX=mainRoom.x+mainRoom.w;
+          ay=conY-Math.floor(ah/2);ax=conX+1;
+        }
+        // Bounds check
+        if(!inB(ax,ay)||!inB(ax+aw-1,ay+ah-1))continue;
+        if(ax<2||ay<2||ax+aw>MW-2||ay+ah>MH-2)continue;
+        // No overlap with existing floor
+        if(anyFloorIn(ax,ay,aw,ah))continue;
+        // Valid — carve the aux room
+        const auxRoom={x:ax,y:ay,w:aw,h:ah,cx:ax+Math.floor(aw/2),cy:ay+Math.floor(ah/2),isAux:true,parentCx:mainRoom.cx,parentCy:mainRoom.cy};
+        carveRoom(auxRoom);
+        // Fix center
+        if(!inB(auxRoom.cx,auxRoom.cy)||t[auxRoom.cy][auxRoom.cx]!==T.FLOOR){
+          let found=false;
+          for(let d=0;d<=3&&!found;d++)for(let dy2=-d;dy2<=d&&!found;dy2++)for(let dx2=-d;dx2<=d&&!found;dx2++){
+            const nx=auxRoom.cx+dx2,ny=auxRoom.cy+dy2;
+            if(inB(nx,ny)&&t[ny][nx]===T.FLOOR){auxRoom.cx=nx;auxRoom.cy=ny;found=true;}
+          }
+          if(!found){t[auxRoom.cy][auxRoom.cx]=T.FLOOR;}
+        }
+        // Carve connection — 50/50 direct opening vs door
+        if(inB(conX,conY))t[conY][conX]=T.FLOOR;
+        auxRoom._conX=conX;auxRoom._conY=conY;
+        rooms.push(auxRoom);
+        auxCount++;
+        placed=true;
+      }
+    }
+  });
+
+  // ---- CORRIDORS BETWEEN MAIN ROOMS ----
+  // Connect main rooms in partition order (sequential pairs)
+  // Adjacent pairs: direct opening. Separated: L-corridor (15% chance 2-wide)
+  const mainRooms=rooms.filter(r=>r.isMain);
+  const inRoom=(rx,ry)=>rooms.some(r=>rx>=r.x&&rx<r.x+r.w&&ry>=r.y&&ry<r.y+r.h);
+
+  for(let i=1;i<mainRooms.length;i++){
+    const a=mainRooms[i-1],b=mainRooms[i];
+    // Check if rooms are adjacent (gap ≤ 2 tiles between bounding boxes)
+    const gapX=Math.max(0,Math.max(a.x,b.x)-Math.min(a.x+a.w,b.x+b.w));
+    const gapY=Math.max(0,Math.max(a.y,b.y)-Math.min(a.y+a.h,b.y+b.h));
+    const adjacent=(gapX<=2&&gapY===0)||(gapY<=2&&gapX===0);
+
+    if(adjacent){
+      // Direct opening through shared wall
+      // Find a shared wall tile and punch through it
+      let punched=false;
+      // Horizontal adjacency (side by side)
+      if(gapX<=2&&gapY===0){
+        const sharedY0=Math.max(a.y,b.y)+1;
+        const sharedY1=Math.min(a.y+a.h,b.y+b.h)-2;
+        if(sharedY0<=sharedY1){
+          const oy=sharedY0+rnd(sharedY1-sharedY0+1);
+          const left=a.x<b.x?a:b,right=a.x<b.x?b:a;
+          for(let rx=left.x+left.w-1;rx<=right.x;rx++)if(inB(rx,oy)){t[oy][rx]=T.FLOOR;}
+          punched=true;
+        }
+      }
+      // Vertical adjacency (stacked)
+      if(!punched&&gapY<=2&&gapX===0){
+        const sharedX0=Math.max(a.x,b.x)+1;
+        const sharedX1=Math.min(a.x+a.w,b.x+b.w)-2;
+        if(sharedX0<=sharedX1){
+          const ox=sharedX0+rnd(sharedX1-sharedX0+1);
+          const top=a.y<b.y?a:b,bot=a.y<b.y?b:a;
+          for(let ry=top.y+top.h-1;ry<=bot.y;ry++)if(inB(ox,ry)){t[ry][ox]=T.FLOOR;}
+          punched=true;
+        }
+      }
+      if(!punched){
+        // Fall back to L-corridor if punch failed
+        let x=a.cx,y=a.cy;
+        while(x!==b.cx){t[y][x]=T.FLOOR;x+=x<b.cx?1:-1;}
+        while(y!==b.cy){t[y][x]=T.FLOOR;y+=y<b.cy?1:-1;}
+      }
+    }else{
+      // L-shaped corridor, 15% chance 2-wide
+      const wide=Math.random()<0.15;
+      let x=a.cx,y=a.cy;
+      while(x!==b.cx){
+        if(inB(x,y))t[y][x]=T.FLOOR;
+        if(wide&&inB(x,y+1))t[y+1][x]=T.FLOOR;
+        x+=x<b.cx?1:-1;
+      }
+      while(y!==b.cy){
+        if(inB(x,y))t[y][x]=T.FLOOR;
+        if(wide&&inB(x+1,y))t[y][x+1]=T.FLOOR;
+        y+=y<b.cy?1:-1;
+      }
+    }
+  }
+
+  // ---- CONNECTIVITY CHECK ----
+  // BFS from first main room center; any unreachable room gets an emergency corridor
+  const startRoom=mainRooms[0]||rooms[0];
+  const reachable=new Set();
+  const bfsQ=[key(startRoom.cx,startRoom.cy)];
+  reachable.add(bfsQ[0]);
+  while(bfsQ.length){
+    const k2=bfsQ.shift();
+    const bx=parseInt(k2),by=parseInt(k2.split(',')[1]);
+    for(const[dx2,dy2]of[[-1,0],[1,0],[0,-1],[0,1]]){
+      const nx=bx+dx2,ny=by+dy2;
+      if(!inB(nx,ny))continue;
+      const nk=key(nx,ny);
+      if(reachable.has(nk))continue;
+      if(passable(t,nx,ny)||t[ny][nx]===T.DOOR){
+        reachable.add(nk);bfsQ.push(nk);
+      }
+    }
+  }
+  rooms.forEach(room=>{
+    if(reachable.has(key(room.cx,room.cy)))return;
+    // Room unreachable — find nearest reachable floor tile and carve emergency corridor
+    let nearest=null,bestDist=9999;
+    reachable.forEach(k2=>{
+      const rx=parseInt(k2),ry=parseInt(k2.split(',')[1]);
+      const d=Math.abs(rx-room.cx)+Math.abs(ry-room.cy);
+      if(d<bestDist){bestDist=d;nearest={x:rx,y:ry};}
+    });
+    if(!nearest)return;
+    let x=room.cx,y=room.cy;
+    while(x!==nearest.x){t[y][x]=T.FLOOR;reachable.add(key(x,y));x+=x<nearest.x?1:-1;}
+    while(y!==nearest.y){t[y][x]=T.FLOOR;reachable.add(key(x,y));y+=y<nearest.y?1:-1;}
+    t[y][x]=T.FLOOR;reachable.add(key(x,y));
+  });
 
   // ---- ROOM TYPE REPLACEMENT PASS ----
   // Some generic rooms can be replaced with special room types
@@ -2125,26 +2400,114 @@ function genMap(level){
     room.cx=ocx;room.cy=ocy;
   }
 
+  // ---- ARMOURY: stone floor, guaranteed iron chest, weapon-type enemies ----
+  function carveArmouryRoom(room){
+    const{x,y,w,h}=room;
+    carveRoom(room); // keep corner-cut shape
+    // Stone floor overlay
+    for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++)
+      if(inB(rx,ry)&&t[ry][rx]===T.FLOOR)t[ry][rx]=T.STONE_FLOOR;
+    // Weapon rack decoration — blood pools along walls
+    for(let rx=x+1;rx<x+w-1;rx+=2){
+      if(Math.random()<0.4&&inB(rx,y+1)&&t[y+1][rx]===T.STONE_FLOOR)t[y+1][rx]=T.BLOOD;
+      if(Math.random()<0.4&&inB(rx,y+h-2)&&t[y+h-2][rx]===T.STONE_FLOOR)t[y+h-2][rx]=T.BLOOD;
+    }
+    // Guaranteed iron chest at center
+    const acx=x+Math.floor(w/2),acy=y+Math.floor(h/2);
+    if(inB(acx,acy))t[acy][acx]=T.IRON_CHEST;
+    // 1-2 enemies from floor pool (prefer melee fighters)
+    const armEnemyPool=enemyPool.filter(e=>!e.ranged&&e.id!=='worm_mass');
+    const armPool=armEnemyPool.length>0?armEnemyPool:enemyPool;
+    let armSpawned=0;
+    const adirs=[[-2,0],[2,0],[0,-2],[0,2]];
+    for(const[dx,dy]of adirs){
+      if(armSpawned>=2)break;
+      const ax2=acx+dx,ay2=acy+dy;
+      if(inB(ax2,ay2)&&t[ay2][ax2]===T.STONE_FLOOR){
+        const tpl=armPool[rnd(armPool.length)];
+        jailEntsAll.push({...scaleEnemy(tpl,level),x:ax2,y:ay2,eid:'arm_e_'+armSpawned,isEnemy:true});
+        armSpawned++;
+      }
+    }
+    room.type='armoury';
+  }
+
+  // ---- GUARD POST: regular floor with a partial wall chokepoint ----
+  function carveGuardPostRoom(room){
+    const{x,y,w,h}=room;
+    carveRoom(room); // corner cut shape first
+    // Determine orientation: wall runs E-W if room is wide, N-S if tall
+    const horiz=w>=h;
+    const wallY=y+Math.floor(h/2);
+    const wallX=x+Math.floor(w/2);
+    // Leave a 1-tile gap at a random position along the wall
+    if(horiz){
+      // Horizontal wall across the room with 1-tile gap
+      const gapX=x+1+rnd(w-2);
+      for(let rx=x+1;rx<x+w-1;rx++){
+        if(rx===gapX)continue; // the gap
+        if(inB(rx,wallY)&&t[wallY][rx]===T.FLOOR)t[wallY][rx]=T.WALL;
+      }
+      // Enemies spawn on the far side of the wall from the entrance
+      const enemySideY=wallY+1+rnd(Math.max(1,y+h-wallY-2));
+      const gpTpl=enemyPool.length>0?enemyPool[rnd(enemyPool.length)]:null;
+      if(gpTpl&&inB(x+Math.floor(w/2),enemySideY)&&t[enemySideY][x+Math.floor(w/2)]===T.FLOOR){
+        jailEntsAll.push({...scaleEnemy(gpTpl,level),x:x+Math.floor(w/2),y:enemySideY,eid:'gp_e_0',isEnemy:true});
+      }
+      // Optional second enemy
+      if(Math.random()<0.5){
+        const ex2=x+1+rnd(w-2),ey2=enemySideY;
+        const gpTpl2=enemyPool[rnd(enemyPool.length)];
+        if(gpTpl2&&inB(ex2,ey2)&&t[ey2][ex2]===T.FLOOR)
+          jailEntsAll.push({...scaleEnemy(gpTpl2,level),x:ex2,y:ey2,eid:'gp_e_1',isEnemy:true});
+      }
+    }else{
+      // Vertical wall down the room with 1-tile gap
+      const gapY=y+1+rnd(h-2);
+      for(let ry=y+1;ry<y+h-1;ry++){
+        if(ry===gapY)continue;
+        if(inB(wallX,ry)&&t[ry][wallX]===T.FLOOR)t[ry][wallX]=T.WALL;
+      }
+      const enemySideX=wallX+1+rnd(Math.max(1,x+w-wallX-2));
+      const gpTpl=enemyPool.length>0?enemyPool[rnd(enemyPool.length)]:null;
+      if(gpTpl&&inB(enemySideX,y+Math.floor(h/2))&&t[y+Math.floor(h/2)][enemySideX]===T.FLOOR){
+        jailEntsAll.push({...scaleEnemy(gpTpl,level),x:enemySideX,y:y+Math.floor(h/2),eid:'gp_e_0',isEnemy:true});
+      }
+      if(Math.random()<0.5){
+        const ex2=enemySideX,ey2=y+1+rnd(h-2);
+        const gpTpl2=enemyPool[rnd(enemyPool.length)];
+        if(gpTpl2&&inB(ex2,ey2)&&t[ey2][ex2]===T.FLOOR)
+          jailEntsAll.push({...scaleEnemy(gpTpl2,level),x:ex2,y:ey2,eid:'gp_e_1',isEnemy:true});
+      }
+    }
+    room.type='guard_post';
+  }
+
   // ---- CRYPT ROOM: contains catacomb entry + burial shades/skeletons ----
   function carveCryptRoom(room){
     const{x,y,w,h}=room;
+    // Crypt floor — dark aged stone, distinct from dungeon floor
     for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++)
-      if(inB(rx,ry))t[ry][rx]=T.STONE_FLOOR;
+      if(inB(rx,ry))t[ry][rx]=T.CRYPT_FLOOR;
+    // Bone pile decorations along all four walls
+    for(let rx=x+1;rx<x+w-1;rx+=2){
+      if(Math.random()<0.45&&inB(rx,y+1))t[y+1][rx]=T.BONE_PILE;
+      if(Math.random()<0.45&&inB(rx,y+h-2))t[y+h-2][rx]=T.BONE_PILE;
+    }
+    for(let ry=y+1;ry<y+h-1;ry+=2){
+      if(Math.random()<0.35&&inB(x+1,ry))t[ry][x+1]=T.BONE_PILE;
+      if(Math.random()<0.35&&inB(x+w-2,ry))t[ry][x+w-2]=T.BONE_PILE;
+    }
     // Catacomb entry at center
     const ccx=x+Math.floor(w/2),ccy=y+Math.floor(h/2);
     t[ccy][ccx]=T.CATACOMB_ENTRY;
-    // Bone pile decoration on edges
-    for(let rx=x+1;rx<x+w-1;rx+=3){
-      if(Math.random()<0.5&&inB(rx,y+1))t[y+1][rx]=T.BONE_PILE;
-      if(Math.random()<0.5&&inB(rx,y+h-2))t[y+h-2][rx]=T.BONE_PILE;
-    }
     // 2 burial shades guarding
     let shadespawned=0;
     const sdirs=[[-2,0],[2,0],[0,-2],[0,2]];
     for(const[dx,dy]of sdirs){
       if(shadespawned>=2)break;
       const sx=ccx+dx,sy=ccy+dy;
-      if(inB(sx,sy)&&t[sy][sx]===T.STONE_FLOOR){
+      if(inB(sx,sy)&&t[sy][sx]===T.CRYPT_FLOOR){
         jailEntsAll.push({id:'burial_shade',name:'Burial Shade',sym:'B',color:'#7070c0',
           hp:8,maxHp:8,str:4,agi:7,xp:22,dmg:3,ranged:0,walksThrough:true,isGhost:true,
           x:sx,y:sy,eid:'crypt_shade_'+shadespawned,isEnemy:true});
@@ -2157,21 +2520,28 @@ function genMap(level){
   // ---- SLIME CHAMBER: contains slime pit entry + slimes ----
   function carveSlimeChamber(room){
     const{x,y,w,h}=room;
+    // Slime walls on perimeter — dark wet greenish stone
+    for(let ry=y-1;ry<=y+h;ry++)for(let rx=x-1;rx<=x+w;rx++)
+      if(inB(rx,ry)&&t[ry][rx]===T.WALL)t[ry][rx]=T.SLIME_WALL;
+    // Mold floor interior
     for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++)
-      if(inB(rx,ry))t[ry][rx]=T.SLIME_FLOOR;
-    // Acid pools scattered
-    for(let ry=y+1;ry<y+h-1;ry++)for(let rx=x+1;rx<x+w-1;rx++)
-      if(Math.random()<0.12)t[ry][rx]=T.ACID_POOL;
+      if(inB(rx,ry))t[ry][rx]=T.MOLD_FLOOR;
+    // Scattered slime patches and acid pools
+    for(let ry=y+1;ry<y+h-1;ry++)for(let rx=x+1;rx<x+w-1;rx++){
+      const r=Math.random();
+      if(r<0.08)t[ry][rx]=T.ACID_POOL;
+      else if(r<0.16)t[ry][rx]=T.SLIME_FLOOR;
+    }
     // Slime pit entry at center
     const scx=x+Math.floor(w/2),scy=y+Math.floor(h/2);
     t[scy][scx]=T.SLIME_PIT_ENTRY;
-    // 2 slimes
+    // 2 slimes guarding
     let slimespawned=0;
     const sldirs=[[-2,0],[2,0],[0,-2],[0,2]];
     for(const[dx,dy]of sldirs){
       if(slimespawned>=2)break;
       const sx=scx+dx,sy=scy+dy;
-      if(inB(sx,sy)&&(t[sy][sx]===T.SLIME_FLOOR)){
+      if(inB(sx,sy)&&(t[sy][sx]===T.MOLD_FLOOR||t[sy][sx]===T.SLIME_FLOOR)){
         jailEntsAll.push({id:'slime',name:'Slime',sym:'s',color:'#40c040',
           hp:6,maxHp:6,str:3,agi:2,xp:8,dmg:2,ranged:0,isSlime:true,
           x:sx,y:sy,eid:'slime_ch_'+slimespawned,isEnemy:true});
@@ -2182,21 +2552,33 @@ function genMap(level){
   }
 
   const jailPoolSize=Math.min(3+Math.floor(level*0.8),ENEMY_DEFS.length);
+  // Floor-ranged enemy pool for room type spawning (mirrors genEntities logic)
+  const enemyPool=ENEMY_DEFS.filter(e=>
+    (!e.floorMin||level>=e.floorMin)&&(!e.floorMax||level<=e.floorMax)
+  );
   const jailEntsAll=[];
-  let ritualPlaced=false,cryptPlaced=false,slimePlaced=false;
+  let ritualPlaced=false,cryptPlaced=false,slimePlaced=false,armouryPlaced=false;
   if(level>=2){
     rooms.forEach((room,ri)=>{
       if(ri===0)return;
       if(room.type)return;
-      // Ritual room: 25% chance per floor, once, needs 10×8
+      // Ritual room: 25% chance, once, needs 10×8
       if(!ritualPlaced&&room.w>=10&&room.h>=8&&Math.random()<0.25){
         carveRitualRoom(room,jailPoolSize);ritualPlaced=true;return;
       }
-      // Crypt room: 20% chance, once per floor, floors 2+
+      // Armoury: 25% chance, once, needs 7×6
+      if(!armouryPlaced&&room.w>=7&&room.h>=6&&Math.random()<0.25){
+        carveArmouryRoom(room);armouryPlaced=true;return;
+      }
+      // Guard Post: 30% chance, can appear multiple times, needs 8×6
+      if(room.w>=8&&room.h>=6&&Math.random()<0.30){
+        carveGuardPostRoom(room);return;
+      }
+      // Crypt room: 20% chance, once
       if(!cryptPlaced&&room.w>=8&&room.h>=6&&Math.random()<0.20){
         carveCryptRoom(room);cryptPlaced=true;return;
       }
-      // Slime chamber: 20% chance, once per floor, floors 3+
+      // Slime chamber: 20% chance, once, floors 3+
       if(!slimePlaced&&level>=3&&room.w>=8&&room.h>=6&&Math.random()<0.20){
         carveSlimeChamber(room);slimePlaced=true;return;
       }
@@ -2207,40 +2589,7 @@ function genMap(level){
       }
     });
   }
-  const inRoom=(rx,ry)=>rooms.some(r=>rx>=r.x&&rx<r.x+r.w&&ry>=r.y&&ry<r.y+r.h);
-
-  // Ensure room center tiles are floor (corner cuts may have removed them)
-  rooms.forEach(r=>{
-    if(!inB(r.cx,r.cy)||t[r.cy][r.cx]!==T.FLOOR){
-      // Scan inward to find a floor tile near center
-      let found=false;
-      for(let d=0;d<=3&&!found;d++){
-        for(let dy=-d;dy<=d&&!found;dy++){
-          for(let dx=-d;dx<=d&&!found;dx++){
-            const nx=r.cx+dx,ny=r.cy+dy;
-            if(inB(nx,ny)&&t[ny][nx]===T.FLOOR){r.cx=nx;r.cy=ny;found=true;}
-          }
-        }
-      }
-      // If still not found, force carve
-      if(!found){t[r.cy][r.cx]=T.FLOOR;}
-    }
-  });
-
-  // Carve corridors, storing each segment's tiles separately
-  const segments=[];
-  for(let i=1;i<rooms.length;i++){
-    const a=rooms[i-1],b=rooms[i];
-    let x=a.cx,y=a.cy;
-    const hTiles=[],vTiles=[];
-    while(x!==b.cx){t[y][x]=T.FLOOR;if(!inRoom(x,y))hTiles.push({x,y});x+=x<b.cx?1:-1;}
-    while(y!==b.cy){t[y][x]=T.FLOOR;if(!inRoom(x,y))vTiles.push({x,y});y+=y<b.cy?1:-1;}
-    if(hTiles.length>0)segments.push(hTiles);
-    if(vTiles.length>0)segments.push(vTiles);
-  }
-
-  // Place doors at room entry points — the corridor tile immediately adjacent to a room wall
-  // Rules: must have walls on N+S OR E+W (not diagonals). No adjacent door in any cardinal dir.
+  // Place doors at room entry points
   const doorTiles=new Set();
   function isValidDoor(x,y){
     if(!inB(x,y)||t[y][x]!==T.FLOOR)return false;
@@ -2633,7 +2982,7 @@ function fov(tiles,px,py,r){
       ox+=Math.cos(rad);oy+=Math.sin(rad);
       const ix=Math.floor(ox),iy=Math.floor(oy);
       if(!inB(ix,iy))break;vis.add(key(ix,iy));
-      if(tiles[iy][ix]===T.WALL||tiles[iy][ix]===T.IRON_WALL||tiles[iy][ix]===T.DOOR||tiles[iy][ix]===T.TREE||tiles[iy][ix]===T.FENCE||tiles[iy][ix]===T.TOMB||tiles[iy][ix]===T.ALTAR||tiles[iy][ix]===T.CATACOMB_ALTAR||tiles[iy][ix]===T.SEALED_DOOR||tiles[iy][ix]===T.LOCKED_DOOR||tiles[iy][ix]===T.OBELISK||tiles[iy][ix]===T.OBELISK_ACTIVE)break;
+      if(tiles[iy][ix]===T.WALL||tiles[iy][ix]===T.IRON_WALL||tiles[iy][ix]===T.SLIME_WALL||tiles[iy][ix]===T.DOOR||tiles[iy][ix]===T.TREE||tiles[iy][ix]===T.FENCE||tiles[iy][ix]===T.TOMB||tiles[iy][ix]===T.ALTAR||tiles[iy][ix]===T.CATACOMB_ALTAR||tiles[iy][ix]===T.SEALED_DOOR||tiles[iy][ix]===T.LOCKED_DOOR||tiles[iy][ix]===T.OBELISK||tiles[iy][ix]===T.OBELISK_ACTIVE)break;
     }
   }
   return vis;
@@ -2680,7 +3029,8 @@ function startGame(){
        meleeWeapon:startWeapon,rangedWeapon:startRangedWep||null,
        spellSlot:startSpellItem||null,throwable:null,relic:null,accessory:null,
        lightR:startLightR,turns:0,
-       mutations:selMut?[selMut.id]:[],infected:null,madness:0,ruin:0,confused:null,throwCooldown:0,throwable:null,phaseStepCooldown:0,foxglovePoison:false},
+       mutations:selMut?[selMut.id]:[],infected:null,madness:0,ruin:0,confused:null,throwCooldown:0,throwable:null,phaseStepCooldown:0,foxglovePoison:false,kills:0,
+       charName:(($('char-name-input')&&$('char-name-input').value.trim())||cl.name).slice(0,16)},
     msgs:[],seen:new Set(),vis:new Set(),invOpen:false,
     burrowsUsed:0,burrowFloors:new Set(),burrowed:false,returnDl:null,returnPos:null,inCatacombs:false,slimePitUsed:false,inSlimePit:false,
     cachedDungeonFloor:null,_confessionalUsed:false,_candleUsed:false};
@@ -3065,6 +3415,9 @@ function render(){
     else if(tile===T.JAIL_FLOOR){s='.';c='#252535';}
     else if(tile===T.CHAINS){s='\u00a5';c='#705030';}
     else if(tile===T.GORE){s='%';c='#6b0000';}
+    else if(tile===T.CRYPT_FLOOR){s='.';c='#2a3020';}
+    else if(tile===T.MOLD_FLOOR){s='.';c='#152010';}
+    else if(tile===T.SLIME_WALL){s='#';c='#1a3010';}
     else if(tile===T.OFFERING){s='\u25c7';c='#c8a070';}
     else if(tile===T.OFFERING_OPEN){s='\u25c7';c='#5a4020';}
     else if(tile===T.ALTAR){s='\u2625';c='#a02020';}
@@ -3163,6 +3516,9 @@ function tileColor(t){
   if(t===T.JAIL_FLOOR)return'#252535';
   if(t===T.CHAINS)return'#705030';
   if(t===T.GORE)return'#6b0000';
+  if(t===T.CRYPT_FLOOR)return'#2a3020';
+  if(t===T.MOLD_FLOOR)return'#152010';
+  if(t===T.SLIME_WALL)return'#1a3010';
   if(t===T.OFFERING)return'#c8a070';
   if(t===T.OFFERING_OPEN)return'#5a4020';
   if(t===T.ALTAR)return'#a02020';
@@ -3450,19 +3806,25 @@ function playRangedSound(){
 }
 
 function nearestFloor(x,y){
-  // BFS outward from x,y to find nearest passable non-entity tile
+  // BFS outward from x,y to find nearest passable tile with no item on it
   const visited=new Set();
-  const queue=[{x,y}];
+  const queue=[{x,y,d:0}];
+  let bestFallback=null;
   while(queue.length){
-    const {x:cx,y:cy}=queue.shift();
+    const{x:cx,y:cy,d}=queue.shift();
     const k2=key(cx,cy);if(visited.has(k2))continue;visited.add(k2);
-    if(passable(G.map.t,cx,cy)&&!G.ents.some(e=>e.isItem&&e.x===cx&&e.y===cy))return{x:cx,y:cy};
-    for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]]){
+    if(d>30)break; // hard cap — don't search entire map
+    if(passable(G.map.t,cx,cy)){
+      if(!G.ents.some(e=>e.isItem&&e.x===cx&&e.y===cy))return{x:cx,y:cy};
+      if(!bestFallback)bestFallback={x:cx,y:cy}; // passable but occupied — remember it
+    }
+    for(const[dx,dy]of[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]]){
       const nx=cx+dx,ny=cy+dy;
-      if(inB(nx,ny)&&!visited.has(key(nx,ny)))queue.push({x:nx,y:ny});
+      if(inB(nx,ny)&&!visited.has(key(nx,ny)))queue.push({x:nx,y:ny,d:d+1});
     }
   }
-  return{x,y}; // fallback
+  // Return occupied-but-passable tile before ever returning a wall
+  return bestFallback||{x,y};
 }
 
 function dropLoot(item,x,y){
@@ -3598,58 +3960,111 @@ function mv(dx,dy){
     }
   }
   else if(G.map.t[ny]&&G.map.t[ny][nx]===T.DOOR){
-    msg('The door is closed. Press [ E ] Interact to open it.','i');
-    return;
+    G.map.t[ny][nx]=T.DOOR_OPEN;
+    msg('You open the door.','i');
+    G.p.turns++;spRegen();tick(true);return;
   }
   else if(G.map.t[ny]&&G.map.t[ny][nx]===T.SEALED_DOOR){
-    const hasKey=G.p.inv.some(i=>i.id==='catacomb_key');
-    msg(hasKey?'A sealed door. Press [ E ] Interact to use the Catacomb Key.':'A sealed iron door marked with catacomb sigils. You need a key.','i');
-    return;
+    const keyIdx=G.p.inv.findIndex(i=>i.id==='catacomb_key');
+    if(keyIdx===-1){msg('A sealed iron door. You need a key.','i');return;}
+    G.p.inv.splice(keyIdx,1);
+    G.map.t[ny][nx]=T.DOOR_OPEN;
+    msg('You use the Catacomb Key. The door grinds open.','g');
+    G.p.turns++;spRegen();tick(true);return;
+  }
+  else if(G.map.t[ny]&&G.map.t[ny][nx]===T.LOCKED_DOOR){
+    const keyIdx=G.p.inv.findIndex(i=>i.id==='church_key');
+    if(keyIdx===-1){msg('The vestry door is locked. You need a key.','i');return;}
+    G.p.inv.splice(keyIdx,1);
+    G.map.t[ny][nx]=T.DOOR_OPEN;
+    msg('The vestry door swings open.','g');
+    G.p.turns++;spRegen();tick(true);return;
   }
   else if(G.map.t[ny]&&(G.map.t[ny][nx]===T.OBELISK||G.map.t[ny][nx]===T.OBELISK_ACTIVE)){
     activateObelisk(nx,ny);G.p.turns++;spRegen();tick(true);return;
   }
+  else if(G.map.t[ny]&&G.map.t[ny][nx]===T.TOMB){
+    const cacheMeta=G.ents.find(e=>e.isMeta&&e.isTombCache&&e.x===nx&&e.y===ny);
+    const recMeta=G.ents.find(e=>e.isMeta&&e.isTombRecord&&e.x===nx&&e.y===ny);
+    const emptyMeta=G.ents.find(e=>e.isMeta&&e.isTombEmpty&&e.x===nx&&e.y===ny);
+    if(cacheMeta){
+      // Show record modal (if any) then on close drop cache
+      if(cacheMeta.record){
+        openTombModal(cacheMeta.record,{x:nx,y:ny});
+        G.ents=G.ents.filter(e=>e!==cacheMeta);
+      }else{
+        // No record — just collapse immediately
+        G.map.t[ny][nx]=T.GRASS;
+        G.ents=G.ents.filter(e=>e!==cacheMeta);
+        const ckTpl=ITEM_DEFS.find(i=>i.id==='church_key');
+        const bdTpl=ITEM_DEFS.find(i=>i.id==='bandage');
+        if(ckTpl)dropLoot({...ckTpl,eid:'ck_'+Date.now()},nx,ny);
+        if(bdTpl)dropLoot({...bdTpl,n:2,eid:'bd_cache_'+Date.now()},nx,ny+1);
+        msg('The tombstone crumbles. Something was buried beneath it.','g');
+        gainMadness(4);
+      }
+    }else if(recMeta){
+      openTombModal(recMeta.record,null);
+    }else if(emptyMeta){
+      msg('\u271d An unmarked grave. No name. No date.','i');
+    }
+    return; // no turn consumed for reading a tombstone
+  }
   else if(passable(G.map.t,nx,ny)){
     p.x=nx;p.y=ny;
-    // Closed chest: hint player to use Interact
-    if(G.map.t[ny][nx]===T.CHEST){msg('A chest. Press [ E ] Interact to open it.','i');}
-    if(G.map.t[ny][nx]===T.IRON_CHEST){msg('\u25a3 An iron chest. Weapons inside. Press [ E ] Interact.','i');}
-    if(G.map.t[ny][nx]===T.GILDED_CHEST){msg('\u25c8 A gilded chest. Something powerful within. Press [ E ] Interact.','m');}
-    if(G.map.t[ny][nx]===T.DOOR_OPEN){msg('An open door. Press [ E ] Interact to close it.','i');}
-    if(G.map.t[ny][nx]===T.FENCE_GATE){msg('An open gate. Press [ E ] Interact to close it.','i');}
-    if(G.map.t[ny][nx]===T.OFFERING){msg('An offering box. Press [ E ] Interact to open it.','i');}
-    if(G.map.t[ny][nx]===T.BUSH_BERRY){msg('A berry bush. Press [ E ] Interact to pick a blueberry.','g');}
-    if(G.map.t[ny][nx]===T.FOXGLOVE){msg('\u273f Foxglove. Press [ E ] Interact to pick it up.','i');}
-    if(G.map.t[ny][nx]===T.BURROW){msg("[ Rat's Nest ] \u25be A hidden burrow. Press [ > ] to enter.",'i');}
-    if(G.map.t[ny][nx]===T.SU&&G.burrowed){msg('The exit hole. Press [ > ] Stairs to crawl out.','i');}
-    if(G.map.t[ny][nx]===T.CATACOMB_ENTRY){msg('[ Catacombs ] \u25bd A gaping tomb entrance. Press [ > ] to descend.','i');}
-    if(G.map.t[ny][nx]===T.SLIME_PIT_ENTRY){msg('[ Slime Pits ] \u2304 A cracked floor glowing faintly green. Press [ > ] to drop in.','i');}
-    if(G.map.t[ny][nx]===T.WELL){msg('A stone well. Press [ E ] Interact to drink.','i');}
-    if(G.map.t[ny][nx]===T.CONFESSIONAL){msg('A confessional booth. Press [ E ] Interact.','i');}
-    if(G.map.t[ny][nx]===T.CANDELABRA){msg('A candelabra. Press [ E ] Interact to take a candle.','i');}
-    if(G.map.t[ny][nx]===T.LOCKED_DOOR){msg('The vestry door is locked. You need a key.','i');}
-    if(G.map.t[ny][nx]===T.CATACOMB_ALTAR){msg('\u2625 A bone-white shrine. Press [ E ] Interact. Something stirs within.','i');}
-    // Chain rattle when player steps through chains
-    if(G.map.t[ny][nx]===T.CHAINS){triggerChainRattle(nx,ny,true);}
-    if(G.map.t[ny][nx]===T.SYMBOL_INACTIVE){
-      msg('\u2726 A dormant symbol. Press [ E ] Interact to awaken it.','i');
-      // Describe the guardian lurking behind this symbol
-      const sym=G.ents.find(e=>e.isObeliskSymbol&&e.x===nx&&e.y===ny);
-      if(sym){
-        const GUARDIAN_HINTS={
-          watcher_yellow:'You feel observed from somewhere that does not exist. A tattered yellow presence circles just outside.',
-          spawn_deep_tongue:'A clicking, wet sound rises from nowhere. Something speaks in a tongue that was never meant for ears.',
-          the_frayed:'The air here frays at the edges. Something half-unmade presses against the membrane of this world.',
-          eldest_hunger:'The temperature drops. Something vast and ancient has been waiting here long before the dungeon was built.',
-        };
-        msg(`\u2726 ${GUARDIAN_HINTS[sym.guardian]||'Something stirs behind this symbol.'}`,'i');
-      }
+    const nt=G.map.t[ny][nx];
+    // Step-on interactions — trigger immediately when player walks onto tile
+    if(nt===T.CHEST||nt===T.CHEST_OPEN){openChest(nx,ny);}
+    else if(nt===T.IRON_CHEST||nt===T.IRON_CHEST_OPEN){openIronChest(nx,ny);}
+    else if(nt===T.GILDED_CHEST||nt===T.GILDED_CHEST_OPEN){openGildedChest(nx,ny);}
+    else if(nt===T.OFFERING||nt===T.OFFERING_OPEN){openOffering(nx,ny);}
+    else if(nt===T.BUSH_BERRY){pickBerryBush(nx,ny);}
+    else if(nt===T.FOXGLOVE){
+      const STACK_MAX=5,existing=p.inv.find(i=>i.id==='foxglove'),count=existing?(existing.n||1):0;
+      if(count<STACK_MAX){const tpl=ITEM_DEFS.find(i=>i.id==='foxglove');if(existing)existing.n++;else p.inv.push({...tpl,n:1});G.map.t[ny][nx]=T.GRASS;msg(`\u273f You pick the foxglove. (${count+1}/${STACK_MAX})`,'g');}
+      else msg(`You can't carry more than ${STACK_MAX} Foxglove.`,'i');
     }
-    if(G.map.t[ny][nx]===T.SYMBOL_ACTIVE){msg('\u2726 The symbol burns gold. Something was here.','i');}
-    if(G.map.t[ny][nx]===T.BONE_PILE){msg('\u2620 A pile of old bones. Press [ E ] Interact to search it.','i');}
-    if(G.map.t[ny][nx]===T.TELEPORT){
-      if(G.dl===4)msg('\u2295 An arcane teleportation circle. Press [ E ] to return to the surface.','i');
-      else if(G.dl===0&&G.cachedDungeonFloor)msg('\u2295 The return circle pulses. Press [ E ] to descend back.','i');
+    else if(nt===T.WELL){
+      if(p.hp>=p.maxHp){msg('The well calls to you, but you are uninjured.','i');}
+      else{gainMadness(10);if(G){p.hp=p.maxHp;msg('You drink from the well. Wrong. But whole again.','g');}}
+    }
+    else if(nt===T.CONFESSIONAL){
+      if(G._confessionalUsed){msg('You have already unburdened yourself here.','i');}
+      else{G._confessionalUsed=true;const hints=['Something stirs beneath the graveyard. It has been waiting a long time.','The skeletons were placed there to guard something. Not to keep people out — to keep it in.','The rats down there are not ordinary rats. Their king is not an ordinary rat.','There are things in the slime that remember what they were before.','The Pale Watcher does not see with eyes. It sees with what you fear.','The Trapezohedron calls to those who descend far enough. It always has.'];const hint=hints[rnd(hints.length)];const red=Math.floor(p.madness*0.20);p.madness=Math.max(0,p.madness-red);msg(`You sit in the confessional. A voice whispers: "${hint}"`,'i');if(red>0)msg(`Madness eases. (-${red})`,'g');}
+    }
+    else if(nt===T.CANDELABRA){
+      if(G._candleUsed){msg('The candle has already given what it can.','i');}
+      else{G._candleUsed=true;p.lightR=Math.min(15,p.lightR+1);G.map.t[ny][nx]=T.STONE_FLOOR;msg('You take a candle. Light radius increases.','g');}
+    }
+    else if(nt===T.BONE_PILE){
+      G.map.t[ny][nx]=T.FLOOR;
+      const boneLoot=[{id:'bandage',n:rr(1,3)},{id:'serum',n:1},{id:'whiskey',n:1},{id:'medkit',n:1},{id:'foxglove',n:1},{id:'mutagen',n:1},{id:'loose_ammo',n:rr(3,8)},null,null];
+      const loot=boneLoot[rnd(boneLoot.length)];
+      if(loot){const tpl=ITEM_DEFS.find(i=>i.id===loot.id);if(tpl){dropLoot({...tpl,n:loot.n,eid:'bone_loot_'+Date.now()},nx,ny);msg(`\u2620 Found: ${tpl.name}.`,'g');}}
+      else msg('\u2620 Nothing but dust and old bones.','i');
+      if(Math.random()<0.30){const ambushPool=[{id:'skeleton',name:'Skeleton',sym:'s',color:'#d0d0c0',hp:5,maxHp:5,str:2,agi:2,dmg:2,ranged:0,xp:6},{id:'burial_shade',name:'Burial Shade',sym:'B',color:'#7070c0',hp:8,maxHp:8,str:4,agi:7,xp:22,dmg:3,ranged:0,walksThrough:true,isGhost:true},{id:'bone_archer',name:'Bone Archer',sym:'b',color:'#c0c090',hp:7,maxHp:7,str:3,agi:4,xp:18,dmg:4,ranged:1},{id:'mummified_knight',name:'Mummified Knight',sym:'m',color:'#c0a060',hp:20,maxHp:20,str:7,agi:1,xp:40,dmg:7,ranged:0}];const tpl=ambushPool[rnd(ambushPool.length)];const spDirs=[[-2,0],[2,0],[0,-2],[0,2]];for(const[ddx,ddy]of spDirs){const sx2=nx+ddx,sy2=ny+ddy;if(inB(sx2,sy2)&&passable(G.map.t,sx2,sy2)&&!enemyAt(sx2,sy2)){G.ents.push({...tpl,x:sx2,y:sy2,eid:'ambush_'+Date.now(),isEnemy:true});msg(`\u2620 A ${tpl.name} rises!`,'d');break;}}}
+    }
+    else if(nt===T.TELEPORT){
+      if(G.dl===4)msg('\u2295 An arcane circle. Press [ > ] to return to the surface.','i');
+      else if(G.dl===0&&G.cachedDungeonFloor)msg('\u2295 The return circle pulses. Press [ > ] to descend back.','i');
+    }
+    else if(nt===T.SYMBOL_INACTIVE){
+      const sym=G.ents.find(e=>e.isObeliskSymbol&&e.x===nx&&e.y===ny);
+      msg('\u2726 Wait here for 2 turns to awaken this symbol.','i');
+      if(sym){const GUARDIAN_HINTS={watcher_yellow:'You feel observed from somewhere that does not exist.',spawn_deep_tongue:'A clicking wet sound rises from nowhere.',the_frayed:'The air frays at the edges here.',eldest_hunger:'The temperature drops. Something vast has been waiting.'};msg(`\u2726 ${GUARDIAN_HINTS[sym.guardian]||'Something stirs behind this symbol.'}`,'i');}
+    }
+    else if(nt===T.SYMBOL_ACTIVE){msg('\u2726 The symbol burns gold. Something was here.','i');}
+    else if(nt===T.CATACOMB_ALTAR){msg('\u2625 A bone-white shrine. Stand here and wait to interact.','i');}
+    else if(nt===T.BURROW){msg("[ Rat's Nest ] \u25be A hidden burrow. Press [ > ] to enter.",'i');}
+    else if(nt===T.SU&&G.burrowed){msg('The exit hole. Press [ > ] to crawl out.','i');}
+    else if(nt===T.CATACOMB_ENTRY){msg('[ Catacombs ] \u25bd A gaping tomb entrance. Press [ > ] to descend.','i');}
+    else if(nt===T.SLIME_PIT_ENTRY){msg('[ Slime Pits ] \u2304 A cracked floor glowing faintly green. Press [ > ] to drop in.','i');}
+    else if(nt===T.CHAINS){triggerChainRattle(nx,ny,true);}
+    // Show/hide Close button when near closeable tiles
+    const closeBtn=$('close-btn');
+    if(closeBtn){
+      const nearCloseable=[[0,0],[-1,0],[1,0],[0,-1],[0,1]].some(([ddx,ddy])=>{const t2=G.map.t[ny+ddy]&&G.map.t[ny+ddy][nx+ddx];return t2===T.DOOR_OPEN||t2===T.FENCE_GATE;});
+      closeBtn.style.display=nearCloseable?'':'none';
     }
   }else return;
   p.turns++;spRegen();tick(true);
@@ -3987,29 +4402,68 @@ function doCast(){
 function doWait(){
   if(!G||G.invOpen)return;
   const p=G.p;
-  // Check for corpse on player's tile
+  const tile=G.map.t[p.y][p.x];
   const corpse=G.ents.find(e=>e.isItem&&e.type==='corpse'&&e.x===p.x&&e.y===p.y);
   if(corpse){
-    const isGhoul=p.classId==='starved';
+    const isStarved=p.classId==='starved';
     corpse._destroyProgress=(corpse._destroyProgress||0)+1;
     if(corpse._destroyProgress>=2){
       G.ents=G.ents.filter(e=>e!==corpse);
-      if(isGhoul){
-        const heal=Math.max(1,Math.floor((corpse._srcHp||4)*0.25));
-        p.hp=Math.min(p.maxHp,p.hp+heal);
-        msg(`You devour the ${corpse._srcName} corpse. (+${heal} HP)`,'g');
-      }else{
-        msg(`You ensure the ${corpse._srcName} stays dead.`,'i');
-      }
-    }else{
-      const turnsLeft=2-corpse._destroyProgress;
-      if(isGhoul)msg(`You tear into the ${corpse._srcName} corpse... (${turnsLeft} turn${turnsLeft!==1?'s':''} remaining)`,'i');
-      else msg(`You desecrate the ${corpse._srcName} corpse... (${turnsLeft} turn${turnsLeft!==1?'s':''} remaining)`,'i');
-    }
-  }else{
-    msg('You wait a moment.','i');
+      if(isStarved){const heal=Math.max(1,Math.floor((corpse._srcHp||4)*0.25));p.hp=Math.min(p.maxHp,p.hp+heal);msg(`You devour the ${corpse._srcName} corpse. (+${heal} HP)`,'g');}
+      else msg(`You ensure the ${corpse._srcName} stays dead.`,'i');
+    }else{const turnsLeft=2-corpse._destroyProgress;if(isStarved)msg(`You tear into the ${corpse._srcName} corpse... (${turnsLeft} turn${turnsLeft!==1?'s':''} remaining)`,'i');else msg(`You desecrate the ${corpse._srcName} corpse... (${turnsLeft} turn${turnsLeft!==1?'s':''} remaining)`,'i');}
+    p.turns++;spRegen();tick(true);return;
   }
+  if(tile===T.SYMBOL_INACTIVE){
+    p._symWait=(p._symWait||0)+1;
+    if(p._symWait>=2){p._symWait=0;activateObeliskSymbol(p.x,p.y);}
+    else msg('\u2726 You focus on the symbol... (1 more turn)','i');
+    p.turns++;spRegen();tick(true);return;
+  }else{p._symWait=0;}
+  // Teleport circle: stand for 2 turns to activate
+  if(tile===T.TELEPORT){
+    p._teleWait=(p._teleWait||0)+1;
+    if(p._teleWait>=2){
+      p._teleWait=0;
+      doInteract(); // fires the actual teleport logic
+      return;
+    }else{
+      if(G.dl===0&&G.cachedDungeonFloor)msg('\u2295 The return circle hums. Wait one more turn to descend.','i');
+      else if(G.dl===4)msg('\u2295 The circle thrums beneath you. Wait one more turn to ascend.','i');
+      else msg('This circle is inert here.','i');
+      p.turns++;spRegen();tick(true);return;
+    }
+  }else{p._teleWait=0;}
+  if(tile===T.CATACOMB_ALTAR){activateCatacombShrine(p.x,p.y);p.turns++;spRegen();tick(true);return;}
+  if(tile===T.ALTAR){activateAltar(p.x,p.y);p.turns++;spRegen();tick(true);return;}
+  const penitent=G.ents.find(e=>e.isPenitent&&e._kneeling&&e.x===p.x&&e.y===p.y);
+  if(penitent){
+    const roll=Math.random();
+    if(roll<0.25){msg('The Penitent opens its eyes. (+1 STR, +1 WITS)','g');G.p.str++;G.p.wits++;}
+    else if(roll<0.65){gainMadness(12);if(!G)return;msg('The Penitent screams. Your mind fractures.','d');}
+    else{msg('The Penitent rises, hostile.','d');penitent._kneeling=false;gainMadness(4);if(!G)return;}
+    penitent._interacted=true;p.turns++;spRegen();tick(true);return;
+  }
+  msg('You wait a moment.','i');
   p.turns++;spRegen();tick(true);
+}
+function doGet(){
+  if(!G||G.invOpen)return;
+  const item=G.ents.find(e=>e.isItem&&e.x===G.p.x&&e.y===G.p.y&&e.type!=='corpse');
+  if(item){pickupItem(item);return;}
+  msg('Nothing here to pick up.','i');
+}
+function doClose(){
+  if(!G||G.invOpen)return;
+  const p=G.p;
+  const dirs=[[0,0],[-1,0],[1,0],[0,-1],[0,1]];
+  for(const[dx,dy]of dirs){
+    const cx=p.x+dx,cy=p.y+dy;
+    if(!inB(cx,cy))continue;
+    const t2=G.map.t[cy][cx];
+    if(t2===T.DOOR_OPEN){G.map.t[cy][cx]=T.DOOR;msg('You close the door.','i');G.p.turns++;spRegen();tick(true);const cb=$('close-btn');if(cb)cb.style.display='none';return;}
+    if(t2===T.FENCE_GATE){G.map.t[cy][cx]=T.FENCE;msg('You close the gate.','i');G.p.turns++;spRegen();tick(true);const cb=$('close-btn');if(cb)cb.style.display='none';return;}
+  }
 }
 function spRegen(){const p=G.p;if(p.turns%4===0)p.sp=Math.min(p.maxSp,p.sp+1);}
 function pickBerryBush(x,y){
@@ -4230,7 +4684,7 @@ function activateAltar(ax,ay){
 function killEnemy(en){
   if(!G)return;
   msg(`The ${en.name} is slain!`,'g');
-  G.p.xp+=en.xp;
+  G.p.xp+=en.xp;G.p.kills=(G.p.kills||0)+1;
   G.ents=G.ents.filter(e=>e!==en);
   if(en.id==='boss'){winGame();return;}
 
@@ -5062,300 +5516,6 @@ function pickupItem(item){
   G.ents=G.ents.filter(e=>e!==item);
   G.p.turns++;spRegen();tick(true);
 }
-function doInteract(){
-  if(!G||G.invOpen)return;
-  const p=G.p;
-  const tile=G.map.t[p.y][p.x];
-
-  // ---- TELEPORT CIRCLE ----
-  if(tile===T.TELEPORT){
-    if(G.dl===0){
-      // On surface — return to cached dungeon floor
-      if(!G.cachedDungeonFloor){
-        msg('The arcane circle is dormant. It awaits activation from below.','i');
-        return;
-      }
-      msg('\u2295 The circle pulses. You are pulled back into the depths.','m');
-      const cache=G.cachedDungeonFloor;
-      G.cachedDungeonFloor=null;
-      G.map={t:cache.map.t,rooms:cache.map.rooms};
-      G.ents=cache.ents;
-      G.dl=cache.dl;
-      G.seen=cache.seen;
-      G.vis=new Set();
-      G.p.x=cache.px;G.p.y=cache.py;
-      $('dlvl').textContent='Dungeon '+G.dl;
-      G.p.turns++;spRegen();tick(false);
-      return;
-    }else if(G.dl===4){
-      // On floor 4 — teleport to surface
-      msg('\u2295 An arcane circle hums beneath your feet. You are pulled upward.','m');
-      // Cache current floor state
-      G.cachedDungeonFloor={
-        map:{t:G.map.t,rooms:G.map.rooms},
-        ents:G.ents,
-        dl:G.dl,
-        seen:G.seen,
-        px:p.x,py:p.y
-      };
-      const surf=genSurface();
-      G.map={t:surf.t,rooms:[]};
-      G.ents=surf.ents;
-      G.gatePositions=surf.gatePositions;
-      G.dl=0;
-      G.seen=new Set();G.vis=new Set();
-      p.x=surf.sx;p.y=surf.sy;
-      G.p.turns++;spRegen();tick(false);
-      return;
-    }else{
-      msg('This circle is inert here.','i');
-      return;
-    }
-  }
-  // ---- WELL ----
-  if(tile===T.WELL){
-    if(p.hp>=p.maxHp){msg('The well water calls to you, but you are uninjured.','i');return;}
-    gainMadness(12);if(!G)return;
-    p.hp=p.maxHp;
-    msg('You drink from the well. The water tastes of iron and old stone. Something is wrong about it — but you feel whole again.','g');
-    G.p.turns++;spRegen();tick(true);return;
-  }
-  // ---- CONFESSIONAL ----
-  if(tile===T.CONFESSIONAL){
-    if(G._confessionalUsed){msg('You have already unburdened yourself here.','i');return;}
-    G._confessionalUsed=true;
-    const hints=[
-      'Something stirs beneath the graveyard. It has been waiting a long time.',
-      'The skeletons were placed there to guard something. Not to keep people out — to keep it in.',
-      'The rats down there are not ordinary rats. Their king is not an ordinary rat.',
-      'There are things in the slime that remember what they were before.',
-      'The Pale Watcher does not see with eyes. It sees with what you fear.',
-      'The Trapezohedron calls to those who descend far enough. It always has.',
-    ];
-    const hint=hints[rnd(hints.length)];
-    const red=Math.floor(p.madness*0.20);
-    p.madness=Math.max(0,p.madness-red);
-    msg(`You sit in the confessional. The silence presses in. A voice — not yours — whispers: "${hint}"`, 'i');
-    if(red>0)msg(`Your Madness eases slightly. (-${red})`,'g');
-    G.p.turns++;spRegen();tick(true);return;
-  }
-  // ---- CANDELABRA ----
-  if(tile===T.CANDELABRA){
-    if(G._candleUsed){msg('The candle has already given what it can.','i');return;}
-    G._candleUsed=true;
-    p.lightR=Math.min(15,p.lightR+1);
-    G.map.t[p.y][p.x]=T.STONE_FLOOR; // candle burns out
-    msg('You take a candle from the candelabra. Your light radius increases permanently.','g');
-    G.p.turns++;spRegen();tick(true);return;
-  }
-  if(tile===T.BUSH_BERRY){
-    pickBerryBush(p.x,p.y);
-    G.p.turns++;spRegen();tick(true);
-    return;
-  }
-  if(tile===T.FOXGLOVE){
-    const STACK_MAX=5;
-    const existing=p.inv.find(i=>i.id==='foxglove');
-    const count=existing?(existing.n||1):0;
-    if(count>=STACK_MAX){msg(`You can't carry more than ${STACK_MAX} Foxglove.`,'i');return;}
-    const tpl=ITEM_DEFS.find(i=>i.id==='foxglove');
-    if(existing){existing.n=(existing.n||1)+1;}
-    else{p.inv.push({...tpl,n:1});}
-    G.map.t[p.y][p.x]=T.GRASS;
-    msg(`\u273f You pick the foxglove. (${count+1}/${STACK_MAX})`,'g');
-    G.p.turns++;spRegen();tick(true);
-    return;
-  }
-
-  // ---- ITEM PICKUP (highest priority — always checked before tile interactions) ----
-  // Check current tile first, then all adjacent tiles
-  const allPickupDirs=[[0,0],[-1,0],[1,0],[0,-1],[0,1]];
-  for(const [ddx,ddy] of allPickupDirs){
-    const ix=p.x+ddx,iy=p.y+ddy;
-    if(!inB(ix,iy))continue;
-    const item=G.ents.find(e=>e.isItem&&e.x===ix&&e.y===iy);
-    if(!item)continue;
-    if(item.type==='corpse'){continue;} // corpses don't block, but skip them here
-    // Found a pickup-able item — handle it and return immediately
-    pickupItem(item);
-    return;
-  }
-
-  // ---- TILE INTERACTIONS (only if no item found nearby) ----
-  // Check current tile first
-  if(tile===T.BUSH_BERRY){
-    pickBerryBush(p.x,p.y);
-    G.p.turns++;spRegen();tick(true);
-    return;
-  }
-  if(tile===T.FOXGLOVE){
-    const STACK_MAX=5;
-    const existing=p.inv.find(i=>i.id==='foxglove');
-    const count=existing?(existing.n||1):0;
-    if(count>=STACK_MAX){msg(`You can't carry more than ${STACK_MAX} Foxglove.`,'i');return;}
-    const tpl=ITEM_DEFS.find(i=>i.id==='foxglove');
-    if(existing){existing.n=(existing.n||1)+1;}
-    else{p.inv.push({...tpl,n:1});}
-    G.map.t[p.y][p.x]=T.GRASS;
-    msg(`\u273f You pick the foxglove. (${count+1}/${STACK_MAX})`,'g');
-    G.p.turns++;spRegen();tick(true);
-    return;
-  }
-  if(tile===T.CHEST||tile===T.CHEST_OPEN){openChest(p.x,p.y);G.p.turns++;spRegen();tick(true);return;}
-  if(tile===T.IRON_CHEST||tile===T.IRON_CHEST_OPEN){openIronChest(p.x,p.y);G.p.turns++;spRegen();tick(true);return;}
-  if(tile===T.GILDED_CHEST||tile===T.GILDED_CHEST_OPEN){openGildedChest(p.x,p.y);G.p.turns++;spRegen();tick(true);return;}
-  if(tile===T.OFFERING||tile===T.OFFERING_OPEN){openOffering(p.x,p.y);G.p.turns++;spRegen();tick(true);return;}
-
-  // ---- ADJACENT TILE INTERACTIONS ----
-  const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
-  for(const [ddx,ddy] of dirs){
-    const anx=p.x+ddx,any=p.y+ddy;
-    if(!inB(anx,any))continue;
-    const at=G.map.t[any][anx];
-    if(at===T.CHEST){openChest(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.IRON_CHEST||at===T.IRON_CHEST_OPEN){openIronChest(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.GILDED_CHEST||at===T.GILDED_CHEST_OPEN){openGildedChest(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.BUSH_BERRY){pickBerryBush(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.FOXGLOVE){
-      const STACK_MAX=5;
-      const existing=p.inv.find(i=>i.id==='foxglove');
-      const count=existing?(existing.n||1):0;
-      if(count>=STACK_MAX){msg(`You can't carry more than ${STACK_MAX} Foxglove.`,'i');return;}
-      const tpl=ITEM_DEFS.find(i=>i.id==='foxglove');
-      if(existing){existing.n=(existing.n||1)+1;}
-      else{p.inv.push({...tpl,n:1});}
-      G.map.t[any][anx]=T.GRASS;
-      msg(`\u273f You pick the foxglove. (${count+1}/${STACK_MAX})`,'g');
-      G.p.turns++;spRegen();tick(true);return;
-    }
-    if(at===T.OFFERING){openOffering(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.ALTAR){activateAltar(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.CATACOMB_ALTAR){activateCatacombShrine(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.OBELISK||at===T.OBELISK_ACTIVE){activateObelisk(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.SYMBOL_INACTIVE){activateObeliskSymbol(anx,any);G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.BONE_PILE){
-      G.map.t[any][anx]=T.FLOOR; // pile is disturbed — gone after looting
-      // Loot table
-      const boneLoot=[
-        {id:'bandage',n:rr(1,3)},{id:'serum',n:1},{id:'whiskey',n:1},
-        {id:'medkit',n:1},{id:'foxglove',n:1},{id:'mutagen',n:1},
-        {id:'loose_ammo',n:rr(3,8)},null,null, // nulls = empty pile
-      ];
-      const loot=boneLoot[rnd(boneLoot.length)];
-      if(loot){
-        const tpl=ITEM_DEFS.find(i=>i.id===loot.id);
-        if(tpl){
-          dropLoot({...tpl,n:loot.n,eid:'bone_loot_'+Date.now()},anx,any);
-          msg(`\u2620 You sift through the bones. Found: ${tpl.name}.`,'g');
-        }
-      }else{
-        msg('\u2620 Nothing but dust and old bones.','i');
-      }
-      // 30% chance: spawn a random skeletal enemy (not Deathless Warden)
-      if(Math.random()<0.30){
-        const ambushPool=[
-          {id:'skeleton',name:'Skeleton',sym:'s',color:'#d0d0c0',hp:5,maxHp:5,str:2,agi:2,dmg:2,ranged:0,xp:6},
-          {id:'burial_shade',name:'Burial Shade',sym:'B',color:'#7070c0',hp:8,maxHp:8,str:4,agi:7,xp:22,dmg:3,ranged:0,walksThrough:true,isGhost:true},
-          {id:'bone_archer',name:'Bone Archer',sym:'b',color:'#c0c090',hp:7,maxHp:7,str:3,agi:4,xp:18,dmg:4,ranged:1},
-          {id:'mummified_knight',name:'Mummified Knight',sym:'m',color:'#c0a060',hp:20,maxHp:20,str:7,agi:1,xp:40,dmg:7,ranged:0},
-        ];
-        const tpl=ambushPool[rnd(ambushPool.length)];
-        // Find a nearby spawn position not adjacent to player
-        const spawnDirs=[[-2,0],[2,0],[0,-2],[0,2],[-2,-1],[2,-1],[-2,1],[2,1]];
-        for(const[ddx,ddy]of spawnDirs){
-          const sx2=anx+ddx,sy2=any+ddy;
-          if(inB(sx2,sy2)&&passable(G.map.t,sx2,sy2)&&!enemyAt(sx2,sy2)){
-            G.ents.push({...tpl,x:sx2,y:sy2,eid:'ambush_'+Date.now(),isEnemy:true});
-            msg(`\u2620 The bones stir. A ${tpl.name} rises!`,'d');
-            break;
-          }
-        }
-      }
-      G.p.turns++;spRegen();tick(true);return;
-    }
-    const bcMeta=G.ents.find(e=>e.isMeta&&e.isBoundCultist&&e.x===anx&&e.y===any);
-    // The Penitent: interact while kneeling triggers one of three outcomes
-    const penitent=G.ents.find(e=>e.isPenitent&&e._kneeling&&e.x===anx&&e.y===any);
-    if(penitent){
-      const roll=Math.random();
-      if(roll<0.25){
-        msg('The Penitent opens its eyes. Something passes between you. (+1 STR, +1 WITS)','g');
-        G.p.str++;G.p.wits++;
-      }else if(roll<0.65){
-        msg('The Penitent opens its mouth. The sound that comes out is wrong.','d');
-        gainMadness(12);if(!G)return;
-      }else{
-        msg('The Penitent rises. It was never praying.','d');
-        gainMadness(4);if(!G)return;
-      }
-      penitent._kneeling=false;
-      penitent._interacted=true;
-      G.p.turns++;spRegen();tick(true);return;
-    }
-    if(bcMeta){
-      G.ents=G.ents.filter(e=>e!==bcMeta);
-      msg('You reach out and break the binding. The cultist gasps and flees—','d');
-      msg('—something tears open in the air where they hung.','d');
-      gainMadness(6);if(!G)return;
-      G.ents.push({id:'the_hollow',name:'The Hollow',sym:'\u00d8',color:'#c0d0a0',
-        hp:18,maxHp:18,str:0,agi:4,xp:60,dmg:0,ranged:0,
-        x:anx,y:any,eid:'hollow_'+Date.now(),isEnemy:true,isHollow:true,isGhost:true});
-      G.p.turns++;spRegen();tick(true);return;
-    }
-    if(at===T.TOMB){
-      const epitaphMeta=G.ents.find(e=>e.isMeta&&e.isTombEpitaph&&e.x===anx&&e.y===any);
-      const cacheMeta=G.ents.find(e=>e.isMeta&&e.isTombCache&&e.x===anx&&e.y===any);
-      if(cacheMeta){
-        G.ents=G.ents.filter(e=>e!==cacheMeta);
-        G.map.t[any][anx]=T.GRASS;
-        const ckTpl=ITEM_DEFS.find(i=>i.id==='church_key');
-        const bdTpl=ITEM_DEFS.find(i=>i.id==='bandage');
-        const fgTpl=ITEM_DEFS.find(i=>i.id==='foxglove');
-        const wkTpl=ITEM_DEFS.find(i=>i.id==='whiskey');
-        if(ckTpl)dropLoot({...ckTpl,eid:'ck_'+Date.now()},anx,any);
-        if(bdTpl)dropLoot({...bdTpl,n:2,eid:'bd_cache_'+Date.now()},anx,any+1);
-        if(fgTpl)dropLoot({...fgTpl,n:1,eid:'fg_cache_'+Date.now()},anx+1,any);
-        if(wkTpl)dropLoot({...wkTpl,n:1,eid:'wk_cache_'+Date.now()},anx,any-1);
-        msg('The tombstone crumbles and topples. Something was buried beneath it.','g');
-        gainMadness(4);G.p.turns++;spRegen();tick(true);return;
-      }else if(epitaphMeta){
-        const lines=epitaphMeta.epitaph.split('\n');
-        lines.forEach(l=>msg(l,'i'));
-        G.p.turns++;spRegen();tick(true);return;
-      }
-    }
-    if(at===T.DOOR){G.map.t[any][anx]=T.DOOR_OPEN;msg('You open the door.');G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.DOOR_OPEN){G.map.t[any][anx]=T.DOOR;msg('You close the door.');G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.FENCE_GATE){G.map.t[any][anx]=T.FENCE;msg('You close the gate.');G.p.turns++;spRegen();tick(true);return;}
-    if(at===T.FENCE){
-      if(G.gatePositions&&G.gatePositions.has(key(anx,any))){
-        G.map.t[any][anx]=T.FENCE_GATE;msg('You open the gate.');G.p.turns++;spRegen();tick(true);return;
-      }
-    }
-    if(at===T.LOCKED_DOOR){
-      const keyIdx=p.inv.findIndex(i=>i.id==='church_key');
-      if(keyIdx===-1){msg('The vestry door is locked. You need a key found somewhere in the graveyard.','i');}
-      else{
-        p.inv.splice(keyIdx,1);
-        G.map.t[any][anx]=T.DOOR_OPEN;
-        msg('The church key turns smoothly. The vestry door swings open.','g');
-        G.p.turns++;spRegen();tick(true);
-      }
-      return;
-    }
-    if(at===T.SEALED_DOOR){
-      const keyIdx=G.p.inv.findIndex(i=>i.id==='catacomb_key');
-      if(keyIdx===-1){msg('The sealed door will not budge. You need the Catacomb Key.','d');}
-      else{
-        G.p.inv.splice(keyIdx,1);
-        G.map.t[any][anx]=T.DOOR_OPEN;
-        msg('The Catacomb Key fits perfectly. The sealed door grinds open.','g');
-        G.p.turns++;spRegen();tick(true);
-      }
-      return;
-    }
-  }
-}
 function doReload(){
   if(!G||G.invOpen)return;
   const p=G.p,w=p.rangedWeapon;
@@ -5932,13 +6092,15 @@ function applyUse(item){
       G.ents=G.ents.filter(e=>{if(e.isEnemy&&e.hp<=0){killEnemy(e);return false;}return true;});
       break;
     }
-    case'blueberry':
-      p.hp=Math.min(p.maxHp,p.hp+1);
-      reduceMadness(1);
+    case'blueberry':{
+      const bheal=rr(1,4),bmad=rr(1,4);
+      p.hp=Math.min(p.maxHp,p.hp+bheal);
+      reduceMadness(bmad);
       const confTurns=rr(4,7);
       p.confused={turns:confTurns};
-      msg(`\u2766 The blueberry is sweet. (+1 HP, -1 Madness) But you feel dizzy! (Confused ${confTurns} turns)`,'g');
+      msg(`\u2766 The blueberry is sweet. (+${bheal} HP, -${bmad} Madness) But you feel dizzy! (Confused ${confTurns} turns)`,'g');
       break;
+    }
     case'rand':{
       const r=rnd(4);
       if(r===0){p.hp=Math.min(p.maxHp,p.hp+6);msg('The elixir restores vitality!','g');}
@@ -6019,11 +6181,56 @@ function applyUse(item){
 }
 function die(killer){
   const p=G.p;
+  // Save death record to localStorage
+  const cl=CLASSES.find(c=>c.id===p.classId)||{name:p.classId};
+  const charName=p.charName||cl.name;
+  const area=G.burrowed?"Rat's Nest":G.inCatacombs?'Catacombs':G.inSlimePit?'Slime Pits':G.dl===0?'Surface':'Floor '+G.dl;
+  saveTombRecord({
+    name:charName,classId:p.classId,className:cl.name,
+    floor:area,cause:killer,
+    ruin:p.ruin||0,level:p.lvl||1,
+    turns:p.turns||0,kills:p.kills||0,
+    quip:getDeathMsg(killer,charName),
+    timestamp:Date.now(),
+  });
   const mutStr=(p.mutations&&p.mutations.length>0)?`\nMutations: ${p.mutations.map(id=>{const m=MUTATIONS.find(x=>x.id===id);return m?m.name:id;}).join(', ')}`:'`';
   $('death-body').innerHTML=`Slain by: ${killer}<br>Dungeon Level: ${G.dl}<br>Character Level: ${p.lvl}<br>Turns survived: ${p.turns}${mutStr.replace('\n','<br>')}`;
   stopGameMusic();stopCatacombMusic();stopRatMusic();stopSlimeMusic();stopObeliskMusic();
   show('s-death');G=null;
 }
+let _pendingTombCache=null; // set when a cache tomb is read, cleared on modal close
+function openTombModal(record,cacheData){
+  _pendingTombCache=cacheData||null;
+  $('tomb-name').textContent='\u271d '+record.name.toUpperCase();
+  $('tomb-class').textContent=record.className+(record.classId!==record.className?'':'')+' \u00b7 '+record.floor;
+  $('tomb-level').textContent='Character Level: '+record.level;
+  $('tomb-ruin').textContent='Ruin: '+record.ruin+' / 5';
+  $('tomb-turns').textContent='Turns: '+record.turns;
+  $('tomb-kills').textContent='Kills: '+(record.kills||0);
+  $('tomb-quip').textContent='\u201c'+record.quip+'\u201d';
+  $('tomb-cause').textContent='Slain by: '+record.cause;
+  $('tomb-modal').classList.add('open');
+}
+function closeTombModal(){
+  $('tomb-modal').classList.remove('open');
+  if(_pendingTombCache){
+    const{x,y}=_pendingTombCache;
+    G.map.t[y][x]=T.GRASS;
+    const ckTpl=ITEM_DEFS.find(i=>i.id==='church_key');
+    const bdTpl=ITEM_DEFS.find(i=>i.id==='bandage');
+    const fgTpl=ITEM_DEFS.find(i=>i.id==='foxglove');
+    const wkTpl=ITEM_DEFS.find(i=>i.id==='whiskey');
+    if(ckTpl)dropLoot({...ckTpl,eid:'ck_'+Date.now()},x,y);
+    if(bdTpl)dropLoot({...bdTpl,n:2,eid:'bd_cache_'+Date.now()},x,y+1);
+    if(fgTpl)dropLoot({...fgTpl,n:1,eid:'fg_cache_'+Date.now()},x+1,y);
+    if(wkTpl)dropLoot({...wkTpl,n:1,eid:'wk_cache_'+Date.now()},x,y-1);
+    msg('The tombstone crumbles. Something was buried beneath it.','g');
+    gainMadness(4);
+    _pendingTombCache=null;
+    render();hud();
+  }
+}
+// Allow E key to close tomb modal
 function winGame(){
   const p=G.p;
   $('win-body').innerHTML=`You seized the Shining Trapezohedron!<br>Character Level: ${p.lvl}<br>Dungeon Levels: 10<br>Turns: ${p.turns}`;
@@ -6033,6 +6240,7 @@ function winGame(){
 
 // ---- KEYBOARD ----
 document.addEventListener('keydown',e=>{
+  if($('tomb-modal').classList.contains('open')){if(e.key==='e'||e.key==='Escape')closeTombModal();return;}
   if(!G||G.invOpen)return;
   const k=e.key;
   if(k==='ArrowUp'||k==='k'||k==='8')mv(0,-1);
@@ -6044,7 +6252,8 @@ document.addEventListener('keydown',e=>{
   else if(k==='b'||k==='1')mv(-1,1);
   else if(k==='n'||k==='3')mv(1,1);
   else if(k==='.'||k==='5')doWait();
-  else if(k==='e')doInteract();
+  else if(k==='g'||k==='G')doGet();
+  else if(k==='c'||k==='C')doClose();
   else if(k==='>')doStairs();else if(k==='f')doFire();
   else if(k==='r')doReload();
   else if(k==='t')doThrow();
