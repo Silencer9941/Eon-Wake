@@ -417,12 +417,12 @@ addPath(toPath(starPts));
 "use strict";
 const VERSION='2.3.0';
 const CLASSES=[
-  {id:'veteran',name:'War Veteran',sym:'V',color:'#d4a050',hp:14,sp:6,str:7,agi:4,wits:3,start:'pistol',desc:'Tough fighter. High HP & STR.'},
-  {id:'rogue',name:'Rogue',sym:'R',color:'#50c090',hp:10,sp:8,str:4,agi:8,wits:4,start:'dagger',desc:'Fast and sneaky. High AGI.'},
-  {id:'occultist',name:'Occultist',sym:'O',color:'#9060d8',hp:8,sp:14,str:3,agi:4,wits:9,start:'tome',desc:'Casts dark spells. High WITS.'},
-  {id:'exorcist',name:'Exorcist',sym:'E',color:'#d8d050',hp:10,sp:10,str:5,agi:4,wits:7,start:'holy',desc:'Banishes the undead.'},
-  {id:'ghoul',name:'Ghoul',sym:'G',color:'#80c050',hp:18,sp:4,str:9,agi:5,wits:2,start:'claws',desc:'Regenerates HP on kills.'},
-  {id:'flagellant',name:'Flagellant',sym:'F',color:'#d05050',hp:12,sp:6,str:6,agi:5,wits:4,start:'whip',startRanged:'revolver',desc:'Stronger when wounded. Whip strikes from 2 tiles away.'},
+  {id:'gravedigger',name:'Grave Digger',sym:'G',color:'#8a7050',hp:16,sp:2,str:8,agi:4,wits:1,start:'pickaxe',desc:'Hardened by years among the dead. High HP & STR. Pickaxe attacks can Fracture enemies, reducing their STR and AGI. Madness gains reduced by 25%.'},
+  {id:'rogue',name:'Rogue',sym:'R',color:'#50c090',hp:10,sp:8,str:4,agi:8,wits:4,start:'dagger',desc:'Fast and elusive. High AGI. Crits more often and hits harder when they land.'},
+  {id:'apostate',name:'Apostate',sym:'A',color:'#9060d8',hp:10,sp:12,str:3,agi:4,wits:9,start:'tome',startMelee:'dagger',desc:'A former priest who rejected faith for darker knowledge. Casting spells restores 1 HP. High WITS.'},
+  {id:'inquisitor',name:'Inquisitor',sym:'I',color:'#d8d050',hp:10,sp:10,str:7,agi:4,wits:5,start:'morningstar',startSpell:'holy',desc:'Devoted to destroying what should not exist. Killing undead restores 2 SP. Morningstar staggers enemies.'},
+  {id:'starved',name:'The Starved',sym:'S',color:'#80c050',hp:18,sp:4,str:9,agi:5,wits:2,start:'claws',desc:'Something between living and dead. Gains HP on every kill. Can consume corpses to heal.'},
+  {id:'ascetic',name:'Ascetic',sym:'A',color:'#d05050',hp:12,sp:6,str:6,agi:5,wits:4,start:'whip',startRanged:'revolver',desc:'Pain is discipline. Deals 1.5× damage below 50% HP. Whip strikes from 2 tiles away.'},
 ];
 
 // MUTATIONS
@@ -553,6 +553,10 @@ const ITEM_DEFS=[
   {id:'pickaxe_1',name:'Pickaxe +1',sym:'/',color:'#c0b0a0',desc:'Upgraded melee, 7 dmg',type:'weapon',ranged:0,dmg:7,upgraded:true},
   {id:'bone_club',name:'Bone Club',sym:'/',color:'#d8d0b0',desc:'Melee, 6 dmg. Heavy bone weapon.',type:'weapon',ranged:0,dmg:6},
   {id:'bone_club_1',name:'Bone Club +1',sym:'/',color:'#f0e8d0',desc:'Upgraded melee, 8 dmg.',type:'weapon',ranged:0,dmg:8,upgraded:true},
+  {id:'morningstar',name:'Morningstar',sym:'/',color:'#c0a870',desc:'Melee, 5 dmg. 20% chance to Stagger enemy (−2 STR, −1 AGI for 2 turns).',type:'weapon',ranged:0,dmg:5,isMorningstar:true},
+  {id:'morningstar_1',name:'Morningstar +1',sym:'/',color:'#e0c890',desc:'Melee, 7 dmg. 20% Stagger.',type:'weapon',ranged:0,dmg:7,upgraded:true,isMorningstar:true},
+  {id:'morningstar_2',name:'Morningstar +2',sym:'/',color:'#80d0ff',desc:'Melee, 9 dmg. 20% Stagger.',type:'weapon',ranged:0,dmg:9,upgraded:true,isMorningstar:true},
+  {id:'grease_tube',name:'Grease Tube',sym:'!',color:'#608090',desc:'Restores 6 HP. Iron Vessel mutants only — biological healing no longer works.',type:'use',eff:'grease_tube',v:6},
   {id:'rat_caller_pipe',name:"Rat Caller's Pipe",sym:'\u266a',color:'#b0c860',desc:"Summons a Giant Rat ally to fight for you. Costs 6 SP. Unique to the Rat's Nest.",type:'pipe'},
   // Catacomb rewards
   {id:'relic_interred',name:'Relic of the Interred',sym:'\u271d',color:'#d0c090',desc:'Passive: regenerates 1 HP every 3 turns.',type:'relic',eff:'regen'},
@@ -584,17 +588,17 @@ const ITEM_DEFS=[
   {id:'wound_script',name:'Wound-Script',sym:'\u2626',color:'#c03030',desc:'Passive relic. Each hit you receive deals 10%+1 damage back to the attacker.',type:'relic',eff:'wound_script'},
 ];
 const ENEMY_DEFS=[
-  {id:'worm_mass',name:'Mass of Worms',sym:'w',color:'#806040',hp:3,str:1,agi:2,xp:3,dmg:1,ranged:0,isWormMass:true,isTiny:true,_wormTick:0},
-  {id:'cultist',name:'Cultist',sym:'c',color:'#c07040',hp:6,str:3,agi:3,xp:10,dmg:2,ranged:0},
-  {id:'zombie',name:'Zombie',sym:'z',color:'#70c060',hp:12,str:4,agi:1,xp:15,dmg:3,ranged:0},
-  {id:'wolf',name:'Wolf',sym:'w',color:'#d0a060',hp:8,str:4,agi:6,xp:12,dmg:3,ranged:0},
-  {id:'deep_one',name:'Deep One',sym:'d',color:'#408090',hp:12,str:6,agi:4,xp:22,dmg:5,ranged:0},
-  {id:'dark_one',name:'Dark One',sym:'D',color:'#6040c0',hp:14,str:5,agi:3,xp:25,dmg:4,ranged:1},
-  {id:'floating',name:'Floating Horror',sym:'f',color:'#8040c0',hp:10,str:3,agi:7,xp:20,dmg:3,ranged:1},
-  {id:'wraith',name:'Wraith',sym:'W',color:'#8090d0',hp:13,str:6,agi:5,xp:30,dmg:5,ranged:0,isGhost:true},
-  {id:'mi_go',name:'Mi-Go',sym:'M',color:'#d080b0',hp:18,str:8,agi:6,xp:50,dmg:7,ranged:1},
-  {id:'ghoul_e',name:'Ghoul',sym:'g',color:'#90d060',hp:16,str:8,agi:5,xp:35,dmg:7,ranged:0},
-  {id:'elder',name:'Elder Thing',sym:'E',color:'#a0c070',hp:22,str:10,agi:4,xp:60,dmg:9,ranged:1},
+  {id:'worm_mass',name:'Mass of Worms',sym:'w',color:'#806040',hp:3,str:1,agi:2,xp:3,dmg:1,ranged:0,isWormMass:true,isTiny:true,_wormTick:0,floorMin:1,floorMax:4},
+  {id:'cultist',name:'Cultist',sym:'c',color:'#c07040',hp:6,str:3,agi:3,xp:10,dmg:2,ranged:0,floorMin:1,floorMax:5},
+  {id:'zombie',name:'Zombie',sym:'z',color:'#70c060',hp:12,str:4,agi:1,xp:15,dmg:3,ranged:0,floorMin:1,floorMax:6},
+  {id:'wolf',name:'Wolf',sym:'w',color:'#d0a060',hp:8,str:4,agi:6,xp:12,dmg:3,ranged:0,floorMin:2,floorMax:6},
+  {id:'deep_one',name:'Deep One',sym:'d',color:'#408090',hp:12,str:6,agi:4,xp:22,dmg:5,ranged:0,floorMin:3,floorMax:7},
+  {id:'dark_one',name:'Dark One',sym:'D',color:'#6040c0',hp:14,str:5,agi:3,xp:25,dmg:4,ranged:1,floorMin:4,floorMax:8},
+  {id:'floating',name:'Floating Horror',sym:'f',color:'#8040c0',hp:10,str:3,agi:7,xp:20,dmg:3,ranged:1,floorMin:4,floorMax:8},
+  {id:'wraith',name:'Wraith',sym:'W',color:'#8090d0',hp:13,str:6,agi:5,xp:30,dmg:5,ranged:0,isGhost:true,floorMin:5,floorMax:9},
+  {id:'mi_go',name:'Mi-Go',sym:'M',color:'#d080b0',hp:18,str:8,agi:6,xp:50,dmg:7,ranged:1,floorMin:6,floorMax:10},
+  {id:'ghoul_e',name:'Ghoul',sym:'g',color:'#90d060',hp:16,str:8,agi:5,xp:35,dmg:7,ranged:0,floorMin:7,floorMax:10},
+  {id:'elder',name:'Elder Thing',sym:'E',color:'#a0c070',hp:22,str:10,agi:4,xp:60,dmg:9,ranged:1,floorMin:8,floorMax:10},
   {id:'skeleton',name:'Skeleton',sym:'s',color:'#d0d0c0',hp:5,str:2,agi:2,xp:6,dmg:2,ranged:0},
   {id:'giant_skeleton',name:'Giant Skeleton',sym:'S',color:'#ffffff',hp:30,str:8,agi:2,xp:45,dmg:7,ranged:0},
   {id:'rat',name:'Rat',sym:'r',color:'#a08060',hp:4,str:2,agi:6,xp:4,dmg:1,ranged:0},
@@ -652,22 +656,23 @@ const T={
   IRON_GRATE:47,      // jail cell bars — see-through, ghost passable only
   JAIL_FLOOR:48,      // jail interior floor — dark blue-grey
   CHAINS:49,          // decoration — rust chains on jail walls
+  GORE:50,            // ritual room decoration — dried blood and viscera
 };
 const MW=80,MH=50,VW=16,VH=12;
 // Standard chest — consumables only (supply cache feel)
 const CHEST_LOOT=[
-  'bandage','medkit','whiskey','serum','hearty_meal','elixir','foxglove','loose_ammo','starblood_vial','happy_pill',
+  'bandage','medkit','whiskey','serum','hearty_meal','elixir','foxglove','loose_ammo','starblood_vial','happy_pill','grease_tube',
 ];
 // Iron chest — standard + +1 weapons (armoury)
 const IRON_CHEST_LOOT=[
-  'dagger','whip','pickaxe','bone_club',
+  'dagger','whip','pickaxe','bone_club','morningstar',
   'pistol','revolver','rifle','shotgun',
-  'dagger_1','whip_1','pickaxe_1','bone_club_1',
+  'dagger_1','whip_1','pickaxe_1','bone_club_1','morningstar_1',
   'pistol_1','revolver_1','rifle_1','shotgun_1',
 ];
 // Gilded chest — +2 weapons, Mutagen, rare Primers
 const GILDED_CHEST_LOOT=[
-  'dagger_2','whip_2','pickaxe_2','bone_club_2',
+  'dagger_2','whip_2','pickaxe_2','bone_club_2','morningstar_2',
   'pistol_2','revolver_2','rifle_2','shotgun_2',
   'mutagen','trapezohedron_shard','wound_script',
 ];
@@ -846,7 +851,7 @@ function passable(tiles,x,y){
          t===T.GILDED_CHEST||t===T.GILDED_CHEST_OPEN||
          t===T.BLOOD||t===T.BONE_PILE||
          t===T.SYMBOL_INACTIVE||t===T.SYMBOL_ACTIVE||
-         t===T.JAIL_FLOOR||t===T.CHAINS||
+         t===T.JAIL_FLOOR||t===T.CHAINS||t===T.GORE||
          t===T.OFFERING||t===T.OFFERING_OPEN||
          t===T.GRASS||t===T.BUSH||t===T.BUSH_BERRY||t===T.STONE_FLOOR||t===T.PATH||t===T.FENCE_GATE||
          t===T.BURROW||t===T.CATACOMB_ENTRY||t===T.OSSUARY_CHEST||t===T.OSSUARY_OPEN||t===T.ALCOVE||
@@ -909,6 +914,8 @@ function gainMadness(amount){
   if(!G)return;
   const p=G.p;
   if(hasMut('iron_vessel'))return;
+  // Grave Digger: hardened by years among the dead — 25% less Madness from all sources
+  if(G.p.classId==='gravedigger')amount=Math.max(1,Math.floor(amount*0.75));
   // Shroud Fragment relic or in inventory halves incoming
   const hasShroud=(p.relic&&p.relic.id==='shroud_fragment')||
     (p.inv&&p.inv.some(i=>i.id==='shroud_fragment'));
@@ -1214,7 +1221,7 @@ function buildClassPreview(cl){
   const itemParts=[];
   itemParts.push(startWepName);
   if(sr)itemParts.push(sr.name);
-  if(cl.id!=='ghoul')itemParts.push('Fists');
+  if(cl.id!=='starved')itemParts.push('Fists');
   itemParts.push('Bandage ×2','Whiskey ×1');
   panel.innerHTML=`
     <div class="cp-name" style="color:${cl.color}">${cl.sym} ${cl.name}</div>
@@ -1568,93 +1575,102 @@ function genRatNest(){
 
 // ---- CATACOMBS LEVEL GENERATOR ----
 function genCatacombs(){
-  const W=MW,H=MH; // 44 x 42
+  const W=MW,H=MH; // 80 x 50
   const t=[];
   for(let y=0;y<H;y++){t[y]=[];for(let x=0;x<W;x++)t[y][x]=T.WALL;}
   const ents=[];
 
-  // Layout (all y values fixed, no overlap):
-  // y=8  : spine1 (main corridor)
-  // y=8→17: north alcoves branch upward
-  // y=8→22: four vertical connectors link spine1→spine2
-  // y=22 : spine2 (second corridor)
-  // y=22→28: ossuary approach corridor at x=22
-  // y=28 : ossuary door
-  // y=29→35: ossuary chamber
-  // y=10→14: sealed chamber (north-west of ossuary, separate x range)
-  // x=6  : stairs up on spine1
+  // Layout scaled to 80x50:
+  // y=6   : spine1 (upper corridor, full width)
+  // y=18  : spine2 (middle corridor)
+  // y=30  : spine3 (lower corridor, new — connects to ossuary wing)
+  // North alcoves off spine1, south alcoves off spine2
+  // Vertical connectors link all three spines
+  // Ossuary approach at x=W/2, spine3 → ossuary door at y=42
+  // Ossuary chamber y=43→47
+  // Sealed chamber: side room off spine2
 
-  const spineY=8;
-  const spine2Y=22;
-  const approachX=22; // ossuary approach x
-  const ossDoorY=28;
-  const ossTopY=29;
-  const ossBotY=35;
-  const ossCx=22;
-  const ocy=ossBotY; // referenced below
+  const spine1Y=6;
+  const spine2Y=20;
+  const spine3Y=33;
+  const approachX=Math.floor(W/2);
+  const ossDoorY=42;
+  const ossTopY=43;
+  const ossBotY=47;
+  const ossCx=approachX;
 
-  // ---- SPINE 1 ----
-  for(let x=4;x<W-4;x++) if(inB(x,spineY)) t[spineY][x]=T.FLOOR;
+  // ---- SPINE 1 (full width) ----
+  for(let x=4;x<W-4;x++) if(inB(x,spine1Y)) t[spine1Y][x]=T.FLOOR;
 
-  // ---- SPINE 2 ----
+  // ---- SPINE 2 (slightly narrower) ----
   for(let x=6;x<W-6;x++) if(inB(x,spine2Y)) t[spine2Y][x]=T.FLOOR;
 
-  // ---- VERTICAL CONNECTORS ----
-  [10,20,30,W-10].forEach(cx2=>{
-    for(let y=spineY;y<=spine2Y;y++) if(inB(cx2,y)) t[y][cx2]=T.FLOOR;
+  // ---- SPINE 3 (lower, narrower still) ----
+  for(let x=10;x<W-10;x++) if(inB(x,spine3Y)) t[spine3Y][x]=T.FLOOR;
+
+  // ---- VERTICAL CONNECTORS: spine1 → spine2 ----
+  const conn12=[10,22,38,54,68];
+  conn12.forEach(cx2=>{
+    for(let y=spine1Y;y<=spine2Y;y++) if(inB(cx2,y)) t[y][cx2]=T.FLOOR;
   });
 
-  // ---- NORTH ALCOVES off spine1 (going upward) ----
-  [8,16,24,32,38].forEach(bx=>{
-    const blen=rr(3,6);
+  // ---- VERTICAL CONNECTORS: spine2 → spine3 ----
+  const conn23=[15,30,approachX,50,64];
+  conn23.forEach(cx2=>{
+    for(let y=spine2Y;y<=spine3Y;y++) if(inB(cx2,y)) t[y][cx2]=T.FLOOR;
+  });
+
+  // ---- NORTH ALCOVES off spine1 ----
+  [8,18,30,44,56,68].forEach(bx=>{
+    const blen=rr(3,7);
     for(let i=1;i<=blen;i++){
-      const by=spineY-i;
+      const by=spine1Y-i;
       if(inB(bx,by)&&by>1) t[by][bx]=T.FLOOR;
     }
-    const alcY=spineY-blen;
+    const alcY=spine1Y-blen;
     for(let dx=-1;dx<=1;dx++) for(let dy=0;dy<=1;dy++){
       const ax=bx+dx,ay=alcY-dy;
       if(inB(ax,ay)&&ay>1) t[ay][ax]=T.ALCOVE;
     }
   });
 
-  // ---- OSSUARY APPROACH CORRIDOR (x=22, spine2 → ossuary door) ----
-  // Must be carved BEFORE shrine placement so flanking alcoves exist for shrine scan
-  for(let y=spine2Y+1;y<ossDoorY;y++){
+  // ---- SOUTH ALCOVES off spine2 — with shrine altars ----
+  // Carved AFTER approach corridor so we can scan for flanking alcoves
+
+  // ---- OSSUARY APPROACH CORRIDOR (spine3 → ossuary door) ----
+  for(let y=spine3Y+1;y<ossDoorY;y++){
     if(inB(approachX,y)) t[y][approachX]=T.FLOOR;
-    // Flanking alcoves either side of the corridor
-    if((y-spine2Y)%2===0){
+    if((y-spine3Y)%2===0){
       if(inB(approachX-1,y)) t[y][approachX-1]=T.ALCOVE;
       if(inB(approachX+1,y)) t[y][approachX+1]=T.ALCOVE;
     }
   }
 
-  // ---- SOUTH ALCOVES off spine2 (going downward, stop before ossuary approach) ----
+  // ---- SOUTH ALCOVES off spine2 ----
   const shrinePositions=[];
-  [9,17,30,37].forEach(bx=>{
-    const blen=rr(2,4);
+  [12,24,38,52,66].forEach(bx=>{
+    const blen=rr(2,5);
     for(let i=1;i<=blen;i++){
       const by=spine2Y+i;
-      if(inB(bx,by)&&by<ossDoorY-2) t[by][bx]=T.FLOOR;
+      if(inB(bx,by)&&by<spine3Y-1) t[by][bx]=T.FLOOR;
     }
     const alcY=spine2Y+blen;
-    if(alcY<ossDoorY-2){
+    if(alcY<spine3Y-1){
       for(let dx=-1;dx<=1;dx++) for(let dy=0;dy<=1;dy++){
         const ax=bx+dx,ay=alcY+dy;
-        if(inB(ax,ay)&&ay<ossDoorY-1) t[ay][ax]=T.ALCOVE;
+        if(inB(ax,ay)&&ay<spine3Y) t[ay][ax]=T.ALCOVE;
       }
-      // Place altar at the tip of each south alcove (centre tile of the pocket)
-      const altX=bx,altY=alcY+1<ossDoorY-1?alcY+1:alcY;
+      const altX=bx,altY=Math.min(alcY+1,spine3Y-1);
       if(inB(altX,altY)){
         t[altY][altX]=T.CATACOMB_ALTAR;
         shrinePositions.push({x:altX,y:altY});
       }
     }
   });
-  // Two additional shrine altars flanking the ossuary approach — now that corridor exists
+  // Approach flanking shrines
   const approachShrineCandidates=[];
-  for(let y=spine2Y+2;y<ossDoorY-1;y++){
-    if((y-spine2Y)%2===0){
+  for(let y=spine3Y+2;y<ossDoorY-1;y++){
+    if((y-spine3Y)%2===0){
       if(inB(approachX-1,y)&&t[y][approachX-1]===T.ALCOVE)approachShrineCandidates.push({x:approachX-1,y});
       if(inB(approachX+1,y)&&t[y][approachX+1]===T.ALCOVE)approachShrineCandidates.push({x:approachX+1,y});
     }
@@ -1665,18 +1681,15 @@ function genCatacombs(){
     t[pos.y][pos.x]=T.CATACOMB_ALTAR;
     shrinePositions.push(pos);
   }
-  // Meta entities for shrine interaction
   shrinePositions.forEach(pos=>{
     ents.push({id:'_catacomb_shrine',x:pos.x,y:pos.y,isMeta:true,isCatacombShrine:true});
   });
 
-  // ---- OSSUARY CHAMBER (walled room) ----
-  const ow=5, oh=3;
-  // Floor interior
+  // ---- OSSUARY CHAMBER ----
+  const ow=6,oh=4;
   for(let y=ossTopY;y<=ossBotY;y++)
     for(let x=ossCx-ow;x<=ossCx+ow;x++)
       if(inB(x,y)) t[y][x]=T.STONE_FLOOR;
-  // Wall perimeter
   for(let x=ossCx-ow-1;x<=ossCx+ow+1;x++){
     if(inB(x,ossTopY-1)) t[ossTopY-1][x]=T.WALL;
     if(inB(x,ossBotY+1)) t[ossBotY+1][x]=T.WALL;
@@ -1685,10 +1698,22 @@ function genCatacombs(){
     if(inB(ossCx-ow-1,y)) t[y][ossCx-ow-1]=T.WALL;
     if(inB(ossCx+ow+1,y)) t[y][ossCx+ow+1]=T.WALL;
   }
-  // Door in north wall (connects approach to ossuary)
   if(inB(approachX,ossDoorY)) t[ossDoorY][approachX]=T.DOOR;
-  // Ossuary chest
+  // Ossuary chest in the chamber
   if(inB(ossCx,ossTopY+1)) t[ossTopY+1][ossCx]=T.OSSUARY_CHEST;
+
+  // ---- SEALED CHAMBER (side room off spine2, west side) ----
+  const chX=14,chY=spine2Y+2,chW=6,chH=4;
+  for(let dy=0;dy<chH;dy++) for(let dx=0;dx<chW;dx++){
+    const rx=chX+dx,ry=chY+dy;
+    if(inB(rx,ry)) t[ry][rx]=T.STONE_FLOOR;
+  }
+  // Sealed door on east wall connecting to spine connector
+  if(inB(chX+chW,chY+1)) t[chY+1][chX+chW]=T.SEALED_DOOR;
+  // Staff chest inside
+  const chCx=chX+Math.floor(chW/2),chCy=chY+Math.floor(chH/2);
+  if(inB(chCx,chCy)) t[chCy][chCx]=T.OSSUARY_CHEST;
+  ents.push({id:'_staff_marker',x:chCx,y:chCy,isMeta:true,isStaffChest:true});
   // Deathless Warden
   ents.push({id:'deathless_warden',name:'Deathless Warden',sym:'W',color:'#e0d080',
     hp:40,maxHp:40,str:9,agi:2,dmg:9,ranged:0,xp:150,
@@ -1713,26 +1738,15 @@ function genCatacombs(){
     if(inB(scx-1,y)&&y!==sdY) t[y][scx-1]=T.WALL; // skip sealed door row
     if(inB(scx+scw,y)) t[y][scx+scw]=T.WALL;
   }
-  // Sealed door in west wall (inside ossuary east wall)
-  if(inB(sdX,sdY)) t[sdY][sdX]=T.SEALED_DOOR;
-  // Restore ossuary east wall except the sealed door
-  for(let y=ossTopY-1;y<=ossBotY+1;y++){
-    if(y!==sdY&&inB(ossCx+ow+1,y)) t[y][ossCx+ow+1]=T.WALL;
-  }
-  // Staff chest inside sealed chamber
-  const chX=scx+3, chY=scy+2;
-  if(inB(chX,chY)) t[chY][chX]=T.CHEST;
-  ents.push({id:'_staff_marker',x:chX,y:chY,isMeta:true,isStaffChest:true});
-
   // ---- STAIRS UP on spine1 ----
-  if(inB(6,spineY)) t[spineY][6]=T.SU;
+  if(inB(6,spine1Y)) t[spine1Y][6]=T.SU;
 
   // ---- BONE PILES on spine1 north alcoves ----
-  // The stems are T.FLOOR going upward from spineY; the pockets are T.ALCOVE at the tips
+  // The stems are T.FLOOR going upward from spine1Y; the pockets are T.ALCOVE at the tips
   for(let x=6;x<W-6;x++){
-    if(!inB(x,spineY-1)||t[spineY-1][x]!==T.FLOOR)continue;
+    if(!inB(x,spine1Y-1)||t[spine1Y-1][x]!==T.FLOOR)continue;
     // Walk north up the stem until we hit ALCOVE (the pocket tip)
-    let tipY=spineY-1;
+    let tipY=spine1Y-1;
     while(tipY>2&&t[tipY][x]===T.FLOOR)tipY--;
     // The tile above the stem should be ALCOVE — place bone pile there
     if(inB(x,tipY)&&t[tipY][x]===T.ALCOVE&&Math.random()<0.65){
@@ -1753,12 +1767,12 @@ function genCatacombs(){
   }
 
   // Spine1: 3 enemies spread along the corridor
-  [{x:10,y:spineY},{x:22,y:spineY},{x:34,y:spineY}].forEach(({x,y},i)=>{
+  [{x:10,y:spine1Y},{x:30,y:spine1Y},{x:50,y:spine1Y},{x:65,y:spine1Y}].forEach(({x,y},i)=>{
     if(inB(x,y)&&t[y][x]===T.FLOOR)spawnEnemy(x,y,'cat_s1_'+i);
   });
   // North alcoves: 1 enemy per alcove (Bone Archers prefer alcoves — good sniping positions)
   [8,16,24,32,38].forEach((bx,i)=>{
-    const alcY=spineY-2;
+    const alcY=spine1Y-2;
     if(inB(bx,alcY)&&(t[alcY][bx]===T.ALCOVE||t[alcY][bx]===T.FLOOR)){
       const tpl=Math.random()<0.5
         ?{id:'bone_archer',name:'Bone Archer',sym:'b',color:'#c0c090',hp:7,maxHp:7,str:3,agi:4,xp:18,dmg:4,ranged:1}
@@ -1781,7 +1795,7 @@ function genCatacombs(){
     }
   });
 
-  return{t,rooms:[],ents,sx:7,sy:spineY};
+  return{t,rooms:[],ents,sx:7,sy:spine1Y};
 }
 
 
@@ -2057,16 +2071,140 @@ function genMap(level){
     room.type='jail';
     return jailEnts;
   }
+  // ---- RITUAL ROOM: replaces one eligible room, contains the obelisk event ----
+  // Must be floor 2+, 25% chance per floor, room must be ≥10×8
+  function carveRitualRoom(room,poolSize2){
+    const{x,y,w,h}=room;
+    // Stone floor throughout
+    for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++)
+      if(inB(rx,ry))t[ry][rx]=T.STONE_FLOOR;
+    // Scatter blood pools and gore sparsely
+    for(let ry=y+1;ry<y+h-1;ry++){
+      for(let rx=x+1;rx<x+w-1;rx++){
+        const r=Math.random();
+        if(r<0.06)t[ry][rx]=T.BLOOD;
+        else if(r<0.10)t[ry][rx]=T.GORE;
+      }
+    }
+    // Obelisk at center — check all 4 diagonals are stone floor
+    const ocx=x+Math.floor(w/2),ocy=y+Math.floor(h/2);
+    t[ocy][ocx]=T.STONE_FLOOR; // ensure center is clear
+    const symPositions=[
+      {dx:-1,dy:-1,dir:'nw',guardian:'watcher_yellow'},
+      {dx:1,dy:-1,dir:'ne',guardian:'spawn_deep_tongue'},
+      {dx:-1,dy:1,dir:'sw',guardian:'the_frayed'},
+      {dx:1,dy:1,dir:'se',guardian:'eldest_hunger'},
+    ];
+    const allValid=symPositions.every(({dx,dy})=>{
+      const sx=ocx+dx,sy=ocy+dy;
+      return inB(sx,sy)&&(t[sy][sx]===T.STONE_FLOOR||t[sy][sx]===T.BLOOD||t[sy][sx]===T.GORE);
+    });
+    if(allValid){
+      symPositions.forEach(({dx,dy,dir,guardian},i)=>{
+        const sx=ocx+dx,sy=ocy+dy;
+        t[sy][sx]=T.SYMBOL_INACTIVE;
+        jailEntsAll.push({id:'_obelisk_symbol',x:sx,y:sy,isMeta:true,isObeliskSymbol:true,
+          dir,guardian,activated:false,obeliskX:ocx,obeliskY:ocy});
+      });
+      jailEntsAll.push({id:'_obelisk',x:ocx,y:ocy,isMeta:true,isObeliskMeta:true,spelledOut:false});
+      t[ocy][ocx]=T.OBELISK;
+    }
+    // 2 surviving cultists
+    let cultSpawned=0;
+    const cdirs=[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]];
+    for(const[dx,dy]of cdirs){
+      if(cultSpawned>=2)break;
+      const cx2=ocx+dx*3,cy2=ocy+dy*3;
+      if(inB(cx2,cy2)&&t[cy2][cx2]===T.STONE_FLOOR){
+        const scaled=scaleEnemy({id:'cultist',name:'Cultist',sym:'c',color:'#c07040',hp:6,str:3,agi:3,xp:10,dmg:2,ranged:0},level);
+        jailEntsAll.push({...scaled,x:cx2,y:cy2,eid:'ritual_cult_'+cultSpawned,isEnemy:true});
+        cultSpawned++;
+      }
+    }
+    room.type='ritual';
+    room.cx=ocx;room.cy=ocy;
+  }
+
+  // ---- CRYPT ROOM: contains catacomb entry + burial shades/skeletons ----
+  function carveCryptRoom(room){
+    const{x,y,w,h}=room;
+    for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++)
+      if(inB(rx,ry))t[ry][rx]=T.STONE_FLOOR;
+    // Catacomb entry at center
+    const ccx=x+Math.floor(w/2),ccy=y+Math.floor(h/2);
+    t[ccy][ccx]=T.CATACOMB_ENTRY;
+    // Bone pile decoration on edges
+    for(let rx=x+1;rx<x+w-1;rx+=3){
+      if(Math.random()<0.5&&inB(rx,y+1))t[y+1][rx]=T.BONE_PILE;
+      if(Math.random()<0.5&&inB(rx,y+h-2))t[y+h-2][rx]=T.BONE_PILE;
+    }
+    // 2 burial shades guarding
+    let shadespawned=0;
+    const sdirs=[[-2,0],[2,0],[0,-2],[0,2]];
+    for(const[dx,dy]of sdirs){
+      if(shadespawned>=2)break;
+      const sx=ccx+dx,sy=ccy+dy;
+      if(inB(sx,sy)&&t[sy][sx]===T.STONE_FLOOR){
+        jailEntsAll.push({id:'burial_shade',name:'Burial Shade',sym:'B',color:'#7070c0',
+          hp:8,maxHp:8,str:4,agi:7,xp:22,dmg:3,ranged:0,walksThrough:true,isGhost:true,
+          x:sx,y:sy,eid:'crypt_shade_'+shadespawned,isEnemy:true});
+        shadespawned++;
+      }
+    }
+    room.type='crypt';room.cx=ccx;room.cy=ccy;
+  }
+
+  // ---- SLIME CHAMBER: contains slime pit entry + slimes ----
+  function carveSlimeChamber(room){
+    const{x,y,w,h}=room;
+    for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++)
+      if(inB(rx,ry))t[ry][rx]=T.SLIME_FLOOR;
+    // Acid pools scattered
+    for(let ry=y+1;ry<y+h-1;ry++)for(let rx=x+1;rx<x+w-1;rx++)
+      if(Math.random()<0.12)t[ry][rx]=T.ACID_POOL;
+    // Slime pit entry at center
+    const scx=x+Math.floor(w/2),scy=y+Math.floor(h/2);
+    t[scy][scx]=T.SLIME_PIT_ENTRY;
+    // 2 slimes
+    let slimespawned=0;
+    const sldirs=[[-2,0],[2,0],[0,-2],[0,2]];
+    for(const[dx,dy]of sldirs){
+      if(slimespawned>=2)break;
+      const sx=scx+dx,sy=scy+dy;
+      if(inB(sx,sy)&&(t[sy][sx]===T.SLIME_FLOOR)){
+        jailEntsAll.push({id:'slime',name:'Slime',sym:'s',color:'#40c040',
+          hp:6,maxHp:6,str:3,agi:2,xp:8,dmg:2,ranged:0,isSlime:true,
+          x:sx,y:sy,eid:'slime_ch_'+slimespawned,isEnemy:true});
+        slimespawned++;
+      }
+    }
+    room.type='slime_chamber';room.cx=scx;room.cy=scy;
+  }
+
   const jailPoolSize=Math.min(3+Math.floor(level*0.8),ENEMY_DEFS.length);
   const jailEntsAll=[];
+  let ritualPlaced=false,cryptPlaced=false,slimePlaced=false;
   if(level>=2){
     rooms.forEach((room,ri)=>{
-      if(ri===0)return; // never replace start room
-      if(room.type==='jail')return;
-      if(room.w<8||room.h<8)return; // must be large enough
-      if(Math.random()>0.20)return; // 20% chance
-      const je=carveJailRoom(room,jailPoolSize);
-      jailEntsAll.push(...je);
+      if(ri===0)return;
+      if(room.type)return;
+      // Ritual room: 25% chance per floor, once, needs 10×8
+      if(!ritualPlaced&&room.w>=10&&room.h>=8&&Math.random()<0.25){
+        carveRitualRoom(room,jailPoolSize);ritualPlaced=true;return;
+      }
+      // Crypt room: 20% chance, once per floor, floors 2+
+      if(!cryptPlaced&&room.w>=8&&room.h>=6&&Math.random()<0.20){
+        carveCryptRoom(room);cryptPlaced=true;return;
+      }
+      // Slime chamber: 20% chance, once per floor, floors 3+
+      if(!slimePlaced&&level>=3&&room.w>=8&&room.h>=6&&Math.random()<0.20){
+        carveSlimeChamber(room);slimePlaced=true;return;
+      }
+      // Jail room: 20% chance, min 8×8
+      if(room.w>=8&&room.h>=8&&Math.random()<0.20){
+        const je=carveJailRoom(room,jailPoolSize);
+        jailEntsAll.push(...je);
+      }
     });
   }
   const inRoom=(rx,ry)=>rooms.some(r=>rx>=r.x&&rx<r.x+r.w&&ry>=r.y&&ry<r.y+r.h);
@@ -2219,6 +2357,11 @@ function genMap(level){
   }
   return{t,rooms,jailEnts:jailEntsAll};
 }
+// Resolve an item ID — swaps medkit/bandage for grease_tube if player has Iron Vessel
+function resolveItem(id){
+  if(hasMut('iron_vessel')&&(id==='medkit'||id==='bandage'))return'grease_tube';
+  return id;
+}
 function scaleEnemy(tpl,level){
   const l=Math.max(0,level-1); // floor 1 = no bonus
   const hp=tpl.hp+Math.floor(l*1.8);
@@ -2254,11 +2397,15 @@ function genEntities(map,level){
     }
   }
   map.t[sty][stx]=T.SD;used.add(key(stx,sty));
-  const poolSize=Math.min(3+Math.floor(level*0.8),ENEMY_DEFS.length),num=4+level*2;
+  // Enemy pool filtered by floor range — enemies only appear on floors they belong to
+  const enemyPool=ENEMY_DEFS.filter(e=>
+    (!e.floorMin||level>=e.floorMin)&&(!e.floorMax||level<=e.floorMax)
+  );
+  const num=4+level*2;
   for(let i=0;i<num;i++){
     const room=rooms[1+rnd(Math.max(1,rooms.length-1))];if(!room)continue;
     const pos=randFloor(room);if(!pos)continue;
-    const tpl=ENEMY_DEFS[rnd(poolSize)];
+    const tpl=enemyPool.length>0?enemyPool[rnd(enemyPool.length)]:ENEMY_DEFS[0];
     const pmBuff=(G&&G._nextFloorEnemyBuff)||0;
     const scaled=scaleEnemy(tpl,level);
     scaled.hp+=pmBuff;scaled.maxHp+=pmBuff;
@@ -2473,49 +2620,6 @@ function genEntities(map,level){
     }
   }
 
-  // ---- OBELISK EVENT (30% chance, floor 2+) ----
-  if(level>=2&&Math.random()<0.30){
-    const obeliskRoom=rooms.slice(1,-1).find(r=>{
-      if(r.w*r.h<25)return false;
-      for(let ry=r.y;ry<r.y+r.h;ry++)for(let rx=r.x;rx<r.x+r.w;rx++){
-        const tt=map.t[ry][rx];
-        if(tt===T.CHEST||tt===T.IRON_CHEST||tt===T.GILDED_CHEST)return false;
-      }
-      return true;
-    });
-    if(obeliskRoom){
-      const ocx=obeliskRoom.cx,ocy2=obeliskRoom.cy;
-      // Abort if center isn't a floor tile
-      if(!inB(ocx,ocy2)||map.t[ocy2][ocx]!==T.FLOOR)return;
-      // Remove any stray chests in this room
-      for(let ry=obeliskRoom.y;ry<obeliskRoom.y+obeliskRoom.h;ry++)
-        for(let rx=obeliskRoom.x;rx<obeliskRoom.x+obeliskRoom.w;rx++){
-          if(map.t[ry][rx]===T.CHEST||map.t[ry][rx]===T.IRON_CHEST||map.t[ry][rx]===T.GILDED_CHEST)
-            map.t[ry][rx]=T.FLOOR;
-        }
-      const symPositions=[
-        {dx:-1,dy:-1,dir:'nw',guardian:'watcher_yellow'},
-        {dx:1,dy:-1,dir:'ne',guardian:'spawn_deep_tongue'},
-        {dx:-1,dy:1,dir:'sw',guardian:'the_frayed'},
-        {dx:1,dy:1,dir:'se',guardian:'eldest_hunger'},
-      ];
-      // Verify all 4 diagonal positions are floor tiles before committing anything
-      const allValid=symPositions.every(({dx,dy})=>{
-        const sx=ocx+dx,sy=ocy2+dy;
-        return inB(sx,sy)&&map.t[sy][sx]===T.FLOOR;
-      });
-      if(!allValid)return; // room not large enough — skip obelisk entirely
-      // All clear — place obelisk and symbols
-      map.t[ocy2][ocx]=T.OBELISK;
-      symPositions.forEach(({dx,dy,dir,guardian})=>{
-        const sx=ocx+dx,sy=ocy2+dy;
-        map.t[sy][sx]=T.SYMBOL_INACTIVE;
-        ents.push({id:'_obelisk_symbol',x:sx,y:sy,isMeta:true,isObeliskSymbol:true,
-          dir,guardian,activated:false,obeliskX:ocx,obeliskY:ocy2});
-      });
-      ents.push({id:'_obelisk',x:ocx,y:ocy2,isMeta:true,isObeliskMeta:true,spelledOut:false});
-    }
-  }
 
   return{ents,sx,sy,darkFloor};
 }
@@ -2547,14 +2651,24 @@ function startGame(){
   const fists={...fistsTpl};
   const needsFists=startWep.ranged||startWep.type==='spell'||startWep.type==='holy';
   const startWeapon=needsFists?fists:startWep;
-  // Starting ranged weapon (Flagellant gets a Revolver)
+  // Apostate: also gets a starting dagger for melee
+  const startMeleeWep=cl.startMelee?rollAffix({...ITEM_DEFS.find(x=>x.id===cl.startMelee)},0.15):null;
+  // Inquisitor: also gets starting spell
+  const startSpellItem=cl.startSpell?{...ITEM_DEFS.find(x=>x.id===cl.startSpell)}:null;
+  // Starting ranged weapon (Ascetic gets a Revolver)
   const startRangedWep=cl.startRanged?rollAffix({...ITEM_DEFS.find(x=>x.id===cl.startRanged)},0.15):null;
-  const includesFists=cl.id!=='ghoul';
+  const includesFists=cl.id!=='starved';
   const bandageStack={...bandageTpl,n:2};
   const whiskeyStack={...whiskeyTpl,n:1};
+  const extraItems=[
+    ...(startMeleeWep?[startMeleeWep]:[]),
+    ...(startSpellItem?[startSpellItem]:[]),
+    ...(startRangedWep?[startRangedWep]:[]),
+    bandageStack,whiskeyStack,
+  ];
   const startInv=includesFists
-    ?[startWep,fists,...(startRangedWep?[startRangedWep]:[]),bandageStack,whiskeyStack]
-    :[startWep,...(startRangedWep?[startRangedWep]:[]),bandageStack,whiskeyStack];
+    ?[startWep,fists,...extraItems]
+    :[startWep,...extraItems];
   let startHp=cl.hp;
   if(selMut&&selMut.id==='mutant_health')startHp=cl.hp*2;
   const startLightR=(selMut&&selMut.id==='void_touched')?7:9;
@@ -2563,7 +2677,8 @@ function startGame(){
     p:{x:surface.sx,y:surface.sy,name:cl.name,sym:cl.sym,color:cl.color,classId:cl.id,
        hp:startHp,maxHp:startHp,sp:cl.sp,maxSp:cl.sp,str:cl.str,agi:cl.agi,wits:cl.wits,
        xp:0,xpNext:20,lvl:1,inv:startInv,
-       meleeWeapon:startWeapon,rangedWeapon:startRangedWep||null,spellSlot:null,throwable:null,relic:null,accessory:null,
+       meleeWeapon:startWeapon,rangedWeapon:startRangedWep||null,
+       spellSlot:startSpellItem||null,throwable:null,relic:null,accessory:null,
        lightR:startLightR,turns:0,
        mutations:selMut?[selMut.id]:[],infected:null,madness:0,ruin:0,confused:null,throwCooldown:0,throwable:null,phaseStepCooldown:0,foxglovePoison:false},
     msgs:[],seen:new Set(),vis:new Set(),invOpen:false,
@@ -2890,11 +3005,11 @@ function hud(){
   if(ruinRow)ruinRow.style.display=ruin>0?'':'none';
   if(ruinBar)ruinBar.style.width=(ruin/5*100)+'%';
   if(ruinVal)ruinVal.textContent=`${ruin}/5`;
-  // HP display — scramble at Ruin 2+ (displayed only, real value unchanged)
+  // HP display — scramble at Ruin 3+ (displayed only, real value unchanged)
   const hpBar=$('hpbar');const hpVal=$('hpval');
   if(hpBar&&hpVal){
     let displayHp=p.hp;
-    if(ruin>=2){
+    if(ruin>=3){
       const drift=Math.floor(p.maxHp*0.25);
       displayHp=Math.max(1,Math.min(p.maxHp,p.hp+rr(-drift,drift)));
     }
@@ -2949,6 +3064,7 @@ function render(){
     else if(tile===T.IRON_GRATE){s='\u2261';c='#484858';}
     else if(tile===T.JAIL_FLOOR){s='.';c='#252535';}
     else if(tile===T.CHAINS){s='\u00a5';c='#705030';}
+    else if(tile===T.GORE){s='%';c='#6b0000';}
     else if(tile===T.OFFERING){s='\u25c7';c='#c8a070';}
     else if(tile===T.OFFERING_OPEN){s='\u25c7';c='#5a4020';}
     else if(tile===T.ALTAR){s='\u2625';c='#a02020';}
@@ -3046,6 +3162,7 @@ function tileColor(t){
   if(t===T.IRON_GRATE)return'#484858';
   if(t===T.JAIL_FLOOR)return'#252535';
   if(t===T.CHAINS)return'#705030';
+  if(t===T.GORE)return'#6b0000';
   if(t===T.OFFERING)return'#c8a070';
   if(t===T.OFFERING_OPEN)return'#5a4020';
   if(t===T.ALTAR)return'#a02020';
@@ -3349,15 +3466,21 @@ function nearestFloor(x,y){
 }
 
 function dropLoot(item,x,y){
+  // Iron Vessel: swap medkit/bandage drops for grease_tube
+  let dropItem=item;
+  if(G&&hasMut('iron_vessel')&&(item.id==='medkit'||item.id==='bandage')){
+    const gtpl=ITEM_DEFS.find(i=>i.id==='grease_tube');
+    if(gtpl)dropItem={...gtpl,n:item.n||1,eid:item.eid||'loot_'+Date.now()};
+  }
   const pos=nearestFloor(x,y);
-  G.ents.push({...item,x:pos.x,y:pos.y,eid:'loot_'+Date.now()+rnd(999),isItem:true});
+  G.ents.push({...dropItem,x:pos.x,y:pos.y,eid:'loot_'+Date.now()+rnd(999),isItem:true});
 }
 
 function doSingleAtk(en){
   const p=G.p,w=p.meleeWeapon;
   let base=(w?w.dmg:1)+Math.floor((p.str-5)/2)+rr(-1,2);
   base=Math.max(1,base);
-  if(p.classId==='flagellant'&&p.hp<p.maxHp/2)base=Math.floor(base*1.5);
+  if(p.classId==='ascetic'&&p.hp<p.maxHp/2)base=Math.floor(base*1.5);
   // The Frayed: 20% chance any hit simply doesn't register
   if(en.isFrayed&&Math.random()<0.20){
     msg(`Your attack passes through The Frayed — it flickers.`,'i');
@@ -3370,7 +3493,7 @@ function doSingleAtk(en){
   // Ghost entities: half damage from melee (minimum 1)
   if(en.isGhost&&!G.p.foxglovePoison){finalDmg=Math.max(1,Math.floor(finalDmg/2));}
   en.hp-=finalDmg;
-  if(p.classId==='ghoul')p.hp=Math.min(p.maxHp,p.hp+1);
+  if(p.classId==='starved')p.hp=Math.min(p.maxHp,p.hp+1);
   if(hasMut('amalgamation')&&!crit&&Math.random()<0.18&&en.hp>0){
     en._slowed=2;msg(`Residue clings to the ${en.name}. It is Slowed!`,'i');
   }
@@ -3388,6 +3511,23 @@ function doSingleAtk(en){
     msg(`\u273f The ${en.name} is poisoned!`,'i');
   }
   if(en.hp>0&&!en.isGhost)applyMeleeAffix(w,en);
+  // Morningstar: 20% Stagger (−2 STR, −1 AGI for 2 turns)
+  if(w&&w.isMorningstar&&Math.random()<0.20&&en.hp>0){
+    if(!en._staggered){en._staggered={turns:2};en.str=Math.max(1,(en.str||3)-2);en.agi=Math.max(1,(en.agi||2)-1);}
+    else{en._staggered.turns=2;}
+    msg(`The ${en.name} staggers! (−2 STR, −1 AGI)`,'i');
+  }
+  // Grave Digger Bone Breaker: pickaxe 30% Fracture (not ghosts, slimes)
+  const BONELESS=['worm_mass','slime','small_slime','corrosive_horror','the_hollow','flesh_scrap'];
+  if(G.p.classId==='gravedigger'&&w&&w.id&&w.id.startsWith('pickaxe')
+    &&Math.random()<0.30&&en.hp>0&&!en.isGhost&&!BONELESS.includes(en.id)){
+    const stacks=(en._fractured||0)+1;
+    if(stacks<=2){
+      en._fractured=stacks;
+      en.str=Math.max(1,(en.str||3)-2);en.agi=Math.max(1,(en.agi||2)-1);
+      msg(`\u2620 Fracture! The ${en.name}'s bones crack. (−2 STR −1 AGI, ${stacks}/2)`,'m');
+    }
+  }
   else if(en.hp>0&&en.isGhost&&w&&w.affix==='weighted'){en.hp-=2;if(en.hp<=0)killEnemy(en);}
   // Crawling Choir: alert all enemies on damage
   if(en.isCrawlingChoir&&en.hp>0){
@@ -3436,7 +3576,7 @@ function mv(dx,dy){
   const en=enemyAt(nx,ny);
   if(en){atk(en);p.turns++;spRegen();tick(true);return;}
   // Flagellant whip reach: if wielding a whip, also check 2 tiles in movement direction
-  if(p.classId==='flagellant'&&p.meleeWeapon&&p.meleeWeapon.id.startsWith('whip')){
+  if(p.classId==='ascetic'&&p.meleeWeapon&&p.meleeWeapon.id.startsWith('whip')){
     const nx2=p.x+dx*2,ny2=p.y+dy*2;
     const en2=enemyAt(nx2,ny2);
     if(en2&&inB(nx2,ny2)&&passable(G.map.t,nx,ny)){
@@ -3588,10 +3728,10 @@ function openChest(x,y){
     p.xp+=40;G.map.t[y][x]=T.CHEST_OPEN;lvlUp();return;
   }
   // Standard chest — consumables
-  const iid=CHEST_LOOT[rnd(CHEST_LOOT.length)];
+  const iid=resolveItem(CHEST_LOOT[rnd(CHEST_LOOT.length)]);
   const tpl=ITEM_DEFS.find(i=>i.id===iid);
   if(tpl){
-    const STACK_LIMITS={blueberry:25,bandage:5,medkit:5,whiskey:5,elixir:5,hearty_meal:5,serum:5,foxglove:5,loose_ammo:25,happy_pill:15};
+    const STACK_LIMITS={blueberry:25,bandage:5,medkit:5,whiskey:5,elixir:5,hearty_meal:5,serum:5,foxglove:5,loose_ammo:25,happy_pill:15,grease_tube:5};
     const maxStack=STACK_LIMITS[iid]||5;
     const existing=p.inv.find(i=>i.id===iid);
     const count=existing?(existing.n||1):0;
@@ -3627,7 +3767,7 @@ function openIronChest(x,y){
   if(tpl){const item=rollAffix({...tpl},0.35);p.inv.push(item);msg(`You force open the iron chest! Found: ${item.name}.`,'g');}
   // 50% chance of a second quality item — no bandages or lesser healing
   if(Math.random()<0.50){
-    const IRON_BONUS=['medkit','bourbon','serum','hearty_meal','elixir','mutagen'];
+    const IRON_BONUS=['medkit','bourbon','serum','hearty_meal','elixir','mutagen'].map(resolveItem);
     const bid=IRON_BONUS[rnd(IRON_BONUS.length)];
     const btpl=ITEM_DEFS.find(i=>i.id===bid);
     if(btpl){
@@ -3654,7 +3794,7 @@ function openGildedChest(x,y){
     lootPool.push(...primers);
   }
   // Guaranteed quality bonus pool — no bandages, no lesser healing
-  const GILDED_BONUS=['medkit','serum','hearty_meal','elixir','starblood_vial','mutagen','trapezohedron_shard','bourbon'];
+  const GILDED_BONUS=['medkit','serum','hearty_meal','elixir','starblood_vial','mutagen','trapezohedron_shard','bourbon'].map(resolveItem);
   // Primary drop
   const iid2=lootPool[rnd(lootPool.length)];
   const tpl2=ITEM_DEFS.find(i=>i.id===iid2);
@@ -3813,6 +3953,8 @@ function doCast(){
       else msg(`\u271d Eldritch bolt strikes ${e.name} for ${dmg}!`,'g');
     });
     G.ents=G.ents.filter(e=>{if(e.isEnemy&&e.hp<=0){killEnemy(e);return false;}return true;});
+    // Apostate: casting spells restores 1 HP (dark knowledge sustains)
+    if(G&&p.classId==='apostate'){p.hp=Math.min(p.maxHp,p.hp+1);msg('The dark knowledge sustains you. (+1 HP)','i');}
   }else if(spell.type==='holy'){
     const holyCost=Math.max(4,Math.ceil(p.maxSp*0.60));
     if(p.sp<holyCost){msg(`Not enough SP to invoke the Holy Symbol. (Need ${holyCost})` ,'d');return;}
@@ -3848,7 +3990,7 @@ function doWait(){
   // Check for corpse on player's tile
   const corpse=G.ents.find(e=>e.isItem&&e.type==='corpse'&&e.x===p.x&&e.y===p.y);
   if(corpse){
-    const isGhoul=p.classId==='ghoul';
+    const isGhoul=p.classId==='starved';
     corpse._destroyProgress=(corpse._destroyProgress||0)+1;
     if(corpse._destroyProgress>=2){
       G.ents=G.ents.filter(e=>e!==corpse);
@@ -4185,7 +4327,12 @@ function killEnemy(en){
     const ichor=ITEM_DEFS.find(i=>i.id==='primer_ichor');
     if(ichor){dropLoot({...ichor,eid:'ichor_'+Date.now()},en.x,en.y);msg("Something black and viscous seeps from its corpse...",'m');}
   }
-  // Void Walker: Void Drain — restore 1 SP per kill
+  // Inquisitor: Conviction — killing undead restores 2 SP
+  const UNDEAD_FOR_INQUISITOR=['zombie','ravenous_zombie','wraith','burial_shade','bone_archer','mummified_knight','deathless_warden','reanimated_corpse','skeleton','giant_skeleton'];
+  if(G.p.classId==='inquisitor'&&UNDEAD_FOR_INQUISITOR.includes(en.id)){
+    G.p.sp=Math.min(G.p.maxSp,G.p.sp+2);
+    msg(`\u271d Conviction. (+2 SP)`,'g');
+  }
   if(hasMut('void_walker')){
     G.p.sp=Math.min(G.p.maxSp,G.p.sp+1);
   }
@@ -4348,12 +4495,12 @@ function lvlUp(){
   const p=G.p;
   // Class-specific level-up stat growth
   const classGains={
-    veteran: {primary:'str',secondary:'agi',secEvery:2},
+    gravedigger:{primary:'str',secondary:'agi',secEvery:2},
     rogue:   {primary:'agi',secondary:'wits',secEvery:2},
     occultist:{primary:'wits',secondary:'sp',secEvery:1}, // +2 SP every level instead
-    exorcist:{primary:'wits',secondary:'str',secEvery:2},
-    ghoul:   {primary:'str',secondary:'agi',secEvery:2},
-    flagellant:{primary:'str',secondary:'agi',secEvery:2},
+    inquisitor:{primary:'str',secondary:'wits',secEvery:2},
+    starved:{primary:'str',secondary:'agi',secEvery:2},
+    ascetic:{primary:'str',secondary:'agi',secEvery:2},
   };
   while(p.xp>=p.xpNext){
     p.xp-=p.xpNext;p.lvl++;p.xpNext=Math.floor(p.xpNext*1.5);
@@ -4363,7 +4510,7 @@ function lvlUp(){
     p.maxHp+=maxHpGain;p.hp=Math.min(p.maxHp,p.hp+hpGain);
     // SP gain
     const cg=classGains[p.classId]||{primary:'str',secondary:'agi',secEvery:2};
-    const spGain=(p.classId==='occultist')?2:1;
+    const spGain=(p.classId==='apostate')?2:1;
     p.maxSp+=spGain;
     // Primary stat +1 every level
     p[cg.primary]=(p[cg.primary]||0)+1;
@@ -4600,6 +4747,14 @@ function enemyTurn(){
     // ---- DARK ONE: fires a second shot at Hysteria ----
     if(e.id==='dark_one'&&madnessLevel()===3&&e.hp>0){
       e._darkOneFired2=true; // flag to add extra shot after normal attack resolves
+    }
+    // Tick Morningstar Stagger duration
+    if(e._staggered){
+      e._staggered.turns--;
+      if(e._staggered.turns<=0){
+        e.str=(e.str||1)+2;e.agi=(e.agi||1)+1;
+        delete e._staggered;
+      }
     }
     // ---- WATCHER IN YELLOW: passive Madness drain while visible ----
     if(e.isWatcherYellow&&G.vis.has(key(e.x,e.y))&&dist(e,p)<=6){gainMadness(2);if(!G)return;}
@@ -5721,6 +5876,12 @@ function applyUse(item){
       }
       break;
     }
+    case'grease_tube':{
+      if(!hasMut('iron_vessel')){msg('This is meant for machines. It does nothing for you.','i');return;}
+      p.hp=Math.min(p.maxHp,p.hp+item.v);
+      msg(`\u2699 Grease applied. Hull integrity restored. (+${item.v} HP)`,'g');
+      break;
+    }
     case'trapezohedron_shard':{
       // Reduce Madness by 30, teleport to random floor tile
       const madRed=Math.min(30,G.p.madness);
@@ -5790,8 +5951,18 @@ function applyUse(item){
       let purged=false;
       if(p.infected&&p.infected.turns>0){p.infected=null;purged=true;}
       reduceMadness(20);
-      if(purged){msg('\u2695 The serum courses through you. Infection purged! Madness reduced.','g');}
-      else{msg('\u2695 The serum clears your mind. Madness reduced by 20.','i');}
+      // 18% chance to reduce Ruin by 1 (minimum 0)
+      let ruinReduced=false;
+      if((p.ruin||0)>0&&Math.random()<0.18){
+        p.ruin--;
+        ruinReduced=true;
+        if(p.ruin===0){const ruinRow=$('ruin-row');if(ruinRow)ruinRow.style.display='none';}
+      }
+      if(purged&&ruinReduced)msg('\u2695 The serum courses through you. Infection purged! Something fundamental steadies.','g');
+      else if(purged)msg('\u2695 The serum courses through you. Infection purged! Madness reduced.','g');
+      else if(ruinReduced)msg('\u2695 The serum clears your mind. Something deeper settles back into place.','g');
+      else msg('\u2695 The serum clears your mind. Madness reduced by 20.','i');
+      if(ruinReduced)hud();
       break;
     }
     case'mutagen':{
