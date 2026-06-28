@@ -138,8 +138,46 @@ body.desktop #controls{padding:8px 8px 10px;}
 /* INVENTORY */
 #tomb-modal{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.85);z-index:30;align-items:center;justify-content:center;}
 #tomb-modal.open{display:flex;}
-#inv-overlay{display:none;position:absolute;inset:0;background:#04040a;z-index:20;flex-direction:column;padding:10px;}
+#inv-overlay{display:none;position:absolute;inset:0;background:#04040a;z-index:20;flex-direction:column;}
 #inv-overlay.open{display:flex;}
+#inv-header{display:flex;justify-content:space-between;align-items:center;padding:8px 10px 0;flex-shrink:0;}
+#inv-header h2{font-size:12px;letter-spacing:3px;color:#c8b87a;}
+.inv-close{background:none;border:1px solid #2a2038;color:#6a5a3a;font-family:'Courier New',monospace;font-size:10px;padding:4px 8px;cursor:pointer;letter-spacing:1px;}
+#inv-equip-bar{display:flex;gap:4px;padding:6px 8px;border-bottom:1px solid #1a1428;flex-shrink:0;overflow-x:auto;}
+.inv-eq-slot{display:flex;flex-direction:column;align-items:flex-start;background:#080812;border:1px solid #1a1428;border-radius:2px;padding:3px 6px;min-width:70px;flex-shrink:0;}
+.inv-eq-label{font-size:7px;color:#4a3a5a;letter-spacing:1px;text-transform:uppercase;}
+.inv-eq-val{font-size:9px;color:#c8b87a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90px;}
+#inv-tabs{display:flex;border-bottom:1px solid #1a1428;flex-shrink:0;background:#04040a;}
+.inv-tab{flex:1;background:none;border:none;border-bottom:2px solid transparent;color:#4a3a5a;font-family:'Courier New',monospace;font-size:15px;padding:7px 0 5px;cursor:pointer;text-align:center;transition:color 0.1s,border-color 0.1s;}
+.inv-tab.active{color:#c8b87a;border-bottom-color:#c8b87a;}
+.inv-tab:active{color:#e0d090;}
+#inv-list{flex:1;overflow-y:auto;padding:2px 0;}
+.irow{display:flex;align-items:flex-start;padding:7px 10px;border-bottom:1px solid #0a0a14;cursor:pointer;gap:8px;position:relative;}
+.irow.selected{background:#0c0b18;}
+.irow-letter{font-size:12px;color:#4a3a5a;min-width:14px;padding-top:2px;font-weight:bold;}
+.irow-body{flex:1;min-width:0;}
+.irow-name{font-size:11px;color:#c8b87a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.irow-affixes{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px;}
+.iaff{padding:1px 4px;border-radius:2px;font-size:8px;letter-spacing:0.5px;background:#1a1028;color:#a080c0;}
+.irow-right{display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0;}
+.irow-stat{font-size:10px;color:#a09060;}
+.irow-tier{font-size:8px;padding:1px 5px;border-radius:2px;font-weight:bold;letter-spacing:1px;}
+.t-std{background:#0e2a0e;color:#40c040;border:1px solid #1a4a1a;}
+.t-p1{background:#0e0e2a;color:#6868ff;border:1px solid #1a1a4a;}
+.t-p2{background:#1a0e2a;color:#c060ff;border:1px solid #2a1a4a;}
+.t-uniq{background:#2a1200;color:#ff8020;border:1px solid #4a2200;}
+.irow-eq{font-size:8px;color:#60a040;letter-spacing:1px;margin-top:2px;}
+.iempty{padding:24px;text-align:center;color:#2a2a3a;font-size:11px;letter-spacing:2px;line-height:2;}
+.irow-holdbar{position:absolute;bottom:0;left:0;height:2px;width:0%;background:#c03030;pointer-events:none;border-radius:0;}
+#inv-detail{flex-shrink:0;background:#06060c;border-top:1px solid #1a1428;padding:8px 10px;min-height:88px;}
+#inv-detail-name{font-size:11px;color:#c8b87a;font-weight:bold;margin-bottom:3px;}
+#inv-detail-desc{font-size:9px;color:#6a5a3a;line-height:1.5;margin-bottom:6px;}
+#inv-detail-actions{display:flex;gap:6px;}
+.inv-act-btn{background:#0c0b14;border:1px solid #2a2038;color:#c8b87a;font-family:'Courier New',monospace;font-size:10px;padding:5px 10px;cursor:pointer;letter-spacing:1px;border-radius:2px;}
+.inv-act-btn:active{background:#18162a;}
+.inv-act-btn.danger{border-color:#3a1010;color:#904040;}
+#tomb-modal{display:none;position:absolute;inset:0;background:rgba(0,0,0,0.85);z-index:30;align-items:center;justify-content:center;}
+#tomb-modal.open{display:flex;}
 #tomb-card{background:#08080f;border:1px solid #4a3a2a;padding:18px 20px;max-width:280px;width:90%;font-family:'Courier New',monospace;color:#c8b87a;}
 .tomb-name{font-size:14px;color:#e8d898;letter-spacing:2px;margin-bottom:6px;}
 .tomb-class{font-size:10px;color:#6a5a3a;margin-bottom:10px;}
@@ -147,20 +185,6 @@ body.desktop #controls{padding:8px 8px 10px;}
 .tomb-quip{font-size:11px;color:#c8b87a;margin:10px 0 6px;font-style:italic;line-height:1.5;}
 .tomb-cause{font-size:10px;color:#a03020;margin-bottom:12px;}
 .tomb-close{background:#0c0b16;border:1px solid #4a3a2a;color:#c8b87a;padding:6px 0;width:100%;font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;}
-#inv-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-#inv-h h2{font-size:13px;color:#c8b87a;letter-spacing:2px;}
-.inv-close{background:none;border:1px solid #2a2038;color:#6a5a3a;padding:4px 10px;font-family:'Courier New',monospace;font-size:10px;cursor:pointer;}
-#inv-scroll{flex:1;overflow-y:auto;}
-.iitem{border:1px solid #1e1a14;padding:7px 7px;margin-bottom:4px;cursor:pointer;border-radius:2px;display:flex;align-items:flex-start;gap:8px;}
-.iitem:active{border-color:#c8b87a;}
-.isym{font-size:18px;width:20px;flex-shrink:0;text-align:center;line-height:1;}
-.iinfo{flex:1;}.iname{font-size:13px;color:#e8d898;letter-spacing:0.5px;}
-.idesc{font-size:10px;color:#9080a0;margin-top:3px;line-height:1.5;}
-.ieq{font-size:9px;color:#608040;margin-left:4px;}
-.iempty{color:#2a2018;font-size:10px;text-align:center;margin-top:2rem;}
-.iitem-del-bar{position:absolute;bottom:0;left:0;height:2px;background:#8a2020;width:0%;transition:width 0.8s linear;border-radius:0 0 2px 2px;}
-.iitem{position:relative;}
-#inv-hint{font-size:9px;color:#2a2018;text-align:center;margin-top:6px;}
 
 /* STATS PANEL */
 #stats-panel{display:none;position:absolute;inset:0;background:rgba(4,4,10,0.97);z-index:25;flex-direction:column;padding:14px 14px 10px;}
@@ -417,11 +441,39 @@ addPath(toPath(starPts));
     </div>
   </div>
   <div id="inv-overlay">
-    <div id="inv-h"><h2>INVENTORY</h2><button class="inv-close" onclick="closeInv()">CLOSE</button></div>
-    <div id="inv-scroll"></div>
-    <div id="inv-hint">Tap weapon to equip &middot; Tap consumable to use</div>
+    <div id="inv-header">
+      <h2>INVENTORY</h2>
+      <button class="inv-close" onclick="closeInv()">&times; CLOSE</button>
+    </div>
+    <div id="inv-equip-bar">
+      <div class="inv-eq-slot"><span class="inv-eq-label">MELEE</span><span class="inv-eq-val" id="eq-melee">&mdash;</span></div>
+      <div class="inv-eq-slot"><span class="inv-eq-label">RANGED</span><span class="inv-eq-val" id="eq-ranged">&mdash;</span></div>
+      <div class="inv-eq-slot"><span class="inv-eq-label">SPELL</span><span class="inv-eq-val" id="eq-spell">&mdash;</span></div>
+      <div class="inv-eq-slot"><span class="inv-eq-label">THROW</span><span class="inv-eq-val" id="eq-throw">&mdash;</span></div>
+      <div class="inv-eq-slot"><span class="inv-eq-label">RELIC</span><span class="inv-eq-val" id="eq-relic">&mdash;</span></div>
+    </div>
+    <div id="inv-tabs">
+      <button class="inv-tab active" data-tab="melee" onclick="invTab('melee')" title="Melee">&#9876;</button>
+      <button class="inv-tab" data-tab="ranged" onclick="invTab('ranged')" title="Ranged">&#9654;</button>
+      <button class="inv-tab" data-tab="relic" onclick="invTab('relic')" title="Relics">&#9733;</button>
+      <button class="inv-tab" data-tab="use" onclick="invTab('use')" title="Consumables">&#9879;</button>
+      <button class="inv-tab" data-tab="misc" onclick="invTab('misc')" title="Misc">?</button>
+    </div>
+    <div id="inv-list"></div>
+    <div id="inv-detail">
+      <div id="inv-detail-name">Select an item</div>
+      <div id="inv-detail-desc" style="color:#2a2a3a;font-size:9px;">Tap an item to inspect &middot; Hold 1s to drop</div>
+      <div id="inv-detail-actions"></div>
+    </div>
   </div>
-  <!-- STATS PANEL -->
+  <!-- INSCRIPTION MODAL -->
+  <div id="inscr-modal" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.88);z-index:35;align-items:center;justify-content:center;">
+    <div style="background:#06060e;border:1px solid #3a2e18;padding:18px 20px;max-width:290px;width:92%;font-family:'Courier New',monospace;">
+      <div style="font-size:9px;color:#4a3a2a;letter-spacing:3px;margin-bottom:10px;">INSCRIPTION</div>
+      <div id="inscr-text" style="font-size:11px;color:#c8b87a;line-height:1.7;margin-bottom:14px;white-space:pre-wrap;"></div>
+      <button onclick="closeInscr()" style="background:#0c0b16;border:1px solid #3a2e18;color:#c8b87a;padding:6px 0;width:100%;font-family:'Courier New',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;">CLOSE</button>
+    </div>
+  </div>
   <div id="stats-panel">
     <div id="stats-inner">
       <div id="stats-hdr">
@@ -469,7 +521,7 @@ addPath(toPath(starPts));
 </div>
 <script>
 "use strict";
-const VERSION='3.2.0';
+const VERSION='3.5.1';
 const CLASSES=[
   {id:'gravedigger',name:'Grave Digger',sym:'G',color:'#8a7050',hp:16,sp:2,str:8,agi:4,wits:1,start:'pickaxe',desc:'Hardened by years among the dead. High HP & STR. Pickaxe attacks can Fracture enemies, reducing their STR and AGI. Madness gains reduced by 25%.'},
   {id:'rogue',name:'Rogue',sym:'R',color:'#50c090',hp:10,sp:8,str:4,agi:8,wits:4,start:'dagger',desc:'Fast and elusive. High AGI. Crits more often and hits harder when they land.'},
@@ -617,7 +669,8 @@ const ITEM_DEFS=[
   {id:'bandage',name:'Bandage',sym:'!',color:'#c0b090',desc:'Restore 4 HP',type:'use',eff:'heal',v:4},
   {id:'loose_ammo',name:'Loose Ammunition',sym:'a',color:'#d4a820',desc:'Generic ammo (1-4 rounds)',type:'loose_ammo'},
   {id:'mutagen',name:'Mutagen',sym:'%',color:'#40e080',desc:'33% chance to gain a random mutation.',type:'use',eff:'mutagen'},
-  {id:'serum',name:'Serum',sym:'!',color:'#40d0d0',desc:'Purges all active status effects.',type:'use',eff:'serum'},
+  {id:'purifier',name:'Purifier',sym:'\u2665',color:'#20c080',desc:'Cures The Wasting entirely, regardless of severity.',type:'use',eff:'purifier'},
+  {id:'serum',name:'Serum',sym:'!',color:'#40d0d0',desc:'Purges all active status effects. Reduces Madness by 20. 18% chance to reduce Ruin by 1.',type:'use',eff:'serum'},
   {id:'hearty_meal',name:'Hearty Meal',sym:'%',color:'#d09040',desc:'Restore 10 HP and reduce Madness by 10.',type:'use',eff:'hearty_meal'},
   {id:'blueberry',name:'Blueberry',sym:'*',color:'#4060e0',desc:'Restore 1-4 HP, reduce Madness by 1-4. Causes Confusion.',type:'use',eff:'blueberry'},
   {id:'foxglove',name:'Foxglove',sym:'\u273f',color:'#c060a0',desc:'Crush and apply to hands. Poisons enemies on melee hit for 4 turns (1-2 dmg/turn). Lasts until next floor change.',type:'use',eff:'foxglove'},
@@ -683,6 +736,8 @@ const ENEMY_DEFS=[
   {id:'cultist',name:'Cultist',sym:'c',color:'#c07040',hp:6,str:3,agi:3,xp:10,dmg:2,ranged:0,floorMin:1,floorMax:5},
   {id:'zombie',name:'Zombie',sym:'z',color:'#70c060',hp:12,str:4,agi:1,xp:15,dmg:2,isZombie:true,ranged:0,floorMin:1,floorMax:6},
   {id:'wolf',name:'Wolf',sym:'w',color:'#d0a060',hp:8,str:4,agi:6,xp:12,dmg:3,ranged:0,floorMin:2,floorMax:6},
+  {id:'dire_wolf',name:'Dire Wolf',sym:'W',color:'#c08040',hp:10,str:6,agi:8,xp:25,dmg:5,ranged:0,noMainDungeon:true},
+  {id:'savage_wolf',name:'Savage Wolf',sym:'w',color:'#a04040',hp:8,str:4,agi:6,xp:20,dmg:3,ranged:0,noMainDungeon:true,isSavageWolf:true},
   {id:'deep_one',name:'Deep One',sym:'d',color:'#408090',hp:12,str:6,agi:4,xp:22,dmg:5,ranged:0,floorMin:3,floorMax:7},
   {id:'dark_one',name:'Dark One',sym:'D',color:'#6040c0',hp:14,str:5,agi:3,xp:25,dmg:4,ranged:1,floorMin:4,floorMax:8},
   {id:'floating',name:'Floating Horror',sym:'f',color:'#8040c0',hp:10,str:3,agi:7,xp:20,dmg:3,ranged:1,floorMin:4,floorMax:8},
@@ -802,6 +857,20 @@ const T={
   MIRROR:85,          // living space mirror — interact triggers dark reflection
   COBWEB:86,          // cobweb — passable, slows movement 1 turn
   CRATE:87,           // breakable crate — contains healing items, destroyed on open
+  STATUE:88,          // impassable, blocks LOS, inscription eligible
+  CRACKED_STATUE:89,  // impassable, blocks LOS, crushes on bump
+  PILLAR:90,          // impassable, blocks LOS, inscription eligible
+  CRACKED_PILLAR:91,  // impassable, blocks LOS, crushes on bump
+  VASE:92,            // impassable, blocks LOS, inscription eligible
+  FOUNTAIN:93,        // impassable, blocks LOS, one-use heal/poison
+  BARREL:94,          // impassable, blocks LOS, inscription eligible, 25% loot
+  BOOKCASE:95,        // impassable, blocks LOS, inscription eligible, 4% spell
+  LECTERN:96,         // impassable, blocks LOS, inscription eligible
+  PEW:97,             // impassable, does NOT block LOS
+  CLOSET:98,          // impassable, blocks LOS, flavor text
+  STONE_SLAB:99,      // impassable, blocks LOS, inscription eligible
+  CRACKED_WALL:100,   // impassable, does NOT block LOS
+  ROCKS:102,          // passable rubble after statue/pillar crush
 };
 const MW=80,MH=50;
 // ---- DEVICE DETECTION ----
@@ -823,6 +892,7 @@ function getMaxCellSize(){
 // Standard chest — consumables only (supply cache feel)
 const CHEST_LOOT=[
   'bandage','medkit','whiskey','serum','hearty_meal','elixir','foxglove','loose_ammo','starblood_vial','happy_pill',
+  'purifier',
 ];
 // Iron chest — standard + +1 weapons (armoury)
 const IRON_CHEST_LOOT=[
@@ -976,7 +1046,211 @@ function applyRangedAffix(weapon,en,tx,ty){
   });
 }
 
-// ---- BLAST VISUAL ----
+// ---- INSCRIPTION SYSTEM ----
+
+const INSCR_ENTITIES=[
+  'Yath-Goren','Ul-Nareth','The Pale Devourer','Keth-Sulaan','The Fraying Eye',
+  'Vor-Naaketh','The Unspoken','Ith-Karaal','The Hungering Dark','Soth-Uvael',
+  'The Watcher Beyond','Naath-Kerul','The Dreaming Wound','Ul-Shivaar','The Last Mouth',
+];
+const INSCR_WARNINGS=[
+  'Turn back.','Descend no further.','Leave this place.','Do not go deeper.',
+  'There is nothing below worth finding.','What you seek does not exist.',
+  'The stairs only go one direction from here.','You were warned. You will be warned again.',
+  'Stop. Please.','Whatever sent you here lied to you.',
+];
+const INSCR_OBSERVATIONS=[
+  'Something watches from the walls.','The air grows heavier below.',
+  'The dark remembers everyone who passes through it.',
+  'You are being counted.','Your name has already been written somewhere below.',
+  'The stones here have heard too many last words.',
+  'There are things in the deep that have no shape until you look at them.',
+  'Whatever you came for is not worth what waits below.',
+  'You smell like prey.','The silence down here is not empty.',
+];
+const INSCR_ENTITIES2=[
+  'is watching','has seen you already','remembers your face',
+  'will be waiting below','does not sleep','has been here longer than the stone',
+  'knows your name','counts your steps','has already chosen you',
+];
+const INSCR_DEEP=[
+  'At the bottom there is no light that belongs to this world.',
+  'Floor {n}. I counted. There are more below. Do not count them.',
+  'I came here with four others. I write this alone.',
+  'The map ends here. What lies below is not on any map.',
+  'It does not hunt. It simply waits for you to come to it.',
+  'I thought I could handle it. I thought that too on floor {n}.',
+  'By the time you read this I will be something else.',
+  'The deeper you go the less you remember of the surface.',
+  'Something down there has been building something. For a long time.',
+];
+const INSCR_RUIN2=[
+  'Between these words there are other words. You can almost read them.',
+  'The letters shift when you look away.',
+  'You read this twice. The second time it said something different.',
+  'There is a message beneath the message. You are not sure you want to read it.',
+];
+const INSCR_RUIN3=[
+  'itcanbehearditcanbehearditcanbeheard',
+  'DO NOT READ DO NOT READ DO NOT READ DO NOT',
+  'the eye the eye the eye the eye the eye',
+  'you have been here before you will be here again you have been here before',
+  '[illegible — the letters appear to be moving]',
+  'DEEPER DEEPER DEEPER DEEPER DEEPER DEEPER',
+];
+const INSCR_RUIN4=[
+  '\u2588\u2593\u2592\u2591 \u2591\u2592\u2593\u2588 \u2588\u2593 \u2592\u2591\u2588',
+  'IT SEES YOU IT SEES YOU IT SEES YOU IT SEES',
+  '???????????????????????????????????',
+  '\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000 [the inscription is blank but you feel it reading you]',
+  'herehereherehereherehereherehereherehere',
+  'THE BOTTOM IS NOT THE BOTTOM IS NOT THE BOTTOM',
+];
+
+function genInscriptionText(floor,ruin,seed){
+  // Seeded-ish selection using seed to pick templates
+  const pick=(arr,s)=>arr[Math.abs(s)%arr.length];
+  const entity=pick(INSCR_ENTITIES,seed*7+floor);
+  const entity2=pick(INSCR_ENTITIES2,seed*3+floor+1);
+  const warning=pick(INSCR_WARNINGS,seed*11+floor);
+  const obs=pick(INSCR_OBSERVATIONS,seed*5+floor+2);
+  const deep=pick(INSCR_DEEP,seed*13+floor).replace('{n}',floor);
+
+  // Build main body from template type (seed determines which)
+  const type=Math.abs(seed)%5;
+  let body='';
+  if(type===0)body=`${entity} ${entity2}. ${warning}`;
+  else if(type===1)body=`${warning} ${obs}`;
+  else if(type===2)body=`${entity} ${entity2}. ${deep}`;
+  else if(type===3)body=`${obs} ${entity} ${entity2}.`;
+  else body=`${deep}`;
+
+  let lines=[body];
+
+  // Ruin extras
+  if(ruin>=2){
+    const r2=pick(INSCR_RUIN2,seed*17+ruin);
+    lines.push(`\n— ${r2}`);
+  }
+  if(ruin>=3){
+    const r3=pick(INSCR_RUIN3,seed*19+ruin);
+    lines.push(`\n${r3}`);
+  }
+  if(ruin>=4){
+    const r4=pick(INSCR_RUIN4,seed*23+ruin);
+    lines.push(`\n${r4}`);
+  }
+  return lines.join('');
+}
+
+// Inscription-eligible tile set
+const INSCR_TILES=new Set([
+  T.WALL,T.IRON_WALL,T.MARBLE_WALL,T.BLOOD_WALL,T.FUNGAL_WALL,T.SLIME_WALL,
+  T.MOSSY_STONE,T.IRON_GRATE,T.CRACKED_WALL,
+  T.STATUE,T.PILLAR,T.VASE,T.FOUNTAIN,T.BARREL,
+  T.BOOKCASE,T.LECTERN,T.STONE_SLAB,
+]);
+
+function genInscriptionPass(tileMap,rooms,level){
+  // Returns array of {x,y,seed} for inscription placement
+  const W=MW,H=MH;
+  const inscriptions=[];
+  const used=new Set();
+  const PLAIN_FLOORS=new Set([
+    T.FLOOR,T.STONE_FLOOR,T.FLAGSTONE,T.JAIL_FLOOR,T.CRYPT_FLOOR,
+    T.MOLD_FLOOR,T.MOSS_FLOOR,T.FUNGAL_FLOOR,T.ALCOVE,
+  ]);
+  // Scale: 5% at fl1, 20% at fl10
+  const density=0.05+((level-1)/9)*0.15;
+
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const tile=tileMap[y][x];
+    if(!INSCR_TILES.has(tile))continue;
+    // Must be adjacent to a floor tile (including diagonals)
+    let adjFloor=false;
+    for(let dy=-1;dy<=1&&!adjFloor;dy++)for(let dx=-1;dx<=1&&!adjFloor;dx++){
+      if(dx===0&&dy===0)continue;
+      const nx2=x+dx,ny2=y+dy;
+      if(inB(nx2,ny2)&&PLAIN_FLOORS.has(tileMap[ny2][nx2]))adjFloor=true;
+    }
+    if(!adjFloor)continue;
+    if(Math.random()>density)continue;
+    // Space inscriptions at least 3 tiles apart
+    let tooClose=false;
+    for(const ins of inscriptions){
+      if(Math.abs(ins.x-x)+Math.abs(ins.y-y)<3){tooClose=true;break;}
+    }
+    if(tooClose)continue;
+    const seed=x*1000+y+level*37+(Math.random()*9999|0);
+    inscriptions.push({x,y,seed});
+    used.add(x+','+y);
+  }
+  return inscriptions;
+}
+
+function genChurchInscriptions(tileMap){
+  // Up to 6 inscriptions in the church area (surface map)
+  const inscriptions=[];
+  for(let y=0;y<MH;y++)for(let x=0;x<MW;x++){
+    const tile=tileMap[y][x];
+    if(!INSCR_TILES.has(tile))continue;
+    let adjFloor=false;
+    for(let dy=-1;dy<=1&&!adjFloor;dy++)for(let dx=-1;dx<=1&&!adjFloor;dx++){
+      if(dx===0&&dy===0)continue;
+      const nx2=x+dx,ny2=y+dy;
+      if(inB(nx2,ny2)&&(tileMap[ny2][nx2]===T.FLOOR||tileMap[ny2][nx2]===T.STONE_FLOOR||tileMap[ny2][nx2]===T.PATH||tileMap[ny2][nx2]===T.GRASS))adjFloor=true;
+    }
+    if(!adjFloor)continue;
+    if(Math.random()<0.08)inscriptions.push({x,y,seed:x*1000+y+(Math.random()*9999|0)});
+    if(inscriptions.length>=6)break;
+  }
+  return inscriptions;
+}
+function openInscr(x,y){
+  if(!G)return;
+  const ikey=x+','+y;
+  if(!G._readInscriptions)G._readInscriptions=new Set();
+  if(G._readInscriptions.has(ikey)){msg('The inscription has already been read.','i');return;}
+  G._readInscriptions.add(ikey);
+  const ins=(G._inscriptions||[]).find(i=>i.x===x&&i.y===y);
+  const seed=ins?ins.seed:(x*1000+y);
+  const floor=G.dl||0;
+  const ruin=G.p.ruin||0;
+  const text=genInscriptionText(floor,ruin,seed);
+  $('inscr-text').textContent=text;
+  $('inscr-modal').style.display='flex';
+  G.invOpen=true;
+  const xpNeeded=G.p.xpNext||100;
+  const pct=0.05+Math.random()*0.02;
+  const xpGain=Math.max(1,Math.floor(xpNeeded*pct));
+  G.p.xp+=xpGain;lvlUp();
+  const madGain=Math.max(1,floor);
+  gainMadness(madGain);
+  msg(`\u2623 Inscription read. (+${xpGain} XP, +${madGain} Madness)`,'i');
+}
+function closeInscr(){
+  $('inscr-modal').style.display='none';
+  G.invOpen=false;render();hud();
+}
+// ---- WASTING SYSTEM ----
+const WASTING_COLORS=['','#40a040','#80a020','#908010','#604000'];
+const WASTING_NAMES=['','Wasting','Festering','Rotting','Consumed'];
+function applyWasting(){
+  if(!G||!G.p)return;
+  if(isStatusImmune()||G.p.wasting)return;
+  G.p.wasting={severity:1,timer:0,strDrain:0,agiDrain:0,witsDrain:0};
+  msg('\u2623 Something spreads through your blood. The Wasting has taken hold.','d');
+}
+function cureWasting(){
+  const p=G.p;
+  if(!p||!p.wasting)return;
+  p.str+=(p.wasting.strDrain||0);
+  p.agi+=(p.wasting.agiDrain||0);
+  p.wits+=(p.wasting.witsDrain||0);
+  p.wasting=null;
+  msg('\u2665 The Wasting recedes. Your body feels your own again.','g');
+}
+
 function flashBlast(cx,cy,radius,color){
   const canvas=$('map-canvas');
   if(!canvas||!G)return;
@@ -1131,7 +1405,7 @@ function passable(tiles,x,y){
          t===T.BED_HEAD||t===T.BED_BODY||t===T.BED_FOOT||
          t===T.FOOTLOCKER_OPEN||t===T.BROKEN_DOOR||
          t===T.MOSS_FLOOR||t===T.VINE||t===T.HEDGEAPPLE||t===T.MUSHROOM||
-         t===T.FLAGSTONE||t===T.FUNGAL_FLOOR||t===T.PULPED_CORPSE||t===T.COBWEB||
+         t===T.FLAGSTONE||t===T.FUNGAL_FLOOR||t===T.PULPED_CORPSE||t===T.COBWEB||t===T.ROCKS||t===T.ACID_POOL||
          t===T.OFFERING||t===T.OFFERING_OPEN||
          t===T.GRASS||t===T.BUSH||t===T.BUSH_BERRY||t===T.STONE_FLOOR||t===T.PATH||t===T.FENCE_GATE||
          t===T.BURROW||t===T.CATACOMB_ENTRY||t===T.OSSUARY_CHEST||t===T.OSSUARY_OPEN||t===T.ALCOVE||
@@ -1244,16 +1518,15 @@ function madnessExtraDmg(){
 function getRuin(){return G?(G.p.ruin||0):0;}
 function serializeG(g){
   const p=g.p;
-  const infSave=p.infected&&p.infected.turns>0
-    ?{turns:p.infected.turns,type:p.infected._type||'zombie'}
-    :null;
+  const wastingSave=p.wasting?{severity:p.wasting.severity||1,timer:p.wasting.timer||0,
+    strDrain:p.wasting.strDrain||0,agiDrain:p.wasting.agiDrain||0,witsDrain:p.wasting.witsDrain||0}:null;
   return JSON.stringify({dl:g.dl,map:{t:g.map.t,rooms:g.map.rooms},ents:g.ents,
     p:{...p,inv:p.inv,
       meleeId:p.inv.indexOf(p.meleeWeapon),
       rangedId:p.inv.indexOf(p.rangedWeapon),
       spellId:p.inv.indexOf(p.spellSlot),
       relicId:p.inv.indexOf(p.relic),
-      infected:infSave,
+      wasting:wastingSave,
       ruin:p.ruin||0},
     msgs:g.msgs,seen:Array.from(g.seen),savedAt:Date.now(),
     burrowsUsed:g.burrowsUsed||0,burrowFloors:Array.from(g.burrowFloors||[]),
@@ -1291,17 +1564,23 @@ function deserializeG(str){
   g.slimePitUsed=d.slimePitUsed||false;
   g.inSlimePit=d.inSlimePit||false;
   g.cachedDungeonFloor=null; // ephemeral — lost on save/load
-  // Restore infected with its function
-  if(d.p.infected&&d.p.infected.turns>0){
-    const inf=d.p.infected;
-    g.p.infected={
-      turns:inf.turns,
-      _type:inf.type,
-      dmgPerTurn:inf.type==='ravenous_zombie'?()=>rr(1,2):()=>1
+  // Restore wasting (new severity system). Also handles legacy saves with old infected field.
+  if(d.p.wasting&&d.p.wasting.severity){
+    g.p.wasting={
+      severity:d.p.wasting.severity||1,
+      timer:d.p.wasting.timer||0,
+      strDrain:d.p.wasting.strDrain||0,
+      agiDrain:d.p.wasting.agiDrain||0,
+      witsDrain:d.p.wasting.witsDrain||0,
     };
+  }else if(d.p.infected&&d.p.infected.turns>0){
+    // Migrate old infected saves → Severity 1 Wasting
+    g.p.wasting={severity:1,timer:0,strDrain:0,agiDrain:0,witsDrain:0};
   }else{
-    g.p.infected=null;
+    g.p.wasting=null;
   }
+  // Clear any leftover infected field from old saves
+  delete g.p.infected;
   return g;
 }
 function getSaveSlot(n){try{const r=localStorage.getItem(SAVE_KEY+n);return r?JSON.parse(r):null;}catch(e){return null;}}
@@ -2896,8 +3175,8 @@ function genMap(level){
     for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++){
       if(!inB(rx,ry)||t[ry][rx]!==T.FLOOR)continue;
       const r2=Math.random();
-      if(r2<0.15)t[ry][rx]=T.BLOOD;
-      else if(r2<0.22)t[ry][rx]=T.GORE;
+      if(r2<0.10)t[ry][rx]=T.BLOOD;
+      else if(r2<0.15)t[ry][rx]=T.GORE;
     }
     // Pulped corpses scattered
     let pulped=0;
@@ -3228,7 +3507,7 @@ function genMap(level){
   // ---- SLIME CHAMBER: contains slime pit entry + slimes ----
   function carveSlimeChamber(room){
     const{x,y,w,h}=room;
-    // Slime walls on perimeter — dark wet greenish stone
+    // Slime walls on perimeter
     for(let ry=y-1;ry<=y+h;ry++)for(let rx=x-1;rx<=x+w;rx++)
       if(inB(rx,ry)&&t[ry][rx]===T.WALL)t[ry][rx]=T.SLIME_WALL;
     // Mold floor interior
@@ -3243,17 +3522,40 @@ function genMap(level){
     // Slime pit entry at center
     const scx=x+Math.floor(w/2),scy=y+Math.floor(h/2);
     t[scy][scx]=T.SLIME_PIT_ENTRY;
-    // 2 slimes guarding
-    let slimespawned=0;
-    const sldirs=[[-2,0],[2,0],[0,-2],[0,2]];
+    // Base slimes
+    let spawned=0;
+    const sldirs=[[-2,0],[2,0],[0,-2],[0,2],[-1,0],[1,0],[0,-1],[0,1]];
     for(const[dx,dy]of sldirs){
-      if(slimespawned>=2)break;
+      if(spawned>=2)break;
       const sx=scx+dx,sy=scy+dy;
       if(inB(sx,sy)&&(t[sy][sx]===T.MOLD_FLOOR||t[sy][sx]===T.SLIME_FLOOR)){
         jailEntsAll.push({id:'slime',name:'Slime',sym:'s',color:'#40c040',
           hp:6,maxHp:6,str:3,agi:2,xp:8,dmg:2,ranged:0,isSlime:true,
-          x:sx,y:sy,eid:'slime_ch_'+slimespawned,isEnemy:true});
-        slimespawned++;
+          x:sx,y:sy,eid:'slime_ch_'+spawned,isEnemy:true});
+        spawned++;
+      }
+    }
+    // Corrosive Horror at floor 4+
+    if(level>=4){
+      for(const[dx,dy]of sldirs.slice().reverse()){
+        const sx=scx+dx*2,sy=scy+dy*2;
+        if(inB(sx,sy)&&(t[sy][sx]===T.MOLD_FLOOR||t[sy][sx]===T.SLIME_FLOOR)){
+          const ch=ENEMY_DEFS.find(e=>e.id==='corrosive_horror');
+          if(ch)jailEntsAll.push({...scaleEnemy(ch,level),x:sx,y:sy,eid:'corrosive_'+Date.now(),isEnemy:true});
+          break;
+        }
+      }
+    }
+    // Pit Lurker at floor 6+ (hidden until adjacent)
+    if(level>=6){
+      // Place on an acid pool tile — lurking beneath the acid
+      const acidTiles=[];
+      for(let ry=y+1;ry<y+h-1;ry++)for(let rx=x+1;rx<x+w-1;rx++)
+        if(t[ry][rx]===T.ACID_POOL)acidTiles.push({x:rx,y:ry});
+      if(acidTiles.length){
+        const apt=acidTiles[rnd(acidTiles.length)];
+        const pl=ENEMY_DEFS.find(e=>e.id==='pit_lurker');
+        if(pl)jailEntsAll.push({...scaleEnemy(pl,level),x:apt.x,y:apt.y,eid:'pitlurker_'+Date.now(),isEnemy:true,hidden:true,isPitLurker:true});
       }
     }
     room.type='slime_chamber';room.cx=scx;room.cy=scy;
@@ -3357,12 +3659,14 @@ function genMap(level){
     }
     if(!floorTiles.length)return;
 
-    // Blood/gore scatter — 3-8% of floor tiles
-    floorTiles.forEach(({x:rx,y:ry})=>{
-      const r2=Math.random();
-      if(r2<0.04)t[ry][rx]=T.BLOOD;
-      else if(r2<0.06)t[ry][rx]=T.GORE;
-    });
+    // Blood/gore scatter — skip feeding ground and breached rooms (already handled)
+    if(!room._isFeedingGround&&!room._isBreached){
+      floorTiles.forEach(({x:rx,y:ry})=>{
+        const r2=Math.random();
+        if(r2<0.04)t[ry][rx]=T.BLOOD;
+        else if(r2<0.06)t[ry][rx]=T.GORE;
+      });
+    }
 
     // Bone pile — 1-3 near walls
     const wallAdj=floorTiles.filter(({x:rx,y:ry})=>
@@ -3408,8 +3712,8 @@ function genMap(level){
 
     // Cobwebs — neglected rooms only (generic, crypt, collapsed, guard post)
     const neglected=!room.type||room.type==='crypt'||room._collapsed||room.type==='guard';
-    if(neglected){
-      const clusterCount=Math.max(1,Math.floor(floorTiles.length*0.05));
+    if(neglected&&Math.random()<0.40){
+      const clusterCount=1+rnd(2); // 1-2 clusters, never more
       for(let ci=0;ci<clusterCount;ci++){
         if(!floorTiles.length)break;
         const center=floorTiles[rnd(floorTiles.length)];
@@ -3444,6 +3748,17 @@ function genMap(level){
       if(fuCandidates.length){
         const pick=fuCandidates[rnd(fuCandidates.length)];
         t[pick.y][pick.x]=fuTile;
+        // Table: always place a chair on an adjacent free floor tile
+        if(fuTile===T.TABLE){
+          const adjDirs=[[-1,0],[1,0],[0,-1],[0,1]];
+          adjDirs.sort(()=>Math.random()-0.5);
+          for(const[adx,ady]of adjDirs){
+            const ax=pick.x+adx,ay=pick.y+ady;
+            if(inB(ax,ay)&&PLAIN_FLOORS.has(t[ay][ax])){
+              t[ay][ax]=T.CHAIR;break;
+            }
+          }
+        }
       }
     }
   });
@@ -3494,8 +3809,8 @@ function genMap(level){
       for(let ry=y;ry<y+h;ry++)for(let rx=x;rx<x+w;rx++){
         if(!inB(rx,ry)||(t[ry][rx]!==T.FLOOR&&t[ry][rx]!==T.STONE_FLOOR))continue;
         const r2=Math.random();
-        if(r2<0.20)t[ry][rx]=T.BLOOD;
-        else if(r2<0.26)t[ry][rx]=T.GORE;
+        if(r2<0.08)t[ry][rx]=T.BLOOD;
+        else if(r2<0.11)t[ry][rx]=T.GORE;
       }
     }
   }
@@ -3615,6 +3930,48 @@ function genMap(level){
       }
     }
   }
+  // ---- FINAL CONNECTIVITY CHECK (post room-type replacement) ----
+  // Runs after all room carvers so iron walls can't block corridors
+  {
+    const PASSABLE_FOR_BFS=new Set([
+      T.FLOOR,T.STONE_FLOOR,T.DOOR,T.DOOR_OPEN,T.BROKEN_DOOR,
+      T.BLOOD,T.GORE,T.COBWEB,T.ACID_POOL,T.ROCKS,
+      T.JAIL_FLOOR,T.CRYPT_FLOOR,T.MOLD_FLOOR,T.FLAGSTONE,
+      T.FUNGAL_FLOOR,T.SLIME_FLOOR,T.MOSS_FLOOR,T.CARPET_RED,
+      T.CARPET_BLUE,T.CARPET_GREEN,T.CARPET_PURPLE,T.CARPET_BEIGE,
+      T.CARPET_BLACK,T.CARPET_WHITE,T.IRON_GRATE,T.CRACKED_WALL,
+    ]);
+    const strK=(x,y)=>x+','+y;
+    const seed2=rooms.find(r=>r.cx&&inB(r.cx,r.cy)&&PASSABLE_FOR_BFS.has(t[r.cy][r.cx]));
+    if(seed2){
+      const reached=new Set([strK(seed2.cx,seed2.cy)]);
+      const q=[strK(seed2.cx,seed2.cy)];
+      while(q.length){
+        const k2=q.shift();const[bx2,by2]=k2.split(',').map(Number);
+        for(const[ddx,ddy]of[[-1,0],[1,0],[0,-1],[0,1]]){
+          const nx=bx2+ddx,ny=by2+ddy;
+          if(!inB(nx,ny))continue;
+          const nk=strK(nx,ny);
+          if(reached.has(nk))continue;
+          if(PASSABLE_FOR_BFS.has(t[ny][nx])){reached.add(nk);q.push(nk);}
+        }
+      }
+      // Any room center not reachable gets an emergency FLOOR corridor
+      rooms.forEach(room=>{
+        if(!room.cx||!inB(room.cx,room.cy))return;
+        if(reached.has(strK(room.cx,room.cy)))return;
+        // Find nearest reachable tile and carve a plain FLOOR corridor
+        let best=null,bestD=99999;
+        reached.forEach(k2=>{const[rx,ry]=k2.split(',').map(Number);const dd=Math.abs(rx-room.cx)+Math.abs(ry-room.cy);if(dd<bestD){bestD=dd;best={x:rx,y:ry};}});
+        if(!best)return;
+        let cx3=room.cx,cy3=room.cy;
+        while(cx3!==best.x){t[cy3][cx3]=T.FLOOR;reached.add(strK(cx3,cy3));cx3+=cx3<best.x?1:-1;}
+        while(cy3!==best.y){t[cy3][cx3]=T.FLOOR;reached.add(strK(cx3,cy3));cy3+=cy3<best.y?1:-1;}
+        t[cy3][cx3]=T.FLOOR;reached.add(strK(cx3,cy3));
+      });
+    }
+  }
+
   return{t,rooms,jailEnts:jailEntsAll};
 }
 // Resolve an item ID — swaps medkit/bandage for grease_tube if player has Iron Vessel
@@ -3782,7 +4139,7 @@ function genEntities(map,level){
   const enemyPool=ENEMY_DEFS.filter(e=>
     !e.noMainDungeon&&(!e.floorMin||level>=e.floorMin)&&(!e.floorMax||level<=e.floorMax)
   );
-  const num=level===1?4:4+level*2;
+  const num=level===1?6:6+level*2;
   for(let i=0;i<num;i++){
     const room=rooms[1+rnd(Math.max(1,rooms.length-1))];if(!room)continue;
     const pos=randFloor(room);if(!pos)continue;
@@ -3792,7 +4149,7 @@ function genEntities(map,level){
     scaled.hp+=pmBuff;scaled.maxHp+=pmBuff;
     ents.push({...scaled,x:pos.x,y:pos.y,eid:'e'+i,isEnemy:true});
   }
-  const itemPool=['medkit','whiskey','lantern','ammo_p','elixir','bandage','pickaxe','ammo_r','vial_slime','spear','shortsword'];
+  const itemPool=['medkit','whiskey','lantern','ammo_p','elixir','bandage','pickaxe','ammo_r','spear','shortsword','purifier'];
   const ni=4+rnd(4);
   const roomItemUsed=new Set(); // track which rooms already have a floor item
   for(let i=0;i<ni;i++){
@@ -3892,39 +4249,140 @@ function genEntities(map,level){
     }
   }
   // ---- FLOOR EVENTS (one per floor) ----
-  const floorEventRoll=Math.random();
-  if(floorEventRoll<0.15){
-    // A chill in the air — all enemies on this floor +2 HP (applied at spawn above via scaling)
-    ents.forEach(e=>{if(e.isEnemy){e.hp+=2;e.maxHp=(e.maxHp||e.hp)+2;}});
-    ents.push({id:'_floor_event',isMeta:true,event:'chill',msg:'A bone-deep chill fills the air. Something is more alive here than it should be.'});
-  }else if(floorEventRoll<0.30){
-    // Dead adventurer — item on the floor somewhere
-    const daRoom=rooms[1+rnd(Math.max(1,rooms.length-2))];
-    const daPos=randFloor(daRoom);
-    if(daPos){
-      const lootPool=['bandage','medkit','whiskey','serum','dagger','pistol'];
-      const lid=lootPool[rnd(lootPool.length)];
-      const ltpl=ITEM_DEFS.find(i=>i.id===lid);
-      if(ltpl)ents.push({...ltpl,n:lid==='bandage'||lid==='whiskey'?2:undefined,x:daPos.x,y:daPos.y,eid:'dead_adv_'+Date.now(),isItem:true});
-      ents.push({id:'_floor_event',isMeta:true,event:'dead_adventurer',msg:'You find the remains of someone who came before you. They left something behind.'});
-    }
-  }else if(floorEventRoll<0.42){
-    // Torches extinguished — store light penalty in G.floorLightPenalty
-    ents.push({id:'_floor_event',isMeta:true,event:'dark',msg:'Every torch on this floor has been extinguished. Something did not want to be seen.'});
-  }else if(floorEventRoll<0.52){
-    // Voice from below — flavour only
-    const voices=[
-      'A voice rises from somewhere far below. It says your name.',
-      'Something screams briefly in the deep. Then silence.',
-      'A low resonance fills the floor, like a bell heard underwater.',
-      'You hear breathing. It is not yours.',
-    ];
-    ents.push({id:'_floor_event',isMeta:true,event:'voice',msg:voices[rnd(voices.length)]});
+  // ---- FLOOR EVENTS — weighted system, usually 1, sometimes 2 ----
+  const FLOOR_EVENTS=[
+    {id:'hungry_dark',    w:8},
+    {id:'weeping_walls',  w:7},
+    {id:'charnel_wind',   w:6},
+    {id:'feast_of_fools', w:4},
+    {id:'thin_pickings',  w:5},
+    {id:'the_pack_runs',  w:5,floorMin:2},
+    {id:'generous_dead',  w:4},
+    {id:'wrong_quiet',    w:6},
+    {id:'gods_quarrel',   w:3,floorMin:4},
+    {id:'dark',           w:6},
+  ];
+  // 70% chance of 1 event, 20% chance of 2, 10% no event
+  const eventRoll=Math.random();
+  const numEvents=eventRoll<0.10?0:eventRoll<0.80?1:2;
+  const eligibleEvents=FLOOR_EVENTS.filter(e=>!e.floorMin||level>=e.floorMin);
+  const chosenEvents=[];
+  for(let ei=0;ei<numEvents;ei++){
+    const pool=eligibleEvents.filter(e=>!chosenEvents.includes(e.id));
+    if(!pool.length)break;
+    const totalW=pool.reduce((s,e)=>s+e.w,0);
+    let roll=Math.random()*totalW;
+    let picked=pool[pool.length-1];
+    for(const ev of pool){roll-=ev.w;if(roll<=0){picked=ev;break;}}
+    chosenEvents.push(picked.id);
   }
+
+  // Apply chosen events
+  chosenEvents.forEach(evId=>{
+    switch(evId){
+      case'hungry_dark':
+        ents.push({id:'_floor_event',isMeta:true,event:'hungry_dark',
+          msg:'The darkness here feeds on thought. Your mind feels thinner.'});
+        break;
+      case'weeping_walls':{
+        // Mark 15-20% of wall tiles adjacent to floor as weeping
+        let wc=0;
+        for(let wy=1;wy<MH-1;wy++)for(let wx=1;wx<MW-1;wx++){
+          if(map.t[wy][wx]!==T.WALL&&map.t[wy][wx]!==T.STONE_FLOOR)continue;
+          const adjFloor=[[wx-1,wy],[wx+1,wy],[wx,wy-1],[wx,wy+1]]
+            .some(([nx2,ny2])=>inB(nx2,ny2)&&passable(map.t,nx2,ny2));
+          if(adjFloor&&Math.random()<0.17){
+            tileColorOverrides.set(wx+','+wy,['#4a0808','#6a1010']);
+            wc++;
+          }
+        }
+        ents.push({id:'_floor_event',isMeta:true,event:'weeping_walls',_weepTick:0,
+          msg:'The walls are wet. You do not look too closely.'});
+        break;
+      }
+      case'charnel_wind':
+        ents.forEach(e=>{if(e.isEnemy){e.hp=Math.max(1,Math.floor(e.hp/2));e.maxHp=e.hp;}});
+        ents.push({id:'_floor_event',isMeta:true,event:'charnel_wind',
+          msg:'Something passed through here recently. Whatever it was, it was thorough.'});
+        break;
+      case'feast_of_fools':
+        ents.push({id:'_floor_event',isMeta:true,event:'feast_of_fools',xpMult:2,
+          msg:'The air crackles with something. You feel sharper than usual.'});
+        break;
+      case'thin_pickings':
+        ents.push({id:'_floor_event',isMeta:true,event:'thin_pickings',xpMult:0.5,
+          msg:'Something has drained this place. Even the killing feels hollow.'});
+        break;
+      case'the_pack_runs':{
+        // Add 4-6 wolves plus 1 Dire Wolf alpha and 1 Savage Wolf in hunt mode
+        const wolfTpl=ENEMY_DEFS.find(e=>e.id==='wolf');
+        const wolfCount=4+rnd(3);
+        let placed=0;
+        for(let wi=0;wi<wolfCount+2&&placed<wolfCount+2;wi++){
+          const wr=rooms[rnd(rooms.length)];
+          const wpos=randFloor(wr);
+          if(!wpos)continue;
+          if(wi===0){
+            // Dire Wolf — alpha, +2 all stats
+            ents.push({id:'dire_wolf',name:'Dire Wolf',sym:'W',color:'#c08040',
+              hp:(wolfTpl?wolfTpl.hp:8)+2,maxHp:(wolfTpl?wolfTpl.hp:8)+2,
+              str:(wolfTpl?wolfTpl.str:4)+2,agi:(wolfTpl?wolfTpl.agi:6)+2,
+              dmg:(wolfTpl?wolfTpl.dmg:3)+2,xp:25,ranged:0,
+              x:wpos.x,y:wpos.y,eid:'dire_wolf_'+Date.now(),isEnemy:true,
+              _packRole:'alpha',_lkpX:0,_lkpY:0,
+              _howled:true,_spawnX:wpos.x,_spawnY:wpos.y});
+          }else if(wi===1){
+            // Savage Wolf — infects on 35% of hits
+            ents.push({id:'savage_wolf',name:'Savage Wolf',sym:'w',color:'#a04040',
+              hp:wolfTpl?wolfTpl.hp:8,maxHp:wolfTpl?wolfTpl.hp:8,
+              str:wolfTpl?wolfTpl.str:4,agi:wolfTpl?wolfTpl.agi:6,
+              dmg:wolfTpl?wolfTpl.dmg:3,xp:20,ranged:0,
+              x:wpos.x,y:wpos.y,eid:'savage_wolf_'+Date.now(),isEnemy:true,
+              isSavageWolf:true,_packRole:'flanker',
+              _lkpX:G&&G.p?G.p.x:40,_lkpY:G&&G.p?G.p.y:25,
+              _spawnX:wpos.x,_spawnY:wpos.y});
+          }else if(wolfTpl){
+            ents.push({...scaleEnemy(wolfTpl,level),x:wpos.x,y:wpos.y,
+              eid:'pack_wolf_event_'+wi+'_'+Date.now(),isEnemy:true,
+              _packRole:'flanker',_lkpX:G&&G.p?G.p.x:40,_lkpY:G&&G.p?G.p.y:25,
+              _spawnX:wpos.x,_spawnY:wpos.y});
+          }
+          placed++;
+        }
+        ents.push({id:'_floor_event',isMeta:true,event:'the_pack_runs',
+          msg:'Howling, close. Then closer. Then from every direction.'});
+        break;
+      }
+      case'generous_dead':{
+        const gdRoom=rooms[1+rnd(Math.max(1,rooms.length-2))];
+        const gdPos=randFloor(gdRoom);
+        if(gdPos){
+          ents.push({id:'_gilded_spawn',x:gdPos.x,y:gdPos.y,isMeta:true,isGildedSpawn:true});
+          map.t[gdPos.y][gdPos.x]=T.GILDED_CHEST;
+        }
+        ents.push({id:'_floor_event',isMeta:true,event:'generous_dead',
+          msg:'Someone left something valuable here. Intentionally. That should worry you.'});
+        break;
+      }
+      case'wrong_quiet':
+        ents.push({id:'_floor_event',isMeta:true,event:'wrong_quiet',
+          msg:'Something is different about this floor. You cannot say what. You keep looking over your shoulder.'});
+        break;
+      case'gods_quarrel':
+        // All enemies ignore player, fight each other
+        ents.forEach(e=>{if(e.isEnemy)e._godsQuarrel=true;});
+        ents.push({id:'_floor_event',isMeta:true,event:'gods_quarrel',
+          msg:'The air warps briefly. Something vast and bored has spoken. Whatever lives here has received new instructions. They appear to involve each other.'});
+        break;
+      case'dark':
+        ents.push({id:'_floor_event',isMeta:true,event:'dark',
+          msg:'Every torch on this floor has been extinguished. Something did not want to be seen.'});
+        break;
+    }
+  });
 
   // ---- ENCOUNTERS (50% chance, one per floor) ----
   const encounterPool=[];
-  if(level>=2)encounterPool.push('dark_player');
   if(level>=3)encounterPool.push('ravenous_zombies');
   if(level>=2&&level<=6)encounterPool.push('bound_cultist');
   if(level>=4&&level<=8)encounterPool.push('pale_messenger');
@@ -3987,6 +4445,27 @@ function genEntities(map,level){
       const epos=randFloor(encRoom);
       const pnBase={id:'the_penitent',name:'The Penitent',sym:'P',color:'#b0a8a0',hp:16,str:7,agi:3,xp:55,dmg:8,ranged:0};
       if(epos)ents.push({...scaleEnemy(pnBase,level),x:epos.x,y:epos.y,eid:'enc_pen',isEnemy:true,isPenitent:true,_kneeling:true,_interacted:false});
+      // Blood trail — paint floor tiles red leading to the Penitent's room
+      // and redden walls along corridors connecting to encRoom
+      const encCx=encRoom.cx||(encRoom.x+Math.floor((encRoom.w||4)/2));
+      const encCy=encRoom.cy||(encRoom.y+Math.floor((encRoom.h||4)/2));
+      // Paint floor tiles inside the room
+      for(let ry=encRoom.y;ry<(encRoom.y+(encRoom.h||4));ry++)
+        for(let rx=encRoom.x;rx<(encRoom.x+(encRoom.w||4));rx++){
+          if(inB(rx,ry)&&passable(map.t,rx,ry)&&Math.random()<0.60)
+            map.t[ry][rx]=T.BLOOD;
+          // Paint room walls crimson
+          if(inB(rx,ry)&&(map.t[ry][rx]===T.WALL||map.t[ry][rx]===T.STONE_FLOOR))
+            tileColorOverrides.set(rx+','+ry,['#5a0808','#8a1010']);
+        }
+      // Trail gore outward from room center on floor tiles
+      for(let ty=1;ty<MH-1;ty++)for(let tx=1;tx<MW-1;tx++){
+        if(passable(map.t,tx,ty)&&Math.abs(tx-encCx)+Math.abs(ty-encCy)<14
+          &&Math.abs(tx-encCx)+Math.abs(ty-encCy)>4&&Math.random()<0.25)
+          map.t[ty][tx]=T.BLOOD;
+      }
+      ents.push({id:'_floor_event',isMeta:true,event:'penitent_trail',
+        msg:'There is blood on the floor. A trail. It leads somewhere you are not sure you should go.'});
     }else if(encType==='crawling_choir'){
       const epos=randFloor(encRoom);
       const ccBase={id:'crawling_choir',name:'Crawling Choir',sym:'c',color:'#8b0000',hp:30,str:6,agi:1,xp:70,dmg:7,ranged:0};
@@ -4049,7 +4528,7 @@ function fov(tiles,px,py,r){
       ox+=Math.cos(rad);oy+=Math.sin(rad);
       const ix=Math.floor(ox),iy=Math.floor(oy);
       if(!inB(ix,iy))break;vis.add(key(ix,iy));
-      if(tiles[iy][ix]===T.WALL||tiles[iy][ix]===T.IRON_WALL||tiles[iy][ix]===T.SLIME_WALL||tiles[iy][ix]===T.MOSSY_STONE||tiles[iy][ix]===T.VINE||tiles[iy][ix]===T.OVERGROWN_TREE||tiles[iy][ix]===T.HOLLOW_TREE||tiles[iy][ix]===T.MARBLE_WALL||tiles[iy][ix]===T.FUNGAL_WALL||tiles[iy][ix]===T.BLOOD_WALL||tiles[iy][ix]===T.RUBBLE||tiles[iy][ix]===T.DOOR||tiles[iy][ix]===T.TREE||tiles[iy][ix]===T.FENCE||tiles[iy][ix]===T.TOMB||tiles[iy][ix]===T.ALTAR||tiles[iy][ix]===T.CATACOMB_ALTAR||tiles[iy][ix]===T.SEALED_DOOR||tiles[iy][ix]===T.LOCKED_DOOR||tiles[iy][ix]===T.OBELISK||tiles[iy][ix]===T.OBELISK_ACTIVE)break;
+      if(tiles[iy][ix]===T.WALL||tiles[iy][ix]===T.IRON_WALL||tiles[iy][ix]===T.SLIME_WALL||tiles[iy][ix]===T.MOSSY_STONE||tiles[iy][ix]===T.VINE||tiles[iy][ix]===T.OVERGROWN_TREE||tiles[iy][ix]===T.HOLLOW_TREE||tiles[iy][ix]===T.MARBLE_WALL||tiles[iy][ix]===T.FUNGAL_WALL||tiles[iy][ix]===T.BLOOD_WALL||tiles[iy][ix]===T.RUBBLE||tiles[iy][ix]===T.STATUE||tiles[iy][ix]===T.CRACKED_STATUE||tiles[iy][ix]===T.PILLAR||tiles[iy][ix]===T.CRACKED_PILLAR||tiles[iy][ix]===T.VASE||tiles[iy][ix]===T.FOUNTAIN||tiles[iy][ix]===T.BARREL||tiles[iy][ix]===T.BOOKCASE||tiles[iy][ix]===T.LECTERN||tiles[iy][ix]===T.CLOSET||tiles[iy][ix]===T.STONE_SLAB||tiles[iy][ix]===T.DOOR||tiles[iy][ix]===T.TREE||tiles[iy][ix]===T.FENCE||tiles[iy][ix]===T.TOMB||tiles[iy][ix]===T.ALTAR||tiles[iy][ix]===T.CATACOMB_ALTAR||tiles[iy][ix]===T.SEALED_DOOR||tiles[iy][ix]===T.LOCKED_DOOR||tiles[iy][ix]===T.OBELISK||tiles[iy][ix]===T.OBELISK_ACTIVE)break;
     }
   }
   return vis;
@@ -4135,17 +4614,91 @@ function renderLog(){
 function tickStatusEffects(){
   if(!G)return;
   const p=G.p;
-  if(p.infected&&p.infected.turns>0){
-    const dmg=p.infected.dmgPerTurn();
-    p.hp-=dmg;
-    p.infected.turns--;
-    if(p.infected.turns>0){
-      msg(`\u2623 Infected! You take ${dmg} damage. (${p.infected.turns} turn${p.infected.turns!==1?'s':''} left)`,'d');
-    }else{
-      msg('\u2623 The infection has run its course.','i');
-      p.infected=null;
+  // ---- FLOOR EVENT TICKS ----
+  const flEvt=G.ents.find(e=>e.isMeta&&e.event);
+  if(flEvt){
+    // Hungry Dark: +1 Madness every 2 turns
+    if(flEvt.event==='hungry_dark'&&p.turns%2===0)gainMadness(1);
+    // Dark floor: apply light penalty once
+    if(flEvt.event==='dark'&&!G._darkApplied){
+      G._darkApplied=true;G._floorLightPenalty=4;
     }
-    if(p.hp<=0){die('Infection');return;}
+    // Weeping Walls: spread to adjacent wall tiles every 12 turns
+    if(flEvt.event==='weeping_walls'&&p.turns%12===0){
+      flEvt._weepTick=(flEvt._weepTick||0)+1;
+      // Find a random already-weeping tile and spread to one neighbour
+      const weeping=[];
+      for(let y=1;y<MH-1;y++)for(let x=1;x<MW-1;x++){
+        const k=x+','+y;
+        if(tileColorOverrides.has(k)&&(G.map.t[y][x]===T.WALL||G.map.t[y][x]===T.STONE_FLOOR))
+          weeping.push({x,y});
+      }
+      if(weeping.length){
+        const pick=weeping[rnd(weeping.length)];
+        const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+        dirs.sort(()=>Math.random()-0.5);
+        for(const[dx,dy]of dirs){
+          const nx2=pick.x+dx,ny2=pick.y+dy;
+          if(inB(nx2,ny2)&&(G.map.t[ny2][nx2]===T.WALL||G.map.t[ny2][nx2]===T.STONE_FLOOR)
+            &&!tileColorOverrides.has(nx2+','+ny2)){
+            tileColorOverrides.set(nx2+','+ny2,['#4a0808','#6a1010']);break;
+          }
+        }
+      }
+      // Adjacent weeping wall adds +1 Madness every 6 turns
+      if(p.turns%6===0){
+        const dirs2=[[-1,0],[1,0],[0,-1],[0,1]];
+        const adjWeep=dirs2.some(([dx,dy])=>tileColorOverrides.has((p.x+dx)+','+(p.y+dy)));
+        if(adjWeep)gainMadness(1);
+      }
+    }
+  }
+  // XP multiplier event — stored on meta entity
+  const xpEvt=G.ents.find(e=>e.isMeta&&e.xpMult);
+  if(xpEvt&&!G._xpMult)G._xpMult=xpEvt.xpMult;
+
+  // ---- THE WASTING (severity-based escalating infection) ----
+  if(p.wasting){
+    const W=p.wasting;
+    const SEVERITY_NAMES=['','Wasting','Festering','Rotting','Consumed'];
+    const SEVERITY_DMG=[0,1,2,3,4];
+    const SEVERITY_ESCALATE=[0,20,15,10,0]; // turns to escalate at each level
+    const sev=W.severity||1;
+    const name=SEVERITY_NAMES[sev];
+
+    // Damage
+    const wDmg=SEVERITY_DMG[sev];
+    p.hp-=wDmg;
+    if(p.hp<=0){die('The Wasting');return;}
+
+    // Madness at Severity 2+
+    if(sev>=2){
+      const madInterval=sev>=4?2:sev>=3?4:8;
+      if(p.turns%madInterval===0){
+        const madGain=Math.max(1,(p.ruin||0)+1);
+        gainMadness(madGain);
+      }
+    }
+
+    // Stat drain (tracked in W.strDrain/agiDrain/witsDrain)
+    const targetStrDrain=sev>=3?2:0;
+    const targetAgiDrain=sev>=2?Math.min(2,sev-1):0;
+    const targetWitsDrain=sev>=4?1:0;
+    if((W.strDrain||0)<targetStrDrain){W.strDrain=(W.strDrain||0)+1;p.str=Math.max(1,p.str-1);msg('\u2623 The Wasting weakens your muscles. (−1 STR)','d');}
+    if((W.agiDrain||0)<targetAgiDrain){W.agiDrain=(W.agiDrain||0)+1;p.agi=Math.max(1,p.agi-1);msg('\u2623 The Wasting slows your reflexes. (−1 AGI)','d');}
+    if((W.witsDrain||0)<targetWitsDrain){W.witsDrain=(W.witsDrain||0)+1;p.wits=Math.max(1,p.wits-1);msg('\u2623 The Wasting clouds your mind. (−1 WITS)','d');}
+
+    // Escalation
+    W.timer=(W.timer||0)+1;
+    const escalateAt=SEVERITY_ESCALATE[sev];
+    if(escalateAt>0&&W.timer>=escalateAt&&sev<4){
+      W.severity++;W.timer=0;
+      msg(`\u2623 The Wasting deepens — you are now ${SEVERITY_NAMES[W.severity]}!`,'d');
+      gainMadness(3);
+    }
+
+    // Per-turn log (every 4 turns to avoid spam)
+    if(p.turns%4===0)msg(`\u2623 ${name}! (${wDmg} dmg/turn, Severity ${sev}/4)`,'d');
   }
   if(p.confused&&p.confused.turns>0){
     p.confused.turns--;
@@ -4315,10 +4868,9 @@ function tickStatusEffects(){
     const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
     // Amalgamation: fully immune to acid damage
     if(!hasMut('amalgamation')){
-      let onAcid=G.map.t[p.y][p.x]===T.ACID_POOL;
-      let adjAcid=dirs.some(([dx,dy])=>inB(p.x+dx,p.y+dy)&&G.map.t[p.y+dy][p.x+dx]===T.ACID_POOL);
-      if(onAcid){p.hp-=6;msg('\u2620 Acid burns you for 6!','d');if(p.hp<=0){die('Acid');return;}}
-      else if(adjAcid&&p.turns%2===0){p.hp-=2;msg('The acid fumes sting you for 2.','d');if(p.hp<=0){die('Acid');return;}}
+      // Adjacent acid fumes — every 2 turns
+      const adjAcid=dirs.some(([dx,dy])=>inB(p.x+dx,p.y+dy)&&G.map.t[p.y+dy][p.x+dx]===T.ACID_POOL);
+      if(adjAcid&&p.turns%2===0){p.hp-=1;if(p.hp<=0){die('Acid');return;}}
     }
     // Reveal Pit Lurkers within 2 tiles
     G.ents.forEach(e=>{
@@ -4484,6 +5036,17 @@ function tick(doEnemies){
   const effectiveLightR=Math.max(3,(G.p.lightR||9)-(G._floorLightPenalty||0));
   G.vis=fov(G.map.t,G.p.x,G.p.y,effectiveLightR);
   G.vis.forEach(k=>G.seen.add(k));
+  // Inscription hint — fire once when an unread inscription first enters FOV
+  if(G._inscriptions&&G._inscriptions.length){
+    if(!G._hintedInscriptions)G._hintedInscriptions=new Set();
+    G._inscriptions.forEach(ins=>{
+      const k=ins.x+','+ins.y;
+      if(G.vis.has(k)&&!(G._readInscriptions&&G._readInscriptions.has(k))&&!G._hintedInscriptions.has(k)){
+        G._hintedInscriptions.add(k);
+        msg('\u2623 Something is written nearby...','i');
+      }
+    });
+  }
   render();
   renderMinimap();
   hud();
@@ -4492,12 +5055,24 @@ function hud(){
   const p=G.p;
   $('pname').textContent=`${p.name} [Lvl ${p.lvl}]`;
   $('dlvl').textContent=G.dl===0?'Surface':G.inCatacombs?'Catacombs':G.inSlimePit?'Slime Pits':G.burrowed?"Rat's Nest":'Dungeon '+G.dl;
+  // Wasting HUD tint — color the HUD border and status text
+  const hudEl=$('hud');
+  if(hudEl){
+    if(p.wasting){
+      const wc=WASTING_COLORS[p.wasting.severity||1];
+      hudEl.style.borderColor=wc;
+      hudEl.style.boxShadow=`0 0 8px ${wc}40`;
+    }else{
+      hudEl.style.borderColor='';
+      hudEl.style.boxShadow='';
+    }
+  }
   const mutDefs=(p.mutations||[]).map(id=>MUTATIONS.find(m=>m.id===id)).filter(Boolean);
   const mhud=$('mutation-hud');if(mhud)mhud.textContent=mutDefs.length>0?mutDefs.map(m=>`\u2605 ${m.shortName}`).join(' | '):'';
   const statusEl=$('status-hud');
   if(statusEl){
     const parts=[];
-    if(p.infected&&p.infected.turns>0)parts.push(`\u2623 INFECTED (${p.infected.turns}t)`);
+    if(p.wasting){const sn=['','Wasting','Festering','Rotting','Consumed'];parts.push(`\u2623 ${sn[p.wasting.severity||1]} (Sev ${p.wasting.severity||1}/4)`);}
     if(p.confused&&p.confused.turns>0)parts.push(`\u2766 CONFUSED (${p.confused.turns}t)`);
     if(p.rooted)parts.push('\u2756 ROOTED');
     if(p.burning&&p.burning.turns>0)parts.push(`\u{1F525} BURNING (${p.burning.turns}t)`);
@@ -4619,8 +5194,8 @@ function render(){
     else if(tile===T.CHAINS){s='\u00a5';c='#705030';}
     else if(tile===T.GORE){s='%';c='#6b0000';}
     else if(tile===T.CRYPT_FLOOR){s='.';c='#2a3020';}
-    else if(tile===T.MOLD_FLOOR){s='.';c='#152010';}
-    else if(tile===T.SLIME_WALL){s='#';c='#1a3010';}
+    else if(tile===T.MOLD_FLOOR){s='.';c='#1a4a10';}
+    else if(tile===T.SLIME_WALL){s='#';c='#2a6018';}
     // Carpet tiles
     else if(tile===T.CARPET_RED){s='.';c='#8b1a1a';}
     else if(tile===T.CARPET_BLUE){s='.';c='#1a3a8b';}
@@ -4662,6 +5237,20 @@ function render(){
     else if(tile===T.BLOOD_WALL){s='#';c='#6a0a0a';}
     else if(tile===T.RUBBLE){s='\u2593';c='#504840';}
     else if(tile===T.PULPED_CORPSE){s='%';c='#3a0808';}
+    else if(tile===T.STATUE){s='\u265f';c='#9090a0';}
+    else if(tile===T.CRACKED_STATUE){s='\u265f';c='#606068';}
+    else if(tile===T.PILLAR){s='\u2016';c='#a0a0b0';}
+    else if(tile===T.CRACKED_PILLAR){s='\u2016';c='#606870';}
+    else if(tile===T.VASE){s='\u232c';c='#8060a0';}
+    else if(tile===T.FOUNTAIN){s='\u26f2';c='#4080c0';}
+    else if(tile===T.BARREL){s='\u232c';c='#8b5a1a';}
+    else if(tile===T.BOOKCASE){s='\u2261';c='#806040';}
+    else if(tile===T.LECTERN){s='\u2628';c='#a08040';}
+    else if(tile===T.PEW){s='\u2550';c='#604820';}
+    else if(tile===T.CLOSET){s='\u25a6';c='#704830';}
+    else if(tile===T.STONE_SLAB){s='\u2584';c='#8080a0';}
+    else if(tile===T.CRACKED_WALL){s='\u2591';c='#404048';}
+    else if(tile===T.ROCKS){s='\u2022';c='#606070';}
     else if(tile===T.MIRROR){s='H';c='#a0c0d0';}
     else if(tile===T.COBWEB){s='\u2591';c='#706870';}
     else if(tile===T.CRATE){s='\u25a0';c='#8b5a1a';}
@@ -4681,7 +5270,7 @@ function render(){
     else if(tile===T.BURROW){s='\u25be';c='#806040';}
     else if(tile===T.CATACOMB_ENTRY){s='\u25bd';c='#908060';}
     else if(tile===T.SEALED_DOOR){s='\u2261';c='#d4a820';}
-    else if(tile===T.SLIME_FLOOR){s='.';c='#206020';}
+    else if(tile===T.SLIME_FLOOR){s='.';c='#30a030';}
     else if(tile===T.ACID_POOL){s='~';c='#40c020';}
     else if(tile===T.SLIME_PIT_ENTRY){s='\u2304';c='#40a020';}
     else if(tile===T.TELEPORT){s='\u2295';c='#6080e0';}
@@ -4695,6 +5284,10 @@ function render(){
     else if(tile===T.PATH){s='.';c='#806040';}
     // Apply light map tint if available
     if(G.lightMap&&G.lightMap.has(mx+','+my)&&vis)c=G.lightMap.get(mx+','+my);
+    // Inscription: override color to cyan if this tile has an unread inscription
+    if(vis&&G._inscriptions&&G._inscriptions.some(i=>i.x===mx&&i.y===my)){
+      if(!G._readInscriptions||!G._readInscriptions.has(mx+','+my))c='#40c8c0';
+    }
     ctx.fillStyle=c;ctx.fillText(s,(vx+0.5)*cs,(vy+0.5)*cs);
   }}
   G.ents.forEach(e=>{
@@ -4726,7 +5319,11 @@ function render(){
     });
   }
   const pvx=p.x-ox,pvy=p.y-oy;
-  if(pvx>=0&&pvx<VW&&pvy>=0&&pvy<VH){ctx.globalAlpha=1;ctx.fillStyle=p.color;ctx.fillText(p.sym,(pvx+0.5)*cs,(pvy+0.5)*cs);}
+  if(pvx>=0&&pvx<VW&&pvy>=0&&pvy<VH){
+    ctx.globalAlpha=1;
+    const pCol=p.wasting?WASTING_COLORS[p.wasting.severity||1]:(p.color||'#e8d898');
+    ctx.fillStyle=pCol;ctx.fillText(p.sym,(pvx+0.5)*cs,(pvy+0.5)*cs);
+  }
   // Phantom visions (dim purple, fading)
   if((G.p.ruin||0)>=1||G.p.madness>=75){
     G.ents.filter(e=>e.isPhantom&&G.vis.has(key(e.x,e.y))).forEach(ph=>{
@@ -4766,8 +5363,8 @@ function tileColor(t){
   if(t===T.CHAINS)return'#705030';
   if(t===T.GORE)return'#6b0000';
   if(t===T.CRYPT_FLOOR)return'#2a3020';
-  if(t===T.MOLD_FLOOR)return'#152010';
-  if(t===T.SLIME_WALL)return'#1a3010';
+  if(t===T.MOLD_FLOOR)return'#1a4a10';
+  if(t===T.SLIME_WALL)return'#2a6018';
   if(t===T.OFFERING)return'#c8a070';
   if(t===T.OFFERING_OPEN)return'#5a4020';
   if(t===T.ALTAR)return'#a02020';
@@ -4784,7 +5381,7 @@ function tileColor(t){
   if(t===T.BURROW)return'#806040';
   if(t===T.CATACOMB_ENTRY)return'#908060';
   if(t===T.SEALED_DOOR)return'#d4a820';
-  if(t===T.SLIME_FLOOR)return'#206020';
+  if(t===T.SLIME_FLOOR)return'#30a030';
   if(t===T.ACID_POOL)return'#40c020';
   if(t===T.SLIME_PIT_ENTRY)return'#40a020';
   if(t===T.TELEPORT)return'#6080e0';
@@ -4811,6 +5408,21 @@ function tileColor(t){
   if(t===T.BLOOD_WALL)return'#6a0a0a';
   if(t===T.RUBBLE)return'#504840';
   if(t===T.PULPED_CORPSE)return'#3a0808';
+  if(t===T.STATUE)return'#9090a0';
+  if(t===T.CRACKED_STATUE)return'#606068';
+  if(t===T.PILLAR)return'#a0a0b0';
+  if(t===T.CRACKED_PILLAR)return'#606870';
+  if(t===T.VASE)return'#8060a0';
+  if(t===T.FOUNTAIN)return'#4080c0';
+  if(t===T.BARREL)return'#8b5a1a';
+  if(t===T.BOOKCASE)return'#806040';
+  if(t===T.LECTERN)return'#a08040';
+  if(t===T.PEW)return'#604820';
+  if(t===T.CLOSET)return'#704830';
+  if(t===T.STONE_SLAB)return'#8080a0';
+  if(t===T.CRACKED_WALL)return'#404048';
+  if(t===T.IRON_GRATE)return'#607080';
+  if(t===T.ROCKS)return'#606070';
   if(t===T.MIRROR)return'#a0c0d0';
   if(t===T.COBWEB)return'#706870';
   if(t===T.CRATE)return'#8b5a1a';
@@ -5284,6 +5896,18 @@ function playExplosionSound(){playSFX(ctx=>{
 });}
 
 // ---- SPECIAL SOUNDS ----
+function playWolfHowlSound(){playSFX(ctx=>{
+  const t=ctx.currentTime;
+  const osc=ctx.createOscillator();const g=ctx.createGain();
+  osc.type='sine';
+  osc.frequency.setValueAtTime(220,t);
+  osc.frequency.linearRampToValueAtTime(440,t+0.3);
+  osc.frequency.linearRampToValueAtTime(380,t+0.6);
+  osc.frequency.linearRampToValueAtTime(280,t+1.0);
+  g.gain.setValueAtTime(0.0,t);g.gain.linearRampToValueAtTime(0.4,t+0.1);
+  g.gain.setValueAtTime(0.4,t+0.7);g.gain.exponentialRampToValueAtTime(0.001,t+1.1);
+  osc.connect(g);g.connect(ctx.destination);osc.start(t);osc.stop(t+1.2);
+});}
 function playStairSound(descending){playSFX(ctx=>{
   const t=ctx.currentTime;
   const osc=ctx.createOscillator();const g=ctx.createGain();
@@ -5446,7 +6070,32 @@ function doSingleAtk(en){
   // Armored Skeleton: flat damage reduction
   if(en.flatDmgReduction&&finalDmg>1)finalDmg=Math.max(1,finalDmg-en.flatDmgReduction);
   en.hp-=finalDmg;
+  // Mark enemy as provoked (for dormant AI)
+  en._lkpX=p.x;en._lkpY=p.y;
   if(p.classId==='starved')p.hp=Math.min(p.maxHp,p.hp+1);
+  // Worm splitting — 25% per hit, cap 3 splits per original worm
+  if(en.isWormMass&&en.hp>0&&Math.random()<0.25){
+    en._splitCount=(en._splitCount||0);
+    const origSplits=(en._origEid?G.ents.filter(wm=>wm.isWormMass&&wm._origEid===en._origEid).length:0);
+    if(origSplits<3){
+      const wTpl=ENEMY_DEFS.find(w=>w.id==='worm_mass');
+      if(wTpl){
+        const spDirs=[[-1,0],[1,0],[0,-1],[0,1]];
+        for(const[sdx,sdy]of spDirs){
+          const sx=en.x+sdx,sy=en.y+sdy;
+          if(inB(sx,sy)&&passable(G.map.t,sx,sy)&&!enemyAt(sx,sy)&&!(sx===p.x&&sy===p.y)){
+            const newWorm={...scaleEnemy(wTpl,G.dl),
+              x:sx,y:sy,eid:'worm_split_'+Date.now(),isEnemy:true,isWormMass:true,isTiny:true,
+              hp:Math.max(1,Math.floor((en.maxHp||3)/2)),
+              _origEid:en._origEid||en.eid,_lkpX:p.x,_lkpY:p.y};
+            G.ents.push(newWorm);
+            msg('The worm splits!','d');
+            break;
+          }
+        }
+      }
+    }
+  }
   // Bone Club knockback — 25% chance per hit
   if(w&&(w.id==='bone_club'||w.id==='bone_club_1'||w.id==='bone_club_2')&&en.hp>0&&Math.random()<0.25){
     const kbDist=Math.floor((p.str-5)/2)>=2?2:1; // 2 tiles at STR 9+, 1 otherwise
@@ -5703,6 +6352,10 @@ function mv(dx,dy){
     msg('The crate splinters open.','g');
     G.p.turns++;spRegen();tick(true);return;
   }
+  // ---- INSCRIPTION CHECK — runs first for all eligible tiles ----
+  if(G._inscriptions&&G._inscriptions.some(i=>i.x===nx&&i.y===ny)){
+    openInscr(nx,ny);G.p.turns++;spRegen();tick(true);return;
+  }
   else if(G.map.t[ny]&&G.map.t[ny][nx]===T.BONE_PILE){
     G.map.t[ny][nx]=T.FLOOR;
     // 40% crumbles to dust
@@ -5844,7 +6497,14 @@ function mv(dx,dy){
       // Cobweb slows — costs an extra turn to pass through
       G.p.turns++;spRegen();
     }
-    else if(nt===T.CHAINS){triggerChainRattle(nx,ny,true);}
+    else if(nt===T.ACID_POOL){
+      // Acid pool — +1 turn cost and 3 damage (reduced by AGI)
+      const acidDmg=Math.max(1,3-Math.floor((p.agi-4)/3));
+      p.hp-=acidDmg;
+      p.turns++;spRegen();
+      msg(`\u2620 Acid burns! (${acidDmg} dmg)`,'d');
+      if(p.hp<=0){die('Acid');return;}
+    }
     // Show/hide Close button when near closeable tiles
     const closeBtn=$('close-btn');
     if(closeBtn){
@@ -5971,7 +6631,7 @@ function openChest(x,y){
   const iid=resolveItem(CHEST_LOOT[rnd(CHEST_LOOT.length)]);
   const tpl=ITEM_DEFS.find(i=>i.id===iid);
   if(tpl){
-    const STACK_LIMITS={blueberry:25,bandage:5,medkit:5,whiskey:5,elixir:5,hearty_meal:5,serum:5,foxglove:5,loose_ammo:25,happy_pill:15,grease_tube:5};
+    const STACK_LIMITS={blueberry:25,bandage:5,medkit:5,whiskey:5,elixir:5,hearty_meal:5,serum:5,foxglove:5,loose_ammo:25,happy_pill:15,grease_tube:5,purifier:5};
     const maxStack=STACK_LIMITS[iid]||5;
     const existing=p.inv.find(i=>i.id===iid);
     const count=existing?(existing.n||1):0;
@@ -6194,9 +6854,10 @@ function doThrow(){
   if(tw.throwEffect==='acid'){
     for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
       const ax=tgt.x+dx,ay=tgt.y+dy;
-      if(inB(ax,ay)&&(G.map.t[ay][ax]===T.SLIME_FLOOR||G.map.t[ay][ax]===T.FLOOR))G.map.t[ay][ax]=T.ACID_POOL;
+      if(inB(ax,ay)&&passable(G.map.t,ax,ay)&&G.map.t[ay][ax]!==T.ACID_POOL)
+        G.map.t[ay][ax]=T.ACID_POOL;
     }
-    msg('Acid pools form where the vial shattered!','i');
+    msg('Acid pools form where the vial shattered! Avoid the green.','i');
   }
   p.throwCooldown=3;
   p.turns++;spRegen();tick(true);
@@ -6280,7 +6941,16 @@ function doWait(){
     corpse._destroyProgress=(corpse._destroyProgress||0)+1;
     if(corpse._destroyProgress>=2){
       G.ents=G.ents.filter(e=>e!==corpse);
-      if(isStarved){const heal=Math.max(1,Math.floor((corpse._srcHp||4)*0.25));p.hp=Math.min(p.maxHp,p.hp+heal);msg(`You devour the ${corpse._srcName} corpse. (+${heal} HP)`,'g');}
+      if(isStarved){
+        const heal=Math.max(1,Math.floor((corpse._srcHp||4)*0.25));
+        p.hp=Math.min(p.maxHp,p.hp+heal);
+        msg(`You devour the ${corpse._srcName} corpse. (+${heal} HP)`,'g');
+        // Infected corpse: risk of Wasting
+        if(corpse._wasInfected&&!p.wasting&&!isStatusImmune()&&Math.random()<0.50){
+          applyWasting();
+          msg('\u2623 The corpse was diseased. Something spreads through you.','d');
+        }
+      }
       else msg(`You ensure the ${corpse._srcName} stays dead.`,'i');
     }else{const turnsLeft=2-corpse._destroyProgress;if(isStarved)msg(`You tear into the ${corpse._srcName} corpse... (${turnsLeft} turn${turnsLeft!==1?'s':''} remaining)`,'i');else msg(`You desecrate the ${corpse._srcName} corpse... (${turnsLeft} turn${turnsLeft!==1?'s':''} remaining)`,'i');}
     p.turns++;spRegen();tick(true);return;
@@ -6584,7 +7254,8 @@ function killEnemy(en){
   const isUndead2=en.isZombie||SKELETAL_IDS.has(en.id)||en.isGhost||en.isWarden;
   if(!G)return;
   msg(`The ${en.name} is slain!`,'g');
-  G.p.xp+=en.xp;G.p.kills=(G.p.kills||0)+1;
+  const xpMult=G._xpMult||1;
+  G.p.xp+=Math.round(en.xp*xpMult);G.p.kills=(G.p.kills||0)+1;
   // Crimson Tide: +2 HP on kill
   if(hasMut('crimson_tide')&&!hasMut('consuming_mass')){
     G.p.hp=Math.min(G.p.maxHp,G.p.hp+2);
@@ -6646,10 +7317,6 @@ function killEnemy(en){
     const loot=lootPool[rnd(lootPool.length)];
     if(loot){dropLoot({...loot,eid:'gr_loot_'+Date.now()},en.x,en.y);msg('The Grave Robber drops their stolen goods!','g');}
   }
-  // Serrated: leave a blood pool where the enemy fell (not skeletons)
-  if(en._serrated&&inB(en.x,en.y)&&!SKELETAL_IDS.has(en.id)&&!en.isGhost){
-    G.map.t[en.y][en.x]=T.BLOOD;
-  }
   // Obelisk guardian kills — track for obelisk activation
   if(en.isObeliskGuardian&&en.obeliskX!==undefined){
     checkObeliskState(en.obeliskX,en.obeliskY);
@@ -6694,12 +7361,20 @@ function killEnemy(en){
   }
   if(en.isRatKing){
     stopBossMusic();
+    // Rats revert to skittish after 3 turns
+    G.ents.filter(e=>e.isEnemy&&(e.id==='rat'||e.id==='giant_rat'||e.isPlagueRat||e.isSewerRat))
+      .forEach(r=>{r._ratRevertTurn=G.p.turns+3;});
     msg("The Rat King is dead. The nest falls silent.",'g');
     reduceMadness(5);
     const ichor=ITEM_DEFS.find(i=>i.id==='primer_ichor');
     if(ichor){dropLoot({...ichor,eid:'ichor_'+Date.now()},en.x,en.y);msg("Something black and viscous seeps from its corpse...",'m');}
   }
-  // Warden's Sword: 8% chance slain undead rises as follower
+  // Wasting-inflicting enemies: 5% chance to drop Purifier
+  const WASTING_ENEMIES=new Set(['zombie','ravenous_zombie','rat','giant_rat','plague_rat','sewer_rat','fly_swarm','savage_wolf','infested_zombie','infested_cultist','infested_fighter']);
+  if(WASTING_ENEMIES.has(en.id)&&Math.random()<0.05){
+    const ptpl=ITEM_DEFS.find(i=>i.id==='purifier');
+    if(ptpl)dropLoot({...ptpl,n:1,eid:'purifier_drop_'+Date.now()},en.x,en.y);
+  }
   const w2=G.p.meleeWeapon;
   if(w2&&w2.uniq_follower&&isUndead2&&Math.random()<w2.uniq_follower){
     const fhp=Math.max(1,Math.floor((en.maxHp||en.hp)*0.50));
@@ -7107,7 +7782,7 @@ function enemyTurn(){
       G.ents.filter(en=>en.isEnemy&&!en.isPlant&&en!==e).forEach(en=>{const ed=dist(e,en);if(ed===1&&ed<bestD){bestD=ed;bestT={isEnemy:true,ref:en};}});
       if(bestT){
         const fsdmg=Math.max(1,e.dmg-Math.floor((p.agi-4)/3));
-        if(bestT.isPlayer){p.hp-=fsdmg;if(Math.random()<0.10){if(!isStatusImmune()&&(!p.infected))p.infected={turns:4,dmg:1};else if(!isStatusImmune())p.infected.turns+=4;}if(p.hp<=0){playerDead=true;die(e.name);return;}}
+        if(bestT.isPlayer){p.hp-=fsdmg;if(Math.random()<0.10){if(!isStatusImmune()&&!p.wasting)applyWasting();}if(p.hp<=0){playerDead=true;die(e.name);return;}}
         else if(bestT.ref)bestT.ref.hp-=fsdmg;
       }
     }
@@ -7159,6 +7834,21 @@ function enemyTurn(){
     return;
   }
   const BOSS_IDS=new Set(['rat_king','deathless_warden','watcher_yellow','spawn_deep_tongue','the_frayed','eldest_hunger','dark_reflection']);
+  // ---- GODS' QUARREL: enemies fight each other ----
+  G.ents.filter(e=>e.isEnemy&&e._godsQuarrel).forEach(e=>{
+    if(playerDead||!G)return;
+    const allEnemies=G.ents.filter(en=>en.isEnemy&&en!==e&&dist(en,e)<=8);
+    if(!allEnemies.length)return;
+    const target=allEnemies[rnd(allEnemies.length)];
+    if(dist(e,target)===1){
+      target.hp-=Math.max(1,e.dmg+rr(-1,1));
+      if(target.hp<=0)killEnemy(target);
+    }else{
+      const dx2=Math.sign(target.x-e.x),dy2=Math.sign(target.y-e.y);
+      const nx=e.x+dx2,ny2=e.y+dy2;
+      if(inB(nx,ny2)&&passable(G.map.t,nx,ny2)&&!enemyAt(nx,ny2)){e.x=nx;e.y=ny2;}
+    }
+  });
   if(!G._bossActive){
     const visibleBoss=G.ents.find(e=>e.isEnemy&&BOSS_IDS.has(e.id)&&G.vis.has(key(e.x,e.y))&&!e._bossMusicPlayed);
     if(visibleBoss){
@@ -7268,7 +7958,8 @@ function enemyTurn(){
       if(inB(nx,ny)&&(e.isTiny?passableTiny(G.map.t,nx,ny):passable(G.map.t,nx,ny))&&!enemyAt(nx,ny)&&!(nx===p.x&&ny===p.y)){
         e.x=nx;e.y=ny;
         if(G.map.t[ny][nx]===T.CHAINS)triggerChainRattle(nx,ny,false);
-        if(G.map.t[ny][nx]===T.COBWEB){e._webbed=(e._webbed||0)+1;} // skip next move
+        if(G.map.t[ny][nx]===T.COBWEB){e._webbed=(e._webbed||0)+1;}
+        if(G.map.t[ny][nx]===T.ACID_POOL&&!e.isSlime){e.hp-=2;if(e.hp<=0){killEnemy(e);return;}}
         if(G.map.t[ny][nx]===T.THORN_BUSH){e.hp-=1;if(!e.bleed)e.bleed={turns:3,dmg:1};if(e.hp<=0){killEnemy(e);return;}}
       }
       return;
@@ -7456,9 +8147,179 @@ function enemyTurn(){
       return;
     }
 
-    // ---- NORMAL ENEMIES ----
-    const d=dist(e,p);if(d>16)return;
+    // ---- WORM MASS: aimless wander, provoke-only, split on hit ----
+    if(e.isWormMass){
+      // Only pursue if provoked (_lkpX set by being attacked)
+      const provoked=e._lkpX!==undefined;
+      if(!provoked){
+        // Aimless wander within 5 tiles of spawn
+        if(!e._spawnX){e._spawnX=e.x;e._spawnY=e.y;}
+        const dirs=[[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]];
+        dirs.sort(()=>Math.random()-0.5);
+        for(const[dx,dy]of dirs){
+          const nx=e.x+dx,ny2=e.y+dy;
+          if(inB(nx,ny2)&&passable(G.map.t,nx,ny2)&&!enemyAt(nx,ny2)&&!(nx===p.x&&ny2===p.y)
+            &&dist({x:nx,y:ny2},{x:e._spawnX,y:e._spawnY})<=5){
+            if(Math.random()<0.5){e.x=nx;e.y=ny2;}
+            break;
+          }
+        }
+        return;
+      }
+    }
+
+    // ---- SLIME: dormant until attacked ----
+    if(e.isSmallSlime&&!e._lkpX){
+      if(!e._spawnX){e._spawnX=e.x;e._spawnY=e.y;}
+      const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+      dirs.sort(()=>Math.random()-0.5);
+      for(const[dx,dy]of dirs){
+        const nx=e.x+dx,ny2=e.y+dy;
+        if(inB(nx,ny2)&&passable(G.map.t,nx,ny2)&&!enemyAt(nx,ny2)&&!(nx===p.x&&ny2===p.y)
+          &&dist({x:nx,y:ny2},{x:e._spawnX,y:e._spawnY})<=5){
+          if(Math.random()<0.3){e.x=nx;e.y=ny2;}
+          break;
+        }
+      }
+      return;
+    }
+
+    // ---- ZOMBIE: wary — pursue only within 3-tile scent radius ----
+    if(e.isZombie&&!e.isInfested&&!e.isRavenousZombie){
+      const scent=dist(e,p)<=3;
+      if(scent&&!e._lkpX){e._lkpX=p.x;e._lkpY=p.y;}
+      // Swarm alerting
+      if(e._lkpX){
+        G.ents.filter(z=>z.isZombie&&!z._lkpX&&dist(z,e)<=5).forEach(z=>{
+          z._lkpX=p.x;z._lkpY=p.y;
+          if(G.vis.has(key(z.x,z.y)))msg(`The ${z.name} catches your scent!`,'d');
+        });
+      }
+      if(!e._lkpX){
+        // Dormant wander
+        if(!e._spawnX){e._spawnX=e.x;e._spawnY=e.y;}
+        const dirs=[[-1,0],[1,0],[0,-1],[0,1]];
+        dirs.sort(()=>Math.random()-0.5);
+        for(const[dx,dy]of dirs){
+          const nx=e.x+dx,ny2=e.y+dy;
+          if(inB(nx,ny2)&&passable(G.map.t,nx,ny2)&&!enemyAt(nx,ny2)&&!(nx===p.x&&ny2===p.y)
+            &&dist({x:nx,y:ny2},{x:e._spawnX,y:e._spawnY})<=5){
+            if(Math.random()<0.35){e.x=nx;e.y=ny2;}
+            break;
+          }
+        }
+        return;
+      }
+    }
+
+    // ---- RAT: skittish unless Rat King within 8 tiles ----
+    if((e.id==='rat'||e.id==='giant_rat'||e.isPlagueRat||e.isSewerRat)&&!e.isRatKing){
+      const ratKingNearby=G.ents.some(rk=>rk.isRatKing&&dist(rk,e)<=8);
+      if(ratKingNearby&&!e._lkpX){
+        e._lkpX=p.x;e._lkpY=p.y;
+        if(G.vis.has(key(e.x,e.y)))msg('The rats surge forward, emboldened by their king!','d');
+      }
+      if(!ratKingNearby&&e._ratRevertTurn&&G.p.turns>e._ratRevertTurn){
+        delete e._lkpX;delete e._lkpY;delete e._ratRevertTurn;
+      }
+      if(!e._lkpX){
+        // Skittish: flee if player is within 4 tiles
+        if(dist(e,p)<=4){
+          const fdx=Math.sign(e.x-p.x),fdy=Math.sign(e.y-p.y);
+          const nx=e.x+fdx,ny2=e.y+fdy;
+          if(inB(nx,ny2)&&passable(G.map.t,nx,ny2)&&!enemyAt(nx,ny2)){e.x=nx;e.y=ny2;}
+        }
+        return;
+      }
+    }
+
+    // ---- CULTIST: patrol between 2 assigned rooms ----
+    if((e.id==='cultist'||e.id==='cultist_gunman'||e.isInfestedCultist)&&!e._lkpX){
+      if(!e._patrolA){
+        // Assign patrol points at spawn
+        const rooms=G.map.rooms||[];
+        if(rooms.length>=2){
+          const r1=rooms[rnd(rooms.length)];
+          let r2=rooms[rnd(rooms.length)];
+          if(r2===r1)r2=rooms[(rooms.indexOf(r1)+1)%rooms.length];
+          e._patrolA={x:r1.cx||r1.x+Math.floor((r1.w||4)/2),y:r1.cy||r1.y+Math.floor((r1.h||4)/2)};
+          e._patrolB={x:r2.cx||r2.x+Math.floor((r2.w||4)/2),y:r2.cy||r2.y+Math.floor((r2.h||4)/2)};
+          e._patrolTarget='A';e._patrolPause=0;
+        }
+      }
+      if(e._patrolA){
+        if(e._patrolPause>0){e._patrolPause--;return;}
+        const tgt=e._patrolTarget==='A'?e._patrolA:e._patrolB;
+        const d2=dist(e,tgt);
+        if(d2<=1){
+          e._patrolPause=rr(2,4);
+          e._patrolTarget=e._patrolTarget==='A'?'B':'A';
+        }else{
+          const dx2=Math.sign(tgt.x-e.x),dy2=Math.sign(tgt.y-e.y);
+          const nx=e.x+dx2,ny2=e.y+dy2;
+          if(inB(nx,ny2)&&passable(G.map.t,nx,ny2)&&!enemyAt(nx,ny2)&&!(nx===p.x&&ny2===p.y)){e.x=nx;e.y=ny2;}
+        }
+        return;
+      }
+    }
+
+    // ---- WOLF: alpha/flanker pack tactics ----
+    if(e.id==='wolf'){
+      if(!e._spawnX){e._spawnX=e.x;e._spawnY=e.y;}
+      // Assign pack role on first activation
+      if(!e._packRole){
+        const nearWolf=G.ents.find(w=>w.id==='wolf'&&w!==e&&w._packRole==='alpha'&&dist(w,e)<=8);
+        e._packRole=nearWolf?'flanker':'alpha';
+        if(e._packRole==='alpha'){e._howled=false;}
+      }
+      // Join pack: adopt alpha target
+      if(!e._lkpX){
+        const alpha=G.ents.find(w=>w.id==='wolf'&&w._packRole==='alpha'&&w._lkpX!==undefined&&dist(w,e)<=10);
+        if(alpha){e._lkpX=alpha._lkpX;e._lkpY=alpha._lkpY;if(G.vis.has(key(e.x,e.y)))msg('A wolf joins the hunt!','d');}
+      }
+      // Swarm alert
+      if(e._lkpX){
+        G.ents.filter(w=>w.id==='wolf'&&!w._lkpX&&dist(w,e)<=8).forEach(w=>{
+          w._lkpX=p.x;w._lkpY=p.y;
+          if(G.vis.has(key(w.x,w.y)))msg('A wolf joins the hunt!','d');
+        });
+      }
+      // Alpha howl: summon a wolf once when player first spotted
+      if(e._packRole==='alpha'&&e._lkpX&&!e._howled){
+        e._howled=true;
+        playWolfHowlSound();
+        msg('A wolf howls! Another answers from the dark.','d');
+        const wolfTpl=ENEMY_DEFS.find(w=>w.id==='wolf');
+        if(wolfTpl){
+          const spDirs=[[-3,0],[3,0],[0,-3],[0,3],[-2,-2],[2,-2],[-2,2],[2,2]];
+          for(const[dx,dy]of spDirs){
+            const sx=e.x+dx,sy=e.y+dy;
+            if(inB(sx,sy)&&passable(G.map.t,sx,sy)&&!enemyAt(sx,sy)&&!(sx===p.x&&sy===p.y)){
+              G.ents.push({...scaleEnemy(wolfTpl,G.dl),x:sx,y:sy,eid:'pack_wolf_'+Date.now(),isEnemy:true,
+                _packRole:'flanker',_lkpX:p.x,_lkpY:p.y,_spawnX:sx,_spawnY:sy});
+              break;
+            }
+          }
+        }
+      }
+      // Flanker tactic: move to opposite side of player from alpha
+      if(e._lkpX&&e._packRole==='flanker'){
+        const alpha=G.ents.find(w=>w.id==='wolf'&&w._packRole==='alpha');
+        if(alpha){
+          const flankX=p.x+(p.x-alpha.x>0?-2:2);
+          const flankY=p.y+(p.y-alpha.y>0?-2:2);
+          const dx2=Math.sign(flankX-e.x),dy2=Math.sign(flankY-e.y);
+          const nx=e.x+dx2,ny2=e.y+dy2;
+          if(inB(nx,ny2)&&passable(G.map.t,nx,ny2)&&!enemyAt(nx,ny2)&&!(nx===p.x&&ny2===p.y)){
+            e.x=nx;e.y=ny2;return;
+          }
+        }
+      }
+    }
     const vis=G.vis.has(key(e.x,e.y));
+
+    // Consumed by the Gods' Quarrel — already processed above, ignore player
+    if(e._godsQuarrel)return;
 
     // Update last-known-position whenever enemy can see the player
     if(vis){
@@ -7525,24 +8386,22 @@ function enemyTurn(){
       if(!e.ranged&&!hasMut('iron_vessel')){
         if(e.id==='zombie'&&Math.random()<0.20){
           const turns=rr(1,8);
-          if(p.infected){p.infected.turns+=turns;msg(`\u2623 The infection deepens. (${p.infected.turns} turns remaining)`,'d');}
-          else{if(!isStatusImmune())p.infected={turns,_type:'zombie',dmgPerTurn:()=>1};msg('\u2623 You feel something wrong. You are Infected!','d');}
+          if(!isStatusImmune()&&!p.wasting)applyWasting();
         }else if(e.id==='ravenous_zombie'&&Math.random()<0.35){
           const turns=5;
-          if(p.infected){p.infected.turns+=turns;msg(`\u2623 The ravenous bite worsens the infection. (${p.infected.turns} turns remaining)`,'d');}
-          else{if(!isStatusImmune())p.infected={turns,_type:'ravenous_zombie',dmgPerTurn:()=>rr(1,2)};msg('\u2623 The ravenous bite festers. You are Infected!','d');}
+          if(!isStatusImmune()&&!p.wasting)applyWasting();
         }else if((e.id==='rat'||e.id==='giant_rat')&&Math.random()<0.40){
           const turns=rr(2,5);
-          if(p.infected){p.infected.turns+=turns;msg(`\u2623 The rat bite worsens the infection. (${p.infected.turns} turns remaining)`,'d');}
-          else{if(!isStatusImmune())p.infected={turns,_type:'rat',dmgPerTurn:()=>1};msg('\u2623 The rat bite festers. You are Infected!','d');}
+          if(!isStatusImmune()&&!p.wasting)applyWasting();
+        }else if(e.isSavageWolf&&Math.random()<0.35){
+          const turns=rr(3,5);
+          if(!isStatusImmune()&&!p.wasting)applyWasting();
         }else if(e.isPlagueRat&&Math.random()<1.00){
           const turns=rr(3,6);
-          if(p.infected){p.infected.turns+=turns;msg(`\u2623 The plague rat\u2019s bite ravages the infection. (${p.infected.turns} turns remaining)`,'d');}
-          else{p.infected={turns,_type:'plague_rat',dmgPerTurn:()=>rr(1,2)};msg('\u2623 The plague rat\u2019s bite courses through you. Heavily Infected!','d');}
+          if(!isStatusImmune()&&!p.wasting)applyWasting();
         }else if(e.isSewerRat&&Math.random()<0.40){
           const turns=rr(2,4);
-          if(p.infected){p.infected.turns+=turns;msg(`\u2623 The sewer rat bite worsens the infection. (${p.infected.turns} turns remaining)`,'d');}
-          else{p.infected={turns,_type:'rat',dmgPerTurn:()=>1};msg('\u2623 The sewer rat bite festers. You are Infected!','d');}
+          if(!isStatusImmune()&&!p.wasting)applyWasting();
         }
       }
       if(p.hp<=0){playerDead=true;die(e.name);return;}
@@ -7638,7 +8497,7 @@ function pickupItem(item){
       msg(`Picked up ${take} loose round${take>1?'s':''}.`,'g');
     }
   }else{
-    const STACK_LIMITS={blueberry:25,bandage:5,medkit:5,whiskey:5,elixir:5,lantern:5,hearty_meal:5,serum:5,mutagen:5,foxglove:5};
+    const STACK_LIMITS={blueberry:25,bandage:5,medkit:5,whiskey:5,elixir:5,lantern:5,hearty_meal:5,serum:5,mutagen:5,foxglove:5,purifier:5};
     const maxStack=STACK_LIMITS[item.id]||5;
     const existing=p.inv.find(i=>i.id===item.id);
     const count=existing?(existing.n||1):0;
@@ -7745,18 +8604,18 @@ function renderStats(){
       <div class="stat-section-title">STATUS EFFECTS</div>
       ${(()=>{
         const effects=[];
-        if(p.infected&&p.infected.turns>0){
-          const isRZ=p.infected._type==='ravenous_zombie';
-          const maxTurns=isRZ?5:8;
-          const pct=Math.min(1,p.infected.turns/maxTurns);
-          const dmgStr=isRZ?'1–2 dmg/turn':'1 dmg/turn';
-          effects.push(`<div class="stat-status-box">
+        if(p.wasting){
+          const sev=p.wasting.severity||1;
+          const WNAMES=['','Wasting','Festering','Rotting','Consumed'];
+          const WCOLORS=['','#40a040','#80a020','#908010','#604000'];
+          const pct=sev/4;
+          effects.push(`<div class="stat-status-box" style="border-color:${WCOLORS[sev]};background:#08100a;">
             <div class="stat-status-icon">\u2623</div>
             <div class="stat-status-info">
-              <div class="stat-status-name">INFECTED</div>
-              <div class="stat-status-desc">${dmgStr} &bull; ${p.infected.turns} turn${p.infected.turns!==1?'s':''} remaining${isRZ?' &bull; Ravenous strain':''}</div>
+              <div class="stat-status-name" style="color:${WCOLORS[sev]}">${WNAMES[sev].toUpperCase()} (${sev}/4)</div>
+              <div class="stat-status-desc" style="color:#4a7a4a;">Severity ${sev}: ${sev} dmg/turn. ${sev>=2?'−'+(Math.min(2,sev-1))+' AGI':''}${sev>=3?' −1 STR':''}${sev>=4?' −1 WITS':''} &bull; Escalates unless cured.</div>
               <div class="stat-status-bar-wrap">
-                <div class="stat-status-bar-track"><div class="stat-status-bar-fill" style="width:${pct*100}%"></div></div>
+                <div class="stat-status-bar-track"><div class="stat-status-bar-fill" style="width:${pct*100}%;background:${WCOLORS[sev]}"></div></div>
               </div>
             </div>
           </div>`);
@@ -7842,9 +8701,11 @@ function doStairs(){
     G.p.lightR=Math.max(3,G.p.lightR-2);
     G.burrowed=true;G.inCatacombs=true;
     G.returnPos={x:p.x,y:p.y};
+    G.returnDl=G.dl; // save floor to restore on exit
     stopGameMusic();startCatacombMusic();
     const cat=genCatacombs();
     G.map={t:cat.t,rooms:[]};G.ents=cat.ents;
+    G._inscriptions=genInscriptionPass(cat.t,[],0);G._readInscriptions=new Set();
     p.x=cat.sx;p.y=cat.sy;
     G.ents=G.ents.filter(e=>!e.isFollower);G.seen=new Set();G.vis=new Set();G._openedTrees=new Set();tileColorOverrides=new Map();buildLightMap();tick(false);return;
   }
@@ -7854,9 +8715,12 @@ function doStairs(){
     if(G.p.madness>0){G.p.madness=0;msg('The night air fills your lungs. The dead stay below.','i');}
     G.p.lightR=Math.min(12,G.p.lightR+2);
     G.burrowed=false;G.inCatacombs=false;
+    G.dl=G.returnDl||0; // restore floor level
+    G.returnDl=null;
     stopCatacombMusic();startGameMusic();
     const surf=genSurface();
     G.map={t:surf.t,rooms:[]};G.ents=surf.ents;G.gatePositions=surf.gatePositions;
+    G._inscriptions=genChurchInscriptions(surf.t);G._readInscriptions=new Set();
     p.x=G.returnPos?G.returnPos.x:surf.sx;
     p.y=G.returnPos?G.returnPos.y:surf.sy;
     G.returnPos=null;
@@ -7893,11 +8757,17 @@ function doStairs(){
   G.p.foxglovePoison=false;
   G._bossActive=null;
   G._usedPrimers=new Set();
+  G._xpMult=1;
+  G._darkApplied=false;
   // Dismiss all followers silently on floor change
   G.ents=G.ents.filter(e=>!e.isFollower);
   buildLightMap(); // toxin expires when leaving the floor
   const map=genMap(G.dl);const{ents,sx,sy}=genEntities(map,G.dl);  G._nextFloorEnemyBuff=0; // consume buff after applying
   G.map=map;G.ents=ents;p.x=sx;p.y=sy;G.seen=new Set();G.vis=new Set();
+  // ---- INSCRIPTION PASS ----
+  G._inscriptions=genInscriptionPass(map.t,map.rooms,G.dl);
+  G._readInscriptions=new Set();
+  G._hintedInscriptions=new Set();
   // Apply floor light penalty for dark floor event
   G._floorLightPenalty=0;
   p.lightR=Math.max(p.lightR,7);
@@ -7990,51 +8860,201 @@ function doFire(){
   }
   G.p.turns++;spRegen();tick(true);
 }
-function openInv(){if(!G)return;G.invOpen=true;renderInv();$('inv-overlay').classList.add('open');}
-function closeInv(){G.invOpen=false;$('inv-overlay').classList.remove('open');}
-function renderInv(){
-  const c=$('inv-scroll');c.innerHTML='';const p=G.p;
-  if(p.inv.length===0){c.innerHTML='<div class="iempty">Your pack is empty.</div>';return;}
-  p.inv.forEach((item,idx)=>{
-    const d=document.createElement('div');d.className='iitem';
-    const isEquipped=item===p.meleeWeapon||item===p.rangedWeapon||item===p.spellSlot||item===p.throwable||item===p.relic;
-    const eq=isEquipped?'<span class="ieq">[equipped]</span>':'';
-    const ammo=item.ammo!==undefined?` (${item.ammo}/${item.maxAmmo})`:'';
-    const looseCount=item.type==='loose_ammo'?` (${item.n} rounds)`:'';
-    const berryCount=(item.id==='blueberry'&&item.n)?` (${item.n}/25)`:'';
-    const stackCount=(item.type==='use'&&item.n!=null&&item.id!=='blueberry')?` (${item.n})`:'';
-    const symColor=item.type==='loose_ammo'?'#d4a820':(item.color||'#c8b87a');
-    d.innerHTML=`<div class="isym" style="color:${symColor}">${item.sym}</div><div class="iinfo"><div class="iname">${item.name}${ammo}${looseCount}${berryCount}${stackCount}${eq}</div><div class="idesc">${item.desc}</div></div><div class="iitem-del-bar" id="delbar_${idx}"></div>`;
+// ---- ITEM COLOUR CODING ----
+function itemColor(item){
+  if(!item)return'#c8b87a';
+  if(item.type==='weapon'){
+    if(item.id==='annihilator'||item.isWardensWord)return'#ff8020';
+    if(item.upgraded2)return'#c060ff';
+    if(item.upgraded)return'#6868ff';
+    return'#40c040';
+  }
+  if(item.type==='relic')return'#d4b860';
+  if(item.type==='primer')return'#8b0000';
+  if(item.type==='spell'||item.type==='holy'||item.type==='staff')return'#40c060';
+  if(item.type==='throwable')return'#d06010';
+  if(item.type==='key'||item.type==='pipe')return'#d0c8b0';
+  if(item.type==='use'){
+    const id=item.id||'';
+    if(id==='bandage'||id==='medkit'||id==='grease_tube'||id==='hearty_meal')return'#c03030';
+    if(id==='whiskey'||id==='bourbon')return'#3080ff';
+    if(id==='serum')return'#20c0a0';
+    if(id==='happy_pill'||id==='trapezohedron_shard'||id==='starblood_vial')return'#9040c0';
+    if(id==='mutagen')return'#40c060';
+    return'#c0a020';
+  }
+  return'#c8b87a';
+}
 
-    // Tap = use/equip, Hold 1s = drop
+function itemTierClass(item){
+  if(!item||item.type!=='weapon')return'';
+  if(item.id==='annihilator'||item.isWardensWord)return't-uniq';
+  if(item.upgraded2)return't-p2';
+  if(item.upgraded)return't-p1';
+  return't-std';
+}
+
+function itemTierLabel(item){
+  if(!item||item.type!=='weapon')return'';
+  if(item.id==='annihilator'||item.isWardensWord)return'UNIQUE';
+  if(item.upgraded2)return'+2';
+  if(item.upgraded)return'+1';
+  return'STD';
+}
+
+function itemStat(item){
+  if(!item)return'';
+  if(item.type==='weapon'){
+    if(item.ranged)return`${item.dmg} DMG · ${item.ammo??'∞'}/${item.maxAmmo??'∞'} ammo`;
+    return`${item.dmg} DMG`;
+  }
+  if(item.type==='use'&&item.n!=null)return`×${item.n}`;
+  if(item.ammo!==undefined)return`${item.ammo}/${item.maxAmmo}`;
+  return'';
+}
+
+// Tab state
+let _invTab='melee';
+let _invSel=null; // selected item index in current tab
+
+function invTab(tab){
+  _invTab=tab;_invSel=null;
+  document.querySelectorAll('.inv-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab===tab));
+  renderInvList();
+  clearInvDetail();
+}
+
+function categorize(item){
+  if(!item)return'misc';
+  const t=item.type||'';
+  if(t==='weapon'&&!item.ranged)return'melee';
+  if(t==='weapon'&&item.ranged)return'ranged';
+  if(t==='relic')return'relic';
+  if(t==='use')return'use';
+  return'misc'; // spell, holy, staff, throwable, key, pipe, primer, loose_ammo etc
+}
+
+function renderInvEquipBar(){
+  const p=G.p;
+  const short=w=>w?(w.name.length>12?w.name.slice(0,11)+'…':w.name):'—';
+  $('eq-melee').textContent=short(p.meleeWeapon);
+  $('eq-ranged').textContent=short(p.rangedWeapon);
+  $('eq-spell').textContent=short(p.spellSlot);
+  $('eq-throw').textContent=short(p.throwable);
+  $('eq-relic').textContent=short(p.relic);
+}
+
+function renderInvList(){
+  const list=$('inv-list');list.innerHTML='';
+  const p=G.p;
+  const letters='abcdefghijklmnopqrstuvwxyz';
+  const items=p.inv.filter(it=>categorize(it)===_invTab);
+  if(!items.length){
+    list.innerHTML=`<div class="iempty">Nothing here.</div>`;return;
+  }
+  items.forEach((item,i)=>{
+    const idx=p.inv.indexOf(item);
+    const letter=letters[i]||'?';
+    const isEq=item===p.meleeWeapon||item===p.rangedWeapon||item===p.spellSlot||item===p.throwable||item===p.relic;
+    const tier=itemTierClass(item);
+    const tierLabel=itemTierLabel(item);
+    const stat=itemStat(item);
+    const col=itemColor(item);
+    const affixes=(item.affixes&&item.affixes.length)?item.affixes.map(a=>`<span class="iaff">${a}</span>`).join(''):'';
+    const afxRow=affixes?`<div class="irow-affixes">${affixes}</div>`:'';
+    const tierBadge=tier?`<span class="irow-tier ${tier}">${tierLabel}</span>`:'';
+    const eqBadge=isEq?`<div class="irow-eq">● EQUIPPED</div>`:'';
+    const d=document.createElement('div');
+    d.className='irow'+(i===_invSel?' selected':'');
+    d.innerHTML=`
+      <span class="irow-letter" style="color:${col}">${letter}</span>
+      <div class="irow-body">
+        <div class="irow-name" style="color:${col}">${item.name}</div>
+        ${afxRow}
+        ${eqBadge}
+      </div>
+      <div class="irow-right">
+        ${tierBadge}
+        <span class="irow-stat">${stat}</span>
+      </div>
+      <div class="irow-holdbar" id="hbar_${idx}"></div>`;
+
+    // Tap = select/inspect, Hold 1s = drop
     let holdTimer=null,holding=false;
-    const bar=()=>d.querySelector('.iitem-del-bar');
+    const bar=d.querySelector('.irow-holdbar');
     d.addEventListener('pointerdown',()=>{
       holding=false;
-      bar().style.transition='width 0.8s linear';
-      bar().style.width='100%';
+      bar.style.transition='width 0.9s linear';bar.style.width='100%';
       holdTimer=setTimeout(()=>{
-        holding=true;
-        bar().style.transition='none';
-        bar().style.width='0%';
-        // Drop item
-        if(p.weapon===item)p.weapon=null;
-        p.inv.splice(idx,1);
-        msg(`Dropped ${item.name}.`,'i');
-        closeInv();
-        tick(false);
+        holding=true;bar.style.transition='none';bar.style.width='0%';
+        dropInvItem(item,idx);
       },1000);
     });
-    const cancelHold=()=>{
-      clearTimeout(holdTimer);
-      if(!holding){bar().style.transition='none';bar().style.width='0%';}
-    };
-    d.addEventListener('pointerup',()=>{if(!holding){cancelHold();useItem(item,idx);}});
-    d.addEventListener('pointerleave',cancelHold);
-    d.addEventListener('pointercancel',cancelHold);
-    c.appendChild(d);
+    const cancel=()=>{clearTimeout(holdTimer);if(!holding){bar.style.transition='none';bar.style.width='0%';}};
+    d.addEventListener('pointerup',()=>{if(!holding){cancel();selectInvItem(item,idx,i);}});
+    d.addEventListener('pointerleave',cancel);
+    d.addEventListener('pointercancel',cancel);
+    list.appendChild(d);
   });
 }
+
+function selectInvItem(item,idx,listIdx){
+  _invSel=listIdx;
+  // Refresh row highlights
+  document.querySelectorAll('.irow').forEach((r,i)=>r.classList.toggle('selected',i===listIdx));
+  // Update bottom panel
+  $('inv-detail-name').textContent=item.name;
+  $('inv-detail-name').style.color=itemColor(item);
+  const affixLine=(item.affixes&&item.affixes.length)?`\nAffixes: ${item.affixes.join(', ')}`:'';
+  $('inv-detail-desc').textContent=(item.desc||'')+affixLine;
+  $('inv-detail-desc').style.color='#6a5a3a';
+  // Action buttons
+  const acts=$('inv-detail-actions');acts.innerHTML='';
+  const makeBtn=(label,cls,fn)=>{
+    const b=document.createElement('button');
+    b.className='inv-act-btn'+(cls?' '+cls:'');
+    b.textContent=label;b.onclick=fn;
+    acts.appendChild(b);
+  };
+  const isEq=item===G.p.meleeWeapon||item===G.p.rangedWeapon||item===G.p.spellSlot||item===G.p.throwable||item===G.p.relic;
+  if(item.type==='weapon'||item.type==='spell'||item.type==='holy'||item.type==='relic'||item.type==='throwable'||item.type==='staff'||item.type==='pipe'){
+    makeBtn(isEq?'UNEQUIP':'EQUIP','',()=>{useItem(item,idx);});
+  }else if(item.type==='use'||item.type==='primer'){
+    makeBtn('USE','',()=>{useItem(item,idx);});
+  }else{
+    makeBtn('INSPECT','',()=>{});
+  }
+  makeBtn('DROP','danger',()=>{dropInvItem(item,idx);});
+}
+
+function dropInvItem(item,idx){
+  const p=G.p;
+  if(item===p.meleeWeapon)p.meleeWeapon=null;
+  if(item===p.rangedWeapon)p.rangedWeapon=null;
+  if(item===p.spellSlot)p.spellSlot=null;
+  if(item===p.throwable)p.throwable=null;
+  if(item===p.relic)p.relic=null;
+  p.inv.splice(p.inv.indexOf(item),1);
+  msg(`Dropped ${item.name}.`,'i');
+  closeInv();tick(false);
+}
+
+function clearInvDetail(){
+  $('inv-detail-name').textContent='Select an item';
+  $('inv-detail-name').style.color='#c8b87a';
+  $('inv-detail-desc').textContent='Tap an item to inspect \u00b7 Hold 1s to drop';
+  $('inv-detail-desc').style.color='#2a2a3a';
+  $('inv-detail-actions').innerHTML='';
+}
+
+function openInv(){
+  if(!G)return;G.invOpen=true;_invTab='melee';_invSel=null;
+  document.querySelectorAll('.inv-tab').forEach(t=>t.classList.toggle('active',t.dataset.tab==='melee'));
+  renderInvEquipBar();renderInvList();clearInvDetail();
+  $('inv-overlay').classList.add('open');
+}
+function closeInv(){G.invOpen=false;$('inv-overlay').classList.remove('open');}
+function renderInv(){renderInvEquipBar();renderInvList();}
 function useItem(item,idx){
   const p=G.p;
   if(item.type==='weapon'){
@@ -8274,20 +9294,35 @@ function applyUse(item){
     }
     case'serum':{
       let purged=false;
-      if(p.infected&&p.infected.turns>0){p.infected=null;purged=true;}
+      // Wasting: full cure at Severity 1-2, 60% chance at Severity 3+
+      if(p.wasting){
+        const sev=p.wasting.severity||1;
+        if(sev<=2){cureWasting();purged=true;}
+        else if(Math.random()<0.60){cureWasting();purged=true;}
+        else{
+          // Partial cure — drop severity by 1
+          p.wasting.severity=Math.max(1,sev-1);
+          p.wasting.timer=0;
+          msg('\u2695 The serum slows the rot... but doesn\'t stop it. The Wasting eases slightly.','d');
+        }
+      }
       reduceMadness(20);
-      // 18% chance to reduce Ruin by 1 (minimum 0)
       let ruinReduced=false;
       if((p.ruin||0)>0&&Math.random()<0.18){
-        p.ruin--;
-        ruinReduced=true;
+        p.ruin--;ruinReduced=true;
         if(p.ruin===0){const ruinRow=$('ruin-row');if(ruinRow)ruinRow.style.display='none';}
       }
-      if(purged&&ruinReduced)msg('\u2695 The serum courses through you. Infection purged! Something fundamental steadies.','g');
-      else if(purged)msg('\u2695 The serum courses through you. Infection purged! Madness reduced.','g');
+      if(purged&&ruinReduced)msg('\u2695 The serum courses through you. The Wasting is purged! Something fundamental steadies.','g');
+      else if(purged)msg('\u2695 The serum courses through you. The Wasting is purged! Madness reduced.','g');
       else if(ruinReduced)msg('\u2695 The serum clears your mind. Something deeper settles back into place.','g');
-      else msg('\u2695 The serum clears your mind. Madness reduced by 20.','i');
+      else if(!p.wasting)msg('\u2695 The serum clears your mind. Madness reduced by 20.','i');
       if(ruinReduced)hud();
+      break;
+    }
+    case'purifier':{
+      if(!p.wasting){msg('You are not afflicted by The Wasting.','i');return;}
+      cureWasting();
+      msg('\u2665 The Purifier burns through you. The Wasting is gone.','g');
       break;
     }
     case'mutagen':{
@@ -8347,7 +9382,7 @@ function applyUse(item){
           if(gained.id==='chitinous_hide'&&alreadyHas.includes('iron_vessel')){
             p.mutations=p.mutations.filter(m=>m!=='chitinous_hide');
             p.mutations.push('clockwork_body');
-            p.bleed=null;p.poisoned=null;p.burning=null;p.infected=null;p.confused=null;p.rooted=false;
+            p.bleed=null;p.poisoned=null;p.burning=null;p.wasting=null;p.confused=null;p.rooted=false;
             msg('\u2699 Iron fuses with chitin. Your shell completes itself. You gain Clockwork Body!','m');
           }
           if(gained.id==='crimson_tide'&&alreadyHas.includes('amalgamation')){

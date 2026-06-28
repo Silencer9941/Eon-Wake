@@ -1,4 +1,4 @@
-# Eon Wake — Complete Reference Sheet v3.2.0
+# Eon Wake — Complete Reference Sheet v3.5.1
 
 ---
 
@@ -6,15 +6,19 @@
 
 | Version | Summary |
 |---------|---------|
-| 3.0.0 | BSP generation, weighted room system, new room types, plant faction, lighting, settings |
-| 3.1.0 | Catacomb rework, Warden's Sword + follower system, mutation upgrades, new enemies, new rooms |
-| 3.2.0 | Spear + Shortsword weapons, multi-affix system, Bone Club knockback, Infiltrator rework, Crimson Tide + Consuming Mass + Clockwork Body mutations |
+| 3.0.0 | BSP generation, weighted room system, room types, plant faction, lighting, settings |
+| 3.1.0 | Catacomb rework, Warden's Sword + follower system, mutation upgrades, new enemies |
+| 3.2.0 | Spear + Shortsword, multi-affix system, Bone Club knockback, Infiltrator rework |
+| 3.3.0 | Inscription system, 15 new tile constants, tabbed inventory overhaul, iron grate consolidation |
+| 3.4.0 | Enemy AI overhaul (worm split, zombie scent, cultist patrol, wolf packs), floor events, Dire/Savage Wolf, Penitent blood trail, slime chamber update, enemy density increase |
+| 3.5.0 | The Wasting system (replaces Infect), Purifier item, floor event weighted system (10 events), Gods' Quarrel event |
+| 3.5.1 | Stability pass: stale infected refs purged, gods quarrel double-process fix, catacomb floor level restore bug fix, post-pass connectivity check, serrated remnants removed, wasting char screen fixed |
 
 ---
 
 ## ARCHITECTURE
 
-Single-file HTML5 roguelike. Lovecraftian horror. Mobile-first D-pad + keyboard. Turn-based ASCII canvas. Save/load (3 slots, localStorage). Web Audio API music and SFX. Map `MW=80 MH=50`. `VW=42 VH=20` desktop, `VW=20 VH=12` mobile (overridable via settings). Cell size scales via `getMaxCellSize()`.
+Single-file HTML5 roguelike. Lovecraftian horror. Mobile-first D-pad + keyboard. Turn-based ASCII canvas. Save/load 3 slots (localStorage). Web Audio API. Map `MW=80 MH=50`. `VW=42 VH=20` desktop, `VW=20 VH=12` mobile (overridable via settings).
 
 ---
 
@@ -26,10 +30,8 @@ Single-file HTML5 roguelike. Lovecraftian horror. Mobile-first D-pad + keyboard.
 | Rogue | R | 10 | 8 | 4 | 8 | 4 | High dodge/crit. |
 | Apostate | A | 10 | 12 | 3 | 4 | 9 | Casting spells restores 1 HP. |
 | Inquisitor | I | 10 | 10 | 7 | 4 | 5 | Undead kills restore 2 SP. |
-| The Starved | S | 18 | 4 | 9 | 5 | 2 | +1 HP/kill. Corpse consume. |
+| The Starved | S | 18 | 4 | 9 | 5 | 2 | +1 HP/kill. Corpse consume (50% Wasting risk if corpse was infected). |
 | Ascetic | A | 12 | 6 | 6 | 5 | 4 | 1.5× dmg below 50% HP. Whip 2-tile reach. |
-
-All classes start with Bandage ×2, Whiskey ×1. 15% chance starting weapon has an affix.
 
 ---
 
@@ -42,27 +44,42 @@ All classes start with Bandage ×2, Whiskey ×1. 15% chance starting weapon has 
 | WITS | Ranged/spell dmg bonus `floor((WITS-5)/2)` |
 | SP | Regens 1 per 4 turns |
 
----
-
-## PASSIVE HP REGEN
-
-Every 4 turns, if 4+ turns have passed since last damage taken: restore `ceil(maxHP × 10%)`. Silent. Mutant Health doubles this to 20% per 4 turns.
+**Passive HP regen:** `ceil(maxHP × 10%)` every 4 turns if 4+ turns since last damage. Silent. Mutant Health → 20%.
 
 ---
 
 ## MADNESS & RUIN
 
-Passive +1 Madness every 4 turns in any dungeon. Stairs/exit resets to 0.
+Passive +1 Madness every 4 turns in dungeon. Stairs resets to 0.
 
 | Ruin | Resets to | Effects |
 |------|-----------|---------|
 | 1 | 20 | Phantoms appear |
 | 2 | 40 | Phantoms 2× frequent |
 | 3 | 60 | HP display scrambled ±25%. Hysteria at Madness 50. |
-| 4 | 80 | Phantoms deal 1 HP. Random enemy +5 HP/8 turns (cap +10 per enemy). |
+| 4 | 80 | Phantoms deal 1 HP. Random enemy +5 HP/8 turns (cap +10). |
 | 5 | — | Death |
 
-**Madness tiers:** Uneasy 0-40 / Fractured 41-74 / Hysteria 75-99 (adjusted thresholds at Ruin 3+).
+---
+
+## THE WASTING (replaces Infect)
+
+Severity-based, lasts until cured. No stacking from multiple sources.
+
+| Sev | Name | DMG/turn | Stat drain | Madness | Escalates |
+|-----|------|----------|-----------|---------|-----------|
+| 1 | Wasting | 1 | — | — | 20 turns |
+| 2 | Festering | 2 | −1 AGI | +1/8t ×Ruin | 15 turns |
+| 3 | Rotting | 3 | −2 AGI −1 STR | +1/4t ×Ruin | 10 turns |
+| 4 | Consumed | 4 | −2 AGI −2 STR −1 WITS | +Ruin/2t | Never |
+
+- Stat drains restored on cure
+- HUD border tints per severity: green→yellow-green→amber→dark bile
+- Player symbol tints to severity color
+- Sources: Zombie (20%), Ravenous Zombie (35%), Rats (40%), Plague Rat (100%), Sewer Rat (40%), Fly Swarm (10%), Savage Wolf (35%), Infested variants
+- **Serum:** full cure Sev 1-2; Sev 3+: 60% full cure, 40% drops by 1 with log
+- **Purifier:** always full cure. Stackable ×5. Floor item + 5% drop from Wasting enemies + standard chests
+- Clockwork Body / Iron Vessel: status immune (blocks Wasting)
 
 ---
 
@@ -72,35 +89,29 @@ Passive +1 Madness every 4 turns in any dungeon. Stairs/exit resets to 0.
 
 | Weapon | Base | +1 | +2 | Notes |
 |--------|------|----|----|-------|
-| Fists | 2 | — | — | No affix |
-| Claws | 5 | — | — | Starved only. No affix. |
-| Dagger | 3 | 5 | 7 | Sound: Slash |
-| Whip | 4 | 6 | 8 | 2-tile reach. Ascetic only. Sound: Slash |
-| Pickaxe | 5 | 7 | 9 | 30% Fracture (Grave Digger). Sound: Chunk |
-| Bone Club | 6 | 8 | 11 | 25% knockback on hit (STR-based distance). Wall stun 1t. Sound: Clang |
-| Morningstar | 5 | 7 | 9 | 20% Stagger (−2 STR −1 AGI, 2t). Sound: Clang |
-| Shortsword | 4 | 6 | 8 | High affix chance (2× base). Sound: Slash |
-| Spear | 5 | 7 | 9 | 2-tile reach, cardinal directions only. Sound: Chunk |
-| Annihilator | 50 | — | — | 1% from any chest. No affix. |
-| Warden's Sword | 8 | — | — | Unique. Spectral Edge + Undead Bane + 8% follower proc. 1 affix slot. |
+| Fists | 2 | — | — | |
+| Claws | 5 | — | — | Starved only |
+| Dagger | 3 | 5 | 7 | |
+| Whip | 4 | 6 | 8 | 2-tile reach, Ascetic only |
+| Pickaxe | 5 | 7 | 9 | 30% Fracture (GD) |
+| Bone Club | 6 | 8 | 11 | 25% knockback, wall stun 1t |
+| Morningstar | 5 | 7 | 9 | 20% Stagger |
+| Shortsword | 4 | 6 | 8 | High affix chance (2×) |
+| Spear | 5 | 7 | 9 | 2-tile reach, cardinal only |
+| Annihilator | 50 | — | — | 1% from any chest |
+| Warden's Sword | 8 | — | — | Unique. Spectral Edge + Undead Bane + 8% follower proc |
 
 ### Ranged
 
-| Weapon | Base | +1 | +2 | Ammo | Notes |
-|--------|------|----|----|------|-------|
-| Pistol | 4 | 6 | 8 | 6 | Sound: Pop |
-| Revolver | 5 | 7 | 9 | 6 | Sound: Pop |
-| Rifle | 7 | 9 | 12 | 3 | Sound: Bang |
-| Shotgun | 10 | 13 | 16 | 2 | Sound: Blast |
-| Infiltrator | 20 | — | — | 4 | 100% accuracy. Range 20. Bypasses dodge, ghost reduction, flat dmg reduction. |
+| Weapon | Base | +1 | +2 | Notes |
+|--------|------|----|----|-------|
+| Pistol | 4 | 6 | 8 | |
+| Revolver | 5 | 7 | 9 | |
+| Rifle | 7 | 9 | 12 | |
+| Shotgun | 10 | 13 | 16 | |
+| Infiltrator | 20 | — | — | Range 20, 100% accuracy, bypasses dodge+DR+ghost reduction |
 
-### Bone Club Knockback
-25% chance per hit. Distance: 1 tile (STR < 9), 2 tiles (STR 9+). Enemy knocked into impassable tile is Stunned for 1 turn.
-
-### Spear Reach
-Attacking in a cardinal direction toward an enemy 2 tiles away triggers a thrust attack without moving. Diagonal attacks still work at range 1.
-
-### Weapon Tiers & Affix Slots
+### Multi-Affix System
 
 | Tier | Affix Slots |
 |------|-------------|
@@ -114,329 +125,182 @@ Attacking in a cardinal direction toward an enemy 2 tiles away triggers a thrust
 | Affix | Short | Effect |
 |-------|-------|--------|
 | Sharp | Shp | 25% Bleed on hit (not vs skeletons) |
-| Weighted | Wgt | +2 flat damage always |
-| Vampiric | Vmp | Life drain 3 turns on non-undead |
-| Venomous | Vnm | Poison 4 turns on non-undead |
-| Cruel | Crl | +50% dmg on first hit (full HP target) |
+| Weighted | Wgt | +2 flat damage |
+| Vampiric | Vmp | Life drain 3t on non-undead |
+| Venomous | Vnm | Poison 4t on non-undead |
+| Cruel | Crl | +50% dmg on first hit vs full HP target |
 
 ### Ranged Affixes
 
 | Affix | Short | Effect |
 |-------|-------|--------|
-| Penetrating | Pnt | 50% chance: passes through, hits next enemy for 50% dmg |
-| Explosive | Exp | 20% chance: 1-tile blast, 3 dmg to nearby enemies |
-| Silenced | Sln | Resets enemy last-known-position on hit |
-| Hollow Point | HP | +2 flat damage always |
-| Vampiric | Vmp | Life drain 3 turns on non-undead |
-| Venomous | Vnm | Poison 4 turns on non-undead |
-
-Affix rates: 15% starting weapon, 22% enemy drop, 35% iron chest, 50% gilded chest.
-
-### Spells
-
-| Spell | Cost | Effect |
-|-------|------|--------|
-| Forbidden Tome | 3 SP | 4+WITS dmg all visible. 1.5× vs ghosts. |
-| Holy Symbol | 60% maxSP (min 4) | Banishes all undead. −40% Madness. |
-| Hymn of Unmaking | 5 SP | floor(Mad/10) dmg all visible. 1.5× vs ghosts. |
-
-### Throwables (3-turn CD)
-
-| Item | Effect | Source |
-|------|--------|--------|
-| Dynamite | 12 dmg, 5×5 blast | Footlocker (fl4+), Barracks, Armoury |
-| Molotov | 5 dmg + Burn, 3×3. 2× vs plants | Same as Dynamite |
-| Slime Vial | 8 dmg + Acid, 3×3 | Floor loot pool |
+| Penetrating | Pnt | 50% chain to next enemy at 50% dmg |
+| Explosive | Exp | 20% 1-tile blast 3 dmg |
+| Silenced | Sln | Resets enemy last-known-position |
+| Hollow Point | HP | +2 flat damage |
+| Vampiric | Vmp | Life drain 3t |
+| Venomous | Vnm | Poison 4t |
 
 ---
 
 ## MUTATIONS
 
-### Standard Pool (from Mutagen)
+### Standard Pool
 
 | Sym | Mutation | Effect |
 |-----|----------|--------|
-| ♥ | Mutant Health | 2× max HP. 20% passive HP regen per 4 turns (doubled). |
-| ⚡ | Quickened Neurons | Attack twice. Dodge AGI×3% cap 40%. Counter-ready on dodge (+2 next melee). |
-| ◆ | Chitinous Hide | Flat dmg reduction `floor(lvl/2)` max 5. Doubled by Iron Vessel. |
-| ○ | Void-Touched | −2 light radius. See enemies ≤4 tiles through walls. |
+| ♥ | Mutant Health | 2× max HP. 20% passive regen. |
+| ⚡ | Quickened Neurons | Attack twice. Dodge AGI×3% cap 40%. Counter on dodge. |
+| ◆ | Chitinous Hide | Flat dmg reduction `floor(lvl/2)` max 5. |
+| ○ | Void-Touched | −2 light radius. See enemies ≤4t through walls. |
 | ● | Crimson Tide | +2 HP per kill. |
-| ☠ | Compounding Muscles | Crits deal 3×. Bleed on crit. +1 STR per level-up. |
+| ☠ | Compounding Muscles | Crits 3×. Bleed on crit. +1 STR/level. |
 
 ### Transformation Tier (Primers)
 
-| Sym | Transformation | Primer | Effects | Downside |
-|-----|---------------|--------|---------|----------|
-| ⚙ | Iron Vessel | Rat King's Ichor | Madness immune. No biological healing (Grease Tube only). Chitin reduction doubled. | — |
-| ≈ | Amalgamation | Warden's Marrow | Acid immune. 18% slow on hit. | 1.5× fire damage taken |
+| Sym | Transformation | Primer | Effect | Downside |
+|-----|---------------|--------|--------|----------|
+| ⚙ | Iron Vessel | Rat King's Ichor | Madness immune. Grease Tube only. Chitin ×2. | — |
+| ≈ | Amalgamation | Warden's Marrow | Acid immune. 18% slow on hit. | 1.5× fire dmg |
 | ◎ | Void Walker | Pale Draught | Phase Step. 20% Unreadable. 30% Terrifying. +1 SP/kill. | −25% max HP |
 
 ### Upgrade Mutations (unobtainable without paired Transformation)
 
 | Sym | Upgrade | Requires | Replaces | Effect |
 |-----|---------|----------|----------|--------|
-| ◎ | Void Sight | Void Walker | Void-Touched | Enhanced wall-sight. Stronger perception. |
-| ⚙ | Clockwork Body | Iron Vessel | Chitinous Hide | Keeps flat dmg reduction. Immune to ALL status effects. Moving alerts enemies ≤9 tiles. Waiting makes no noise. |
-| ☠ | Consuming Mass | Amalgamation | Crimson Tide | +2 HP/kill. 20% chance permanent +1 maxHP per kill (cap +10/run). Enemies that see you may flee (15%) or rage (+2 dmg, 85%). |
-
-**Upgrade trigger:** Works both directions — get the transformation after the mutation, or the mutation after the transformation. Both upgrade immediately on obtain.
+| ◎ | Void Sight | Void Walker | Void-Touched | Enhanced wall-sight |
+| ⚙ | Clockwork Body | Iron Vessel | Chitinous Hide | Keeps DR. Immune all statuses. Moving alerts enemies ≤9t. |
+| ☠ | Consuming Mass | Amalgamation | Crimson Tide | +2 HP/kill. 20% +1 maxHP/kill (cap +10). Enemies flee (15%) or rage (+2 dmg). |
 
 ---
 
-## STATUS EFFECTS
+## FLOOR EVENTS (weighted system)
 
-| Effect | Source | Mechanical Effect | Cure | Immune (Clockwork/Iron) |
-|--------|--------|-------------------|------|------------------------|
-| Bleed | Sharp affix, Thorn Bush, Compounding crit | 1 dmg/turn. Blood splatters nearby tiles. | Serum, time | ✓ |
-| Poison | Venomous affix, Fly Trap | 1-2 dmg/turn | Serum | ✓ |
-| Burning | Molotov, fire | 1-3 dmg/turn 3-5 turns | Time | ✓ |
-| Infected | Zombie, Fly Swarm | Ongoing dmg | Serum | ✓ |
-| Confused | Vine, Blueberry | 50% random movement | Time | ✓ |
-| Rooted | Giant Fly Trap | No move/ranged/spell | Kill Fly Trap | ✓ |
-| Sedated | Happy Pill | −1 Madness/turn, −1 AGI | Time | ✓ |
-| Slowed | Cobweb | +1 turn cost per tile | Move away | ✗ |
-| Fractured | Pickaxe (GD) | −2 STR −1 AGI per stack (max 2) | Time | ✗ |
-| Staggered | Morningstar | −2 STR −1 AGI for 2 turns | Time | ✗ |
-| Stunned | Bone Club wall knock | Skip 1 turn | — | ✗ |
+10% no event · 70% one event · 20% two events. Events never repeat on same floor.
 
----
-
-## CONSUMABLES
-
-| Item | Effect | Stack |
-|------|--------|-------|
-| Bandage | +4 HP | 5 |
-| Medical Kit | +8 HP | 5 |
-| Grease Tube | +6 HP (Iron Vessel only) | 5 |
-| Whiskey Flask | +6 SP | 5 |
-| Bourbon | +10 SP | 5 |
-| Strange Elixir | Random | 5 |
-| Hearty Meal | +10 HP, −10 Madness | 5 |
-| Serum | Purge status, −20 Madness, 18% −1 Ruin | 5 |
-| Mutagen | 33% standard mutation + 12 Madness | 5 |
-| Blueberry | +1-4 HP, −1-4 Madness, Confused | 25 |
-| Foxglove | Melee poison until floor change | 5 |
-| Trapezohedron Shard | −25 Madness + teleport | — |
-| Starblood Vial | +4 WITS 8 turns, +1 Madness/turn | — |
-| Happy Pill | −5 Madness + Sedated 12-15 turns. 20% addiction. Ruin 1+. | 15 |
-| Hedgeapple | Random: +6 HP / +6 SP / +1 STR / +8 Madness | — |
-
----
-
-## LOOT CONTAINERS
-
-| Container | Empty? | Contents | Notes |
-|-----------|--------|----------|-------|
-| Standard Chest □ | 35% | Consumables | |
-| Iron Chest ▣ | Never | Weapons (base or +1), 35% quality bonus, 50% bonus item, 5% Primer | Key check for Warden's chest |
-| Gilded Chest ◈ | Never | +2 weapons, quality items, 10% Primer | |
-| Footlocker ▤ | 35% | Ranged weapon + drinks. Throwable (fl4+, 40%) | |
-| Crate ■ | 35% | 1-3 healing items | Breaks on open |
-| Ossuary Chest ◆ | Never | Relic of Interred / Shroud Fragment / Mutagen (1-in-3 each) | Catacomb only |
-| Warden's Chest ▣ | Never | Warden's Sword + Bone Caller's Staff | Requires Catacomb Key |
-
-### Primer Drop Rates
-
-| Source | Chance | Notes |
-|--------|--------|-------|
-| Iron Chest | 5% | One-time per run per primer |
-| Gilded Chest | 10% | One-time per run per primer |
-| Rat King (death) | Guaranteed | Rat King's Ichor |
-| Deathless Warden (true death) | Guaranteed | Warden's Marrow |
-| Pale Draught | Gilded Chest | |
+| Event | Weight | Floor | Effect |
+|-------|--------|-------|--------|
+| The Hungry Dark | 8 | any | +1 Madness every 2 turns |
+| Weeping Walls | 7 | any | 17% walls bleed crimson, spread every 12t, +1 Mad/6t adjacent |
+| The Charnel Wind | 6 | any | All enemies spawn at half HP |
+| Feast of Fools | 4 | any | All XP doubled (G._xpMult=2) |
+| Thin Pickings | 5 | any | All XP halved (G._xpMult=0.5) |
+| The Pack Runs | 5 | 2+ | 4-6 wolves + Dire Wolf (alpha) + Savage Wolf, all in hunt mode |
+| A Generous Dead | 4 | any | Gilded chest spawns in random room |
+| Wrong Kind of Quiet | 6 | any | No effect. Just dread. |
+| Gods' Quarrel | 3 | 4+ | All enemies ignore player, fight each other |
+| Dark Floor | 6 | any | Light radius penalty |
 
 ---
 
 ## ENEMY REFERENCE
 
-### Scaling Formula
-`HP + floor((level-1) × 1.4)` | `DMG + floor((level-1) × 0.3)` | `STR + floor((level-1) × 0.2)` | XP unchanged.
+### Scaling
+`HP + floor((level-1)×1.4)` | `DMG + floor((level-1)×0.3)` | `STR + floor((level-1)×0.2)`
+Enemy count: `fl1=6, fl2+=6+level×2`
 
 ### Main Dungeon Pool
 
-| Name | HP | DMG | STR | AGI | XP | Floors | Flags |
-|------|----|-----|-----|-----|----|--------|-------|
-| Mass of Worms | 3 | 1 | 1 | 2 | 3 | 1-4 | tiny, splits |
-| Rat | 4 | 1 | 2 | 6 | 4 | 1-4 | |
-| Sewer Rat | 3 | 1 | 2 | 5 | 8 | 1-3 | tiny, alerts nest |
-| Skeleton | 5 | 2 | 2 | 2 | 6 | 1-4 | immune status |
-| Small Slime | 3 | 1 | 2 | 3 | 4 | 1-4 | tiny |
-| Cultist | 6 | 2 | 3 | 3 | 10 | 1-5 | summons Worms at Fractured+ |
-| Zombie | 12 | 2 | 4 | 1 | 15 | 1-6 | isZombie, reanimates kills (cap 3) |
-| Wolf | 8 | 3 | 4 | 6 | 12 | 2-6 | high AGI |
-| Deep One | 12 | 5 | 6 | 4 | 22 | 3-7 | |
-| Dark One | 14 | 4 | 5 | 3 | 25 | 4-8 | ranged, double shot at Hysteria |
-| Floating Horror | 10 | 3 | 3 | 7 | 20 | 4-8 | ranged, high AGI |
-| Armored Skeleton | 14 | 3 | 4 | 1 | 22 | 5-7 | flat 2 dmg reduction, immune status |
-| Wraith | 13 | 5 | 6 | 5 | 30 | 5-9 | ghost |
-| Mi-Go | 18 | 7 | 8 | 6 | 50 | 6-10 | ranged |
-| Ghoul | 16 | 7 | 8 | 5 | 35 | 7-10 | |
-| Elder Thing | 22 | 9 | 10 | 4 | 60 | 8-10 | ranged |
+| Name | HP | DMG | Floors | AI |
+|------|----|-----|--------|----|
+| Mass of Worms | 3 | 1 | 1-4 | Dormant wander ≤5t spawn. Provoke-only. 25% split on hit (cap 3, half HP). |
+| Rat | 4 | 1 | 1-4 | Skittish (flees ≤4t). Aggressive if Rat King within 8t. Reverts 3t after king dies. |
+| Sewer Rat | 3 | 1 | 1-3 | Tiny, skittish, alerts nest |
+| Skeleton | 5 | 2 | 1-4 | Immune status |
+| Small Slime | 3 | 1 | 1-4 | Dormant ≤5t spawn until attacked. Aggressive in Slime Pits. |
+| Cultist | 6 | 2 | 1-5 | Patrols 2 rooms, 2-4t pause. Summons Worms at Fractured+. |
+| Zombie | 12 | 2 | 1-6 | Wary: pursues within 3-tile scent. Swarm alerts within 5t (3+ zombies). |
+| Wolf | 8 | 3 | 2-6 | Alpha/flanker pack tactics. Alpha howls once → summons wolf. |
+| Deep One | 12 | 5 | 3-7 | |
+| Dark One | 14 | 4 | 4-8 | Ranged, double shot at Hysteria |
+| Floating Horror | 10 | 3 | 4-8 | Ranged, high AGI |
+| Armored Skeleton | 14 | 3 | 5-7 | Flat 2 DR, immune status |
+| Wraith | 13 | 5 | 5-9 | Ghost |
+| Mi-Go | 18 | 7 | 6-10 | Ranged |
+| Ghoul | 16 | 7 | 7-10 | |
+| Elder Thing | 22 | 9 | 8-10 | Ranged |
 
-### Room-Specific Enemies
+### Special / Event Enemies
 
-| Name | HP | DMG | Room | Flags |
-|------|----|-----|------|-------|
-| Cultist Gunman | 8 | 3 | Chapel | ranged, no summon |
-| Feral Fighter | 12 | 4 | Barracks | melee |
-| Feral Gunner | 8 | 4 | Barracks | ranged |
-| Rifle Turret | 10 | 4 | Barracks fl3+ | stationary, ranged |
-| Ravenous Zombie | 18 | 5 | Feeding Ground | isZombie, heals 1/hit, fl2+ |
-| Infested Zombie | 14 | 3 | Fungal Hollow | isPlant, reanimates kills as Infested (cap 3) |
-| Infested Cultist | 8 | 2 | Fungal Hollow | isPlant |
-| Infested Fighter | 14 | 4 | Fungal Hollow fl4+ | isPlant, grenade/5t (5 dmg 3×3) |
+| Name | HP | DMG | Source |
+|------|----|-----|--------|
+| Dire Wolf | 10 | 5 | Pack Runs event. Always alpha, +2 all stats vs Wolf. |
+| Savage Wolf | 8 | 3 | Pack Runs event. 35% Wasting on hit. |
+| Ravenous Zombie | 18 | 5 | Feeding Ground, fl2+. Heals 1/hit. |
+| Infested Zombie/Cultist/Fighter | varies | varies | Fungal Hollow. isPlant. |
+| Deathless Warden | 40 | 9 | Catacombs boss. Resurrects once. Drops Key + Marrow on true death. |
 
-### Plant Enemies (isPlant — fireVuln 2×, immune Poison/Infect, no plant-on-plant combat)
+### Catacomb Ossuary Guards (random from pool)
 
-| Name | HP | DMG | Behaviour |
-|------|----|-----|-----------|
-| Seed Spitter | 8 | 2 | Stationary. Ranged range 2-9. |
-| Giant Fly Trap | 14 | 3 | Stationary. Roots + poisons adjacent non-plants. |
-| Corpse Lily | 20 | 0 | Stationary. Summons 1 Fly Swarm/2t (cap 5). Spreads moss on death. |
-| Fly Swarm | 4 | 1 | tiny, summoned only, 10% infect |
-
-### Catacomb Enemies
-
-| Name | HP | DMG | Notes |
-|------|----|-----|-------|
-| Skeleton | 5 | 2 | Immune status |
-| Burial Shade | 8 | 3 | Ghost |
-| Bone Archer | 7 | 4 | Ranged |
-| Mummified Knight | 20 | 7 | Heavy |
-| Deathless Warden | 40 | 9 | Boss. Resurrects once at 20 HP. Drops Catacomb Key + Warden's Marrow on true death. Boss music. |
-
-### Obelisk Guardians (noMainDungeon, XP=0 on respawn)
-
-| Name | HP | DMG | Special |
-|------|----|-----|---------|
-| The Watcher in Yellow | 18 | 4 | +2 Madness/turn ≤6 tiles. Ranged. |
-| Spawn of the Deep Tongue | 12 | 3 | Blood pool on death. |
-| The Frayed | 22 | 6 | 20% deflect. Immune physical status. |
-| The Eldest Hunger | 35 | 10 | +2 Madness/hit. −20% Madness on death. |
+Skeleton · Armored Skeleton · Bone Archer · Mummified Knight
 
 ---
 
-## ZOMBIE & PLANT FACTION BEHAVIOUR
+## CATACOMB FLOW
 
-**Zombies (isZombie):** Attack non-zombie, non-plant enemies on sight when player first enters a breached room. Do not fight each other. Kills reanimate as Reanimated Zombie (cap 3 chain).
+1. Surface grave → `T.CATACOMB_ENTRY` → catacombs (dl preserved, restored on exit)
+2. Three spines (y=6, 20, 33). North alcoves, south altars, ossuary at bottom.
+3. Ossuary: 3 skeletal guards + ossuary chest (Relic / Shroud Fragment / Mutagen).
+4. Warden room east of ossuary: Deathless Warden + locked iron chest.
+5. True death → Catacomb Key + Warden's Marrow + 25% Hymn of Unmaking.
+6. Warden's Chest (Catacomb Key required) → Warden's Sword + Bone Caller's Staff.
 
-**Infested Zombies (isPlant, isInfested):** Plant faction — fight regular zombies. Kills reanimate as Infested Zombie (cap 3 chain).
+---
 
-**Followers (Warden's Sword):** isFollower entities follow the player, attack any enemy in player FOV. Player bumping a follower swaps positions. Full XP on follower kills. Silently dismissed on any floor transition.
+## WARDEN'S SWORD FOLLOWER SYSTEM
 
-**Pulped Corpses:** Cannot reanimate, cannot be consumed by The Starved.
+- 8% chance on undead kill → slain enemy rises as follower (green tint, `isFollower:true`)
+- Follower stats: 50% HP, 75% DMG/STR/AGI rounded down
+- Follows player, attacks nearest enemy in player FOV
+- Player bumping follower → swap positions (no friendly fire)
+- Full XP on follower kills
+- Dismissed silently on any floor transition
 
 ---
 
 ## WEIGHTED ROOM SYSTEM
 
-| Room | Weight | Min Size | Fallback | Once | Floor |
-|------|--------|----------|----------|------|-------|
-| Living Space | 8 | 6×5 | 5×4 | No | 2+ |
-| Guard Post | 7 | 8×6 | 6×5 | No | 2+ |
-| Jail Room | 6 | 8×8 | 7×6 | No | 2+ |
-| Barracks | 5 | 8×6 | 6×5 | Yes | 2+ |
-| Armoury | 5 | 7×6 | 6×5 | Yes | 2+ |
-| Crypt Room | 4 | 8×6 | 6×5 | Yes | 2+ |
-| Feeding Ground | 4 | 8×6 | 6×5 | Yes | 2+ |
-| Chapel | 4 | 7×6 | 6×5 | Yes | 2+ |
-| Overgrown Room | 4 | 6×5 | 5×4 | Yes | 3+ |
-| Slime Chamber | 3 | 8×6 | 6×5 | Yes | 3+ |
-| Torture Chamber | 3 | 6×5 | 5×4 | Yes | 2+ (needs Jail) |
-| Fungal Hollow | 3 | 6×5 | 5×4 | Yes | 3+ |
-| Ritual Room | 2 | 10×8 | 9×7 | Yes | 3+ |
-
-Target: leave ~3 generic rooms per floor. Start room always generic.
-
-### Passes (after room assignment)
-
-**Decoration Pass:** All rooms get blood/gore scatter (4-6%), 0-2 bone piles near walls, 30% candelabra near center, 20% broken door, 40% random furniture, cobwebs in neglected rooms (2×2 clusters cap 3), 25% crates (1-2).
-
-**Collapse Pass (fl3+):** 1-2 rooms per floor get ~20% floor tiles converted to Rubble. Furniture can be crushed. Ritual Room exempt.
-
-**Breach Pass (fl3+):** 25% chance. One room gets blood walls, blood/gore floor, 2-4 Breach Zombies. Zombies activate (attack all room enemies) when player first sees them.
+| Room | Weight | Floor | Once |
+|------|--------|-------|------|
+| Living Space | 8 | 2+ | No |
+| Guard Post | 7 | 2+ | No |
+| Jail Room | 6 | 2+ | No |
+| Barracks | 5 | 2+ | Yes |
+| Armoury | 5 | 2+ | Yes |
+| Crypt Room | 4 | 2+ | Yes |
+| Feeding Ground | 4 | 2+ | Yes |
+| Chapel | 4 | 2+ | Yes |
+| Overgrown Room | 4 | 3+ | Yes |
+| Slime Chamber | 3 | 3+ | Yes |
+| Torture Chamber | 3 | 2+ | Yes |
+| Fungal Hollow | 3 | 3+ | Yes |
+| Ritual Room | 2 | 3+ | Yes |
 
 ---
 
-## ROOM TYPES
+## SLIME CHAMBER
 
-| Room | Walls | Floor | Contents | Enemies |
-|------|-------|-------|----------|---------|
-| Living Space | Stone | Carpet | Bed, table, chair, footlocker, mirror | — |
-| Guard Post | Stone | Stone | Chokepoint gap | 1-2 generic |
-| Jail Room | Iron | Jail | Iron grates, chains | Jail enemies |
-| Barracks | Stone | Stone | Multi-bed, footlockers, broken door, 1-2 throwables | Feral Fighter×2, Feral Gunner, Rifle Turret (fl3+) |
-| Armoury | Stone | Stone | Iron chest, braziers, 1 throwable | 1-2 melee |
-| Chapel | Marble | Flagstone | Altar, candelabras, bone piles, confessional | Cultist×2, Cultist Gunman |
-| Crypt Room | Stone | Crypt | Bone piles, catacomb entry | Burial Shade×2 |
-| Slime Chamber | Slime | Mold | Acid/slime patches, slime pit entry | Slimes |
-| Torture Chamber | Iron | Jail | Chains, gore, blood | Sadists/Masochists |
-| Overgrown Room | Stone | Moss | Vines, mushrooms, thorn bushes, trees | Seed Spitter, Fly Trap, Corpse Lily |
-| Fungal Hollow | Fungal | Fungal | Mushrooms, vines | Infested Zombie, Cultist, Fighter |
-| Feeding Ground | Stone | Stone | Blood/gore, 3-6 pulped corpses | Ravenous Zombie×2, Zombie×2 |
-| Ritual Room | Stone | Stone | Obelisk + 4 symbols | Cultist×2 |
+Green slime walls + mold floor + acid pools + slime floor patches. Slime Pit entry at center.
+- Base: 2 slimes
+- Floor 4+: Corrosive Horror
+- Floor 6+: Pit Lurker (hidden on acid pool, reveals within 2t)
 
-### Chapel Confessional
-One-use. Removes 50% current Madness. 40% chance to purge 1 Ruin if player has Ruin.
+**Acid Pools (traversable):** +1 turn cost + `max(1, 3 − floor((AGI-4)/3))` damage on entry. Adjacent fumes: 1 dmg/2t. Enemies take 2 dmg on entry (slimes immune). Amalgamation fully immune.
 
-### Mirror (Living Space)
-One interact per mirror per run. Floor 2+ only. Ruin-scaled Dark Reflection spawn: 0%/10%/25%/40%/50%/100% at Ruin 0-4. On miss: *"Gaze into the abyss, and it might stare back..."*
+**Vial of Slime:** places acid pools on passable tiles in 3×3 blast. Slime Pits exclusive drop.
 
 ---
 
-## OBELISK SEQUENCE
+## INSCRIPTION SYSTEM
 
-1. Claim spell → Obelisk flashes red/orange (5-turn countdown)
-2. Turn 3: symbols glow green (3-turn countdown)
-3. Turn 5 of symbol countdown: 4 guardians respawn aware
-4. Turn 5 of obelisk countdown: 7×7 diamond blast (60% maxHP + 15 Madness if in radius). Guardians take 100% HP.
-
----
-
-## CATACOMBS
-
-Access via grave to the right of the church (CATACOMB_ENTRY tile). −2 light radius on entry.
-
-**Layout:** Three horizontal spines (y=6, y=20, y=33) connected by vertical corridors. North alcoves off spine1 with pocket rooms. Approach corridor leads to ossuary at bottom-center. Warden room east of ossuary.
-
-**Ossuary:** 3 skeletal guards (random from Skeleton/Armored Skeleton/Bone Archer/Mummified Knight pool). Ossuary chest (south wall center) — rewards: Relic of the Interred / Shroud Fragment / Mutagen.
-
-**Warden Room:** Accessible via open passage from ossuary east wall. Deathless Warden + Warden's iron chest (requires Catacomb Key from Warden's true death drop).
-
-**Warden Loot (true death):** Catacomb Key (guaranteed), Warden's Marrow Primer (guaranteed), Hymn of Unmaking (25%).
-
-**Catacomb Key unlocks:** Warden's iron chest on spine1 → Warden's Sword + Bone Caller's Staff.
-
-**Tile colors:** Walls bone-white `#e8e0d0`, floor `#c8bfb0`, stone floor `#bdb5a5`.
-
-**Bone piles:** Bump to interact. 40% crumbles to dust. Otherwise: loot roll + 30% ambush regardless of loot. Ambush draws from skeletal pool, spawns adjacent, immediately aware.
-
----
-
-## LIGHTING SYSTEM
-
-Built once on floor entry (`buildLightMap()`). Applied to visible tiles only during render.
-
-| Source | Radius | Tint |
-|--------|--------|------|
-| Candelabra | Full room | Yellow `#ffcc44` at 40% |
-| Brazier (vestry) | Full room | Orange `#ff8800` at 40% |
-| Brazier (dungeon) | Radius 3 BFS | Orange `#ff8800` at 40% |
-| Mushroom | Radius 3 BFS | Blue `#6090ff` at 40% |
-
----
-
-## SETTINGS
-
-| Setting | Options |
-|---------|---------|
-| Music / SFX | On/Off |
-| Colorblind Mode | None / Deuteranopia / Protanopia / Tritanopia / Achromatopsia |
-| Brightness | 50-150% slider |
-| HUD Text Size | S / M / L / XL |
-| Tile Symbol Size | S / M / L |
-| Mobile Viewport | Cols 14/20/26/32, Rows 8/12/16/20 |
-| Desktop Viewport | Cols 28/42/56/70, Rows 14/20/26/32 |
+- Pass runs after all generation. 5% density fl1 → 20% fl10. Tiles must be adjacent to floor (diagonals OK). Min 3-tile spacing.
+- Church: up to 6 inscriptions.
+- **Eligible tiles:** WALL, IRON_WALL, MARBLE_WALL, BLOOD_WALL, FUNGAL_WALL, SLIME_WALL, MOSSY_STONE, IRON_GRATE, CRACKED_WALL, STATUE, PILLAR, VASE, FOUNTAIN, BARREL, BOOKCASE, LECTERN, STONE_SLAB
+- Unread inscriptions render in **cyan `#40c8c0`**. Revert to normal color on read.
+- Log hint `☣ Something is written nearby...` when inscription enters FOV (once per inscription).
+- Bump to read → popup modal.
+- **XP:** 5-7% of `p.xpNext`. **Madness:** +floor level. One read per inscription per run.
+- **Ruin 2:** cryptic footnote. **Ruin 3:** fragmented text. **Ruin 4:** near-incomprehensible.
 
 ---
 
@@ -452,13 +316,16 @@ CANDELABRA:33  LOCKED_DOOR:34  IRON_CHEST:35  IRON_CHEST_OPEN:36  GILDED_CHEST:3
 GILDED_CHEST_OPEN:38  BLOOD:39  CATACOMB_ALTAR:40  BONE_PILE:41  OBELISK:42
 OBELISK_ACTIVE:43  SYMBOL_INACTIVE:44  SYMBOL_ACTIVE:45  IRON_WALL:46  IRON_GRATE:47
 JAIL_FLOOR:48  CHAINS:49  GORE:50  CRYPT_FLOOR:51  MOLD_FLOOR:52  SLIME_WALL:53
-CARPET_RED:54  CARPET_BLUE:55  CARPET_GREEN:56  CARPET_PURPLE:57  CARPET_BEIGE:58
-CARPET_BLACK:59  CARPET_WHITE:60  BED_HEAD:61  BED_BODY:62  BED_FOOT:63
+CARPET_RED:54-CARPET_WHITE:60  BED_HEAD:61  BED_BODY:62  BED_FOOT:63
 CHAIR:64  TABLE:65  FOOTLOCKER:66  FOOTLOCKER_OPEN:67  BROKEN_DOOR:68
 MOSS_FLOOR:69  VINE:70  MOSSY_STONE:71  MUSHROOM:72  THORN_BUSH:73
 OVERGROWN_TREE:74  HOLLOW_TREE:75  HEDGEAPPLE:76  BRAZIER:77  MARBLE_WALL:78
 FLAGSTONE:79  FUNGAL_WALL:80  FUNGAL_FLOOR:81  BLOOD_WALL:82  RUBBLE:83
 PULPED_CORPSE:84  MIRROR:85  COBWEB:86  CRATE:87
+STATUE:88  CRACKED_STATUE:89  PILLAR:90  CRACKED_PILLAR:91  VASE:92  FOUNTAIN:93
+BARREL:94  BOOKCASE:95  LECTERN:96  PEW:97  CLOSET:98  STONE_SLAB:99
+CRACKED_WALL:100  ROCKS:102
+NOTE: IRON_GRATE:47 used for jail bars AND wall-replacement grates (consolidated)
 ```
 
 ---
@@ -469,7 +336,9 @@ PULPED_CORPSE:84  MIRROR:85  COBWEB:86  CRATE:87
 - Vestry item TBD
 - Spider system planned (deferred)
 - Right half of graveyard — purpose TBD
-- `getRuin()` kept for future spell system
-- Dark Reflection encounter removed — replaced by mirror interaction
-- Inventory UI optimisation planned
-- Warden's Sword symbol `†` same as Bone Caller's Staff — consider differentiating
+- Library room type — planned
+- Furniture placement for new tiles (statue, pillar, vase, fountain, barrel, bookcase, lectern, pew, closet, stone slab) — constants and render added, room placement pending
+- Cracked statue/pillar crush mechanic — deferred
+- Bookcase spell interaction — deferred
+- Fountain heal/poison mechanic — deferred
+- Closet contents — flavor text only until armor system
